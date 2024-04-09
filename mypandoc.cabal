@@ -21,7 +21,12 @@ source-repository head
 
 library
   exposed-modules:
+      ArgParsing
       Lib
+      ParseJson.ParseJson
+      ParseMarkdown.ParseMarkdown
+      ParseXml.ParseXml
+      PrintError
   other-modules:
       Paths_mypandoc
   autogen-modules:
