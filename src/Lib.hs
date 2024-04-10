@@ -36,3 +36,18 @@ parseAndWith f p1 p2 s = p1 s >>= \ (a, s') -> p2 s' >>= \ (b, s'') -> Just(f a 
 
 parseMany :: Parser a -> Parser [a]
 parseMany f s = f s >>= \ (a, s') -> parseMany f s' >>= \ (as, s'') -> Just(a:as, s'')
+
+-- C'est pas sque vous croyez
+parseJsonKey :: String -> Int -> Parser String
+parseJsonKey [] state input | head input == ' ' = parseJsonKey [] state (tail input)
+                            | head input == '\"' = parseJsonKey [] state (tail input)
+                            | last input == ',' = parseJsonKey [] state (init input)
+                            | last input == '\"' = Just ([], init input)
+                            | otherwise = Nothing
+parseJsonKey (s:str) state (x:xs)
+  | x /= '\"' && state == 4 = parseJsonKey (s:str) 4 (xs) 
+  | x == '\"' && s == '\"' && state == 4 = parseJsonKey str 3 (xs)
+  | s == x && state == 3 = parseJsonKey str 3 (xs)
+  | x == '\"' && s == '\"' && state == 3 = parseJsonKey str 2 (xs)
+  | s == ':' && state == 2 = parseJsonKey str 1 (xs)
+  | otherwise = Nothing
