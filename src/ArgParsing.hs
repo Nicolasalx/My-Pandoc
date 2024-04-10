@@ -6,8 +6,8 @@
 -}
 
 module ArgParsing (launchArgParsing, Format(..), PandocArg(..)) where
-import System.Environment(getArgs)
 import PrintError (printErrorAndExit)
+import System.Environment(getArgs)
 
 data Format = NotProvided | JSON | XML | MarkDown
     deriving Show

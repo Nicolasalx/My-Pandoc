@@ -6,8 +6,8 @@
 -}
 
 module PrintError (printErrorAndExit) where
-import System.IO (hPutStrLn, stderr)
 import System.Exit
+import System.IO (hPutStrLn, stderr)
 
 printErrorAndExit :: String -> IO a
 printErrorAndExit msg = hPutStrLn stderr msg >>

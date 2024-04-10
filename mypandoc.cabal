@@ -23,6 +23,7 @@ library
   exposed-modules:
       ArgParsing
       Content
+      LaunchParsing
       Lib
       ParseJson.ParseJson
       ParseMarkdown.ParseMarkdown
