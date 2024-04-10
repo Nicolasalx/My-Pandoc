@@ -6,14 +6,14 @@
 -}
 
 module ParseMarkdown.ParseMarkdown (parseMarkdown) where
-import Content (PContent(..))
-import ParseMarkdown.ParseBody (parseBody)
+import Content (PHeader(..), PBody(..))
+-- import ParseMarkdown.ParseBody (parseBody)
 import ParseMarkdown.ParseHeader (parseHeader)
 
-parseMarkdown :: String -> Either String [PContent]
-parseMarkdown file_content =
-    parseHeader file_content >>
-    Right []
-    -- parseHeader file_content
-    -- parseBody file_content
-    -- Right []
+parseMarkdown :: String -> Either String (PHeader, PBody)
+parseMarkdown file_content = do
+    let allLines = lines file_content
+        pHeader = parseHeader allLines -- Delete first n strings you take in the header and give to the parseBody
+    -- parseBody allLines
+
+    Right ((PHeader "" (Just "") (Just "")), PBody [])

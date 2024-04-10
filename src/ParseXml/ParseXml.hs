@@ -6,7 +6,7 @@
 -}
 
 module ParseXml.ParseXml (parseXml) where
-import Content (PContent(..))
+import Content (PHeader(..), PBody(..))
 
-parseXml :: String -> Either String [PContent]
-parseXml file = Right []
+parseXml :: String -> Either String (PHeader, PBody)
+parseXml file = Right ((PHeader "" (Just "") (Just "")), PBody [])

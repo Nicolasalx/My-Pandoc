@@ -13,7 +13,7 @@ import Control.Exception (catch, IOException)
 import ParseJson.ParseJson (parseJson)
 import ParseXml.ParseXml (parseXml)
 import ParseMarkdown.ParseMarkdown (parseMarkdown)
-import Content (PContent(..))
+import Content (PHeader(..), PBody(..))
 
 getFileContent :: PandocArg -> IO (String)
 getFileContent (PandocArg (Right filepath) _ _ _) =
@@ -24,18 +24,18 @@ getFileContent (PandocArg (Right filepath) _ _ _) =
         handleException _ = printErrorAndExit "Invalid File path."
 getFileContent _ = printErrorAndExit "Fail to get file content."
 
-determineParser :: FilePath -> String -> IO (Either String [PContent])
+determineParser :: FilePath -> String -> IO (Either String (PHeader, PBody))
 determineParser filepath content
     | drop (length filepath - 5) filepath == ".json" = return (parseJson content)
     | drop (length filepath - 4) filepath == ".xml" = return (parseXml content)
     | drop (length filepath - 3) filepath == ".md" = return (parseMarkdown content)
     | otherwise = printErrorAndExit "Unknow file type." -- try to execute all parser
 
-getParsingRes :: Either String [PContent] -> IO ([PContent])
+getParsingRes :: Either String (PHeader, PBody) -> IO ((PHeader, PBody))
 getParsingRes (Right resParsing) = return resParsing
 getParsingRes (Left msg) = printErrorAndExit msg
 
-launchParsing :: PandocArg -> String -> IO ([PContent])
+launchParsing :: PandocArg -> String -> IO ((PHeader, PBody))
 launchParsing (PandocArg _ _ _ JSON) content = getParsingRes (parseJson content)
 launchParsing (PandocArg _ _ _ XML) content = getParsingRes (parseXml content)
 launchParsing (PandocArg _ _ _ MarkDown) content = getParsingRes (parseMarkdown content)

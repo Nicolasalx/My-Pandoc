@@ -9,4 +9,4 @@ module ParseMarkdown.ParseBody (parseBody) where
 import Content (PContent(..))
 
 parseBody :: String -> (Either String [PContent])
-parseBody a = Left "anc"
+parseBody file_content = Left file_content

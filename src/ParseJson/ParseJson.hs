@@ -6,7 +6,7 @@
 -}
 
 module ParseJson.ParseJson (parseJson) where
-import Content (PContent(..))
+import Content (PHeader(..), PBody(..))
 
-parseJson :: String -> Either String [PContent]
-parseJson file = Right []
+parseJson :: String -> Either String (PHeader, PBody)
+parseJson file = Right ((PHeader "" (Just "") (Just "")), PBody [])

@@ -6,24 +6,17 @@
 --
 
 module ParseMarkdown.ParseHeader (parseHeader) where
-import Content (PContent(..))
+import Content (PHeader(..))
 
-parseHeader :: String -> (Either String [PContent])
-parseHeader str = Left "abc"
+parseHeader :: [String] -> Either String PHeader
+parseHeader [] = Left "error: empty input"
+parseHeader lines = do
+    let result = parseEachLine lines False []
 
-
-{-
-
-str_to_word_array avec \n
-
-
-Begin with "---"
-
-End with "---"
-
-
-
-
-
-
--}
+parseEachLine :: [String] -> Bool -> [String] -> Either String [String]
+parseEachLine [] False _ = Left "No header in the file"
+parseEachLine _ True _ = Left "The header is not finished"
+parseEachLine (line:rest) isInHeader listHeader
+    | line == "---" && not isInHeader = parseEachLine rest True listHeader
+    | line == "---" && isInHeader = Right listHeader
+    | otherwise = parseEachLine rest isInHeader (listHeader ++ [line])
