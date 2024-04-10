@@ -8,5 +8,5 @@
 module ParseMarkdown.ParseMarkdown (parseMarkdown) where
 import Content (PHeader(..), PBody(..))
 
-parseMarkdown :: String -> Either String (PHeader, PBody)
-parseMarkdown file = Right ((PHeader "" (Just "") (Just "")), PBody [])
+parseMarkdown :: String -> IO (Either String (PHeader, PBody))
+parseMarkdown file = return (Right ((PHeader "" (Just "") (Just "")), PBody []))

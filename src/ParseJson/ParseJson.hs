@@ -8,5 +8,5 @@
 module ParseJson.ParseJson (parseJson) where
 import Content (PHeader(..), PBody(..))
 
-parseJson :: String -> Either String (PHeader, PBody)
-parseJson file = Right ((PHeader "" (Just "") (Just "")), PBody [])
+parseJson :: String -> IO (Either String (PHeader, PBody))
+parseJson file = return (Right ((PHeader "" (Just "") (Just "")), PBody []))

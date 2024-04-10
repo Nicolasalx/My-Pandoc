@@ -8,5 +8,5 @@
 module ParseXml.ParseXml (parseXml) where
 import Content (PHeader(..), PBody(..))
 
-parseXml :: String -> Either String (PHeader, PBody)
-parseXml file = Right ((PHeader "" (Just "") (Just "")), PBody [])
+parseXml :: String -> IO (Either String (PHeader, PBody))
+parseXml file = return (Right ((PHeader "" (Just "") (Just "")), PBody []))
