@@ -6,6 +6,8 @@
 -}
 
 module ParseJson.ParseJson (parseJson) where
+import Content (PContent(..))
 
-parseJson :: String -> IO () -- return value to be define
-parseJson file = putStrLn ("parse Json:\n" ++ file)
+-- IO is for debug purpose but while be removed after to: parseMarkdown :: String -> Either String [PContent]
+parseJson :: String -> IO (Either String [PContent]) -- return value to be define
+parseJson file = return (Right [])

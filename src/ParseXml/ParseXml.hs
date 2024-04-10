@@ -6,6 +6,8 @@
 -}
 
 module ParseXml.ParseXml (parseXml) where
+import Content (PContent(..))
 
-parseXml :: String -> IO () -- return value to be define
-parseXml file = putStrLn ("parse xml:\n" ++ file)
+-- IO is for debug purpose but while be removed after to: parseMarkdown :: String -> Either String [PContent]
+parseXml :: String -> IO (Either String [PContent])
+parseXml file = return (Right [])

@@ -5,7 +5,11 @@
 -- Content
 -}
 
-module Content (PContent(..)) where
+module Content (PContent(..),
+    PText(..),
+    PLink(..), PImage(..),
+    PParagraph(..), PSection(..), PCodeBlock(..),
+    PList(..)) where
 
 data PContent = PTextContent PText
     | PLinkContent PLink
