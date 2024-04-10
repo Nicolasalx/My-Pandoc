@@ -5,11 +5,21 @@
 -- Content
 -}
 
-module Content (PContent(..),
+module Content (PHeader(..), PBody(..),
+    PContent(..),
     PText(..),
     PLink(..), PImage(..),
     PParagraph(..), PSection(..), PCodeBlock(..),
     PList(..)) where
+
+data PHeader = PHeader {
+    header_title :: String,
+    author :: Maybe String,
+    date :: Maybe String
+} deriving Show
+
+data PBody = PBody [PContent]
+    deriving Show
 
 data PContent = PTextContent PText
     | PLinkContent PLink

@@ -6,7 +6,7 @@
 -}
 
 module ParseMarkdown.ParseMarkdown (parseMarkdown) where
-import Content (PContent(..))
+import Content (PHeader(..), PBody(..))
 
-parseMarkdown :: String -> Either String [PContent]
-parseMarkdown file = Right []
+parseMarkdown :: String -> Either String (PHeader, PBody)
+parseMarkdown file = Right ((PHeader "" (Just "") (Just "")), PBody [])
