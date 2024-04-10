@@ -10,10 +10,12 @@ import Content (PHeader(..), PBody(..))
 -- import ParseMarkdown.ParseBody (parseBody)
 import ParseMarkdown.ParseHeader (parseHeader)
 
-parseMarkdown :: String -> Either String (PHeader, PBody)
+-- THIS FUNCTION WILL CHANGE DON T WORRY !
+
+parseMarkdown :: String -> IO (Either String (PHeader, PBody))
 parseMarkdown file_content = do
     let allLines = lines file_content
-        pHeader = parseHeader allLines -- Delete first n strings you take in the header and give to the parseBody
-    -- parseBody allLines
-
-    Right ((PHeader "" (Just "") (Just "")), PBody [])
+    headerResult <- parseHeader allLines
+    case headerResult of
+        Right pHeader -> return $ Right (pHeader, PBody [])
+        Left err -> return $ Left err
