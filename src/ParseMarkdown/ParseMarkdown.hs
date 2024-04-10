@@ -8,6 +8,5 @@
 module ParseMarkdown.ParseMarkdown (parseMarkdown) where
 import Content (PContent(..))
 
--- IO is for debug purpose but while be removed after to: parseMarkdown :: String -> Either String [PContent]
-parseMarkdown :: String -> IO (Either String [PContent])
-parseMarkdown file = return (Right [])
+parseMarkdown :: String -> Either String [PContent]
+parseMarkdown file = Right []
