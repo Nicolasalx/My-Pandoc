@@ -22,7 +22,7 @@ parseEachLine (x:xs) pHeader
 
 parseJsonHeader :: [String] -> IO (Either String PHeader)
 parseJsonHeader [] = return $ Left "Empty file"
-parseJsonHeader (x:xs) = return $ parseEachLine (x:xs) (PHeader { header_title = "", author = Nothing, date = Nothing })
+parseJsonHeader (x:xs) = return $ parseEachLine (x:xs) PHeader { header_title = "", author = Nothing, date = Nothing }
 
 parseJson :: String -> IO (Either String (PHeader, PBody))
 parseJson file_content = do
