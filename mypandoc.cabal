@@ -23,6 +23,9 @@ library
   exposed-modules:
       ArgParsing
       Content
+      ExportFormat.ExportFormat
+      ExportFormat.ExportFormatData
+      ExportFormat.ExportHeader
       LaunchParsing
       Lib
       ParseJson.ParseJson
