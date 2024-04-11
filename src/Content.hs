@@ -21,10 +21,7 @@ data PHeader = PHeader {
 data PBody = PBody [PContent]
     deriving Show
 
-data PContent = PTextContent PText
-    | PLinkContent PLink
-    | PImageContent PImage
-    | PParagraphContent PParagraph
+data PContent = PParagraphContent PParagraph
     | PSectionContent PSection
     | PCodeBlockContent PCodeBlock
     | PListContent PList
@@ -46,15 +43,20 @@ data PImage = PImage {
     alt :: PText
 } deriving (Show)
 
-data PParagraph = PParagraph PText
+data PParagraph = PParagraph [PParagraphType]
+    deriving (Show)
+
+data PParagraphType = PTextParagraph PText
+    | PLinkParagraph PLink
+    | PImageParagraph PImage
     deriving (Show)
 
 data PSection = PSection {
-    title :: PText,
+    title :: String,
     section_content :: [PContent]
 } deriving (Show)
 
-data PCodeBlock = PCodeBlock String
+data PCodeBlock = PCodeBlock [String]
     deriving (Show)
 
 data PList = PList [PItem]
