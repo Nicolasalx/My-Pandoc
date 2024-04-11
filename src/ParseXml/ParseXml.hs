@@ -9,9 +9,11 @@ module ParseXml.ParseXml (parseXml) where
 import Lib (parseString)
 import Content (PHeader(..), PBody(..))
 import Data.Maybe (fromMaybe)
+import ParseXml.DataStructXml (initializeDataParsing)
 
 parseXml :: String -> IO (Either String (PHeader, PBody))
 parseXml file_content = do
+    let dataInitialized = initializeDataParsing
     let linesContent = lines file_content
     let headerResult = fillPHeader linesContent
     case headerResult of
