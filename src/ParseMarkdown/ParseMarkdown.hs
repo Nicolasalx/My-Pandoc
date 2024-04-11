@@ -16,8 +16,9 @@ import ParseMarkdown.DataStructMarkdown (initializeDataParsing)
 parseMarkdown :: String -> IO (Either String (PHeader, PBody))
 parseMarkdown file_content = do
     let allLines = lines file_content
-    let dataParsing = initializeDataParsing
-    headerResult <- parseHeader allLines
+    let dataInitialized = initializeDataParsing
+    (headerResult, newDataParsing) <- parseHeader allLines dataInitialized
+    print newDataParsing
     case headerResult of
         Right pHeader -> return $ Right (pHeader, PBody [])
         Left err -> return $ Left err
