@@ -12,18 +12,29 @@ import Data.Maybe (fromMaybe)
 
 parseXml :: String -> IO (Either String (PHeader, PBody))
 parseXml file_content = do
-    let headerResult = do
-            title <- parseDocumentTitle file_content
-            return title
+    let linesContent = lines file_content
+    let headerResult = fillPHeader linesContent
     case headerResult of
-        Just header -> return $ Right (header, PBody [])
-        Nothing -> return $ Left "Erreur: thibaud pas content"
+        Right header -> return $ Right (header, PBody [])
+        Left err -> return $ Left err
 
-parseDocumentTitle :: String -> Maybe PHeader
-parseDocumentTitle input = do
-    (_, rest1) <- parseString "<title>" input
-    (title, rest2) <- parseUntil '>' rest1
-    return $ PHeader title Nothing Nothing
+fillPHeader :: [String] -> Either String PHeader
+fillPHeader [] = Right PHeader { header_title = "", author = Nothing, date = Nothing }
+fillPHeader (x:xs)
+    | Just ("<title>", value) <- parseString "<title>" x,
+      Just (title, _) <- parseUntil '<' value,
+      Right header <- fillPHeader xs =
+          Right header { header_title = title }
+    | Just ("<author>", value) <- parseString "<author>" x,
+      Just (author, _) <- parseUntil '<' value,
+      Right header <- fillPHeader xs =
+          Right header { author = Just author }
+    | Just ("<date>", value) <- parseString "<date>" x,
+      Just (date, _) <- parseUntil '<' value,
+      Right header <- fillPHeader xs =
+          Right header { date = Just date }
+    | elem '<' x = Right PHeader { header_title = "", author = Nothing, date = Nothing }
+    | otherwise = Left "Erreur : Format d'en-tête invalide ou champ invalide"
 
 parseUntil :: Char -> String -> Maybe (String, String)
 parseUntil c "" = Nothing
