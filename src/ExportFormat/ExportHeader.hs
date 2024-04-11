@@ -10,27 +10,32 @@ import Content (PHeader(..))
 import ExportFormat.ExportFormatData (ExportFormat(..))
 
 exportHeaderJsonMaybeString :: String -> Maybe String -> String
-exportHeaderJsonMaybeString field_name (Just str) = ",\n        \"" ++ field_name ++ "\": \"" ++ str ++ "\""
+exportHeaderJsonMaybeString field_name (Just str) = ",\n        \""
+    ++ field_name ++ "\": \"" ++ str ++ "\""
 exportHeaderJsonMaybeString _ Nothing = []
 
 exportHeaderJson :: PHeader -> String
-exportHeaderJson (PHeader title_ author_ date_) = "{\n    \"header\": {\n       \"title\": \"" ++ title_ ++ "\""
+exportHeaderJson (PHeader title_ author_ date_) =
+    "{\n    \"header\": {\n       \"title\": \"" ++ title_ ++ "\""
     ++ (exportHeaderJsonMaybeString "author" author_)
     ++ (exportHeaderJsonMaybeString "date" date_)
     ++ "\n    }"
 
 exportHeaderXMLMaybeString :: String -> Maybe String -> String
-exportHeaderXMLMaybeString field_name (Just str) = "\n        <" ++ field_name ++ ">" ++ str ++ "</" ++ field_name ++ ">"
+exportHeaderXMLMaybeString field_name (Just str) = "\n        <"
+    ++ field_name ++ ">" ++ str ++ "</" ++ field_name ++ ">"
 exportHeaderXMLMaybeString _ Nothing = []
 
 exportHeaderXML :: PHeader -> String
-exportHeaderXML (PHeader title_ author_ date_) = "<document>\n    <header title=\"" ++ title_ ++ "\">"
+exportHeaderXML (PHeader title_ author_ date_) =
+    "<document>\n    <header title=\"" ++ title_ ++ "\">"
     ++ (exportHeaderXMLMaybeString "author" author_)
     ++ (exportHeaderXMLMaybeString "date" date_)
     ++ "\n    </header>"
 
 exportHeaderMDMaybeString :: String -> Maybe String -> String
-exportHeaderMDMaybeString field_name (Just str) = "\n" ++ field_name ++ ": " ++ str
+exportHeaderMDMaybeString field_name (Just str) =
+    "\n" ++ field_name ++ ": " ++ str
 exportHeaderMDMaybeString _ Nothing = []
 
 exportHeaderMD :: PHeader -> String
