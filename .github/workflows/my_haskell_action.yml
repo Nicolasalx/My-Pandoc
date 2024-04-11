@@ -76,7 +76,7 @@ jobs:
           check.sh $(pwd) $(pwd)
           cat coding-style-reports.log
           CODING_STYLE_ERROR=$(cat coding-style-reports.log | wc -l)
-          if [ $(CODING_STYLE_ERROR) -ne 0 ]; then
+          if [ $CODING_STYLE_ERROR -ne 0 ]; then
             echo "::warning::$CODING_STYLE_ERROR coding style error detected !"
             exit 1
           fi
