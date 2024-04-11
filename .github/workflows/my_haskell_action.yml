@@ -44,25 +44,25 @@ jobs:
             exit 0
           }
 
-##    - name: run functional tests
-##      run: |
-##          echo "## ⚙️ Functionnal Tests" >> $GITHUB_STEP_SUMMARY
-##          {
-##            chown -R $(id -un):$(id -gn) ~
-##            set +e
-##
-##            ./Test.sh
-##            output=$(./Test.sh)
-##            fail_count=$(echo "$output" | grep -o "FAIL" | wc -l)
-##
-##            if [ "$fail_count" -gt 0 ]; then
-##              echo "- ### Functionnal tests have failed with $fail_count errors ❌" >> $GITHUB_STEP_SUMMARY
-##              exit 1
-##            else
-##              echo "- ### All functionnal tests have succeed ! ✅" >> $GITHUB_STEP_SUMMARY
-##            fi
-##            exit 0
-##          }
+    - name: run functional tests
+      run: |
+          echo "## ⚙️ Functionnal Tests" >> $GITHUB_STEP_SUMMARY
+          {
+            chown -R $(id -un):$(id -gn) ~
+            set +e
+
+            ./Test.sh
+            output=$(./Test.sh)
+            fail_count=$(echo "$output" | grep -o "FAIL" | wc -l)
+
+            if [ "$fail_count" -gt 0 ]; then
+              echo "- ### Functionnal tests have failed with $fail_count errors ❌" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            else
+              echo "- ### All functionnal tests have succeed ! ✅" >> $GITHUB_STEP_SUMMARY
+            fi
+            exit 0
+          }
 
   check_coding_style:
     runs-on: ubuntu-latest
