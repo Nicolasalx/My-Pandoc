@@ -5,7 +5,7 @@
 -- DataStructMarkdown
 -}
 
-module ParseMarkdown.DataStructMarkdown (initializeDataParsing, DataParsing) where
+module ParseMarkdown.DataStructMarkdown (initializeDataParsing, DataParsing(..)) where
 
 data DataParsing = DataParsing
   {
@@ -18,7 +18,8 @@ data DataParsing = DataParsing
   } deriving (Show, Eq)
 
 initializeDataParsing :: DataParsing
-initializeDataParsing = DataParsing {
+initializeDataParsing = DataParsing
+  {
     isInLink = False,
     isInImage = False,
     isInParagraph = False,
