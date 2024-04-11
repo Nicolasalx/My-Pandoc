@@ -9,7 +9,7 @@ on:
 jobs:
   check_all:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
 
     container:
       image: epitechcontent/epitest-docker:latest
@@ -23,6 +23,7 @@ jobs:
       run: |
           echo "## 🚀 Compilation result" >> $GITHUB_STEP_SUMMARY
           {
+            chown -R $(id -un):$(id -gn) ~
             set +e
             make
             if [ $? -ne 0 ]; then
@@ -31,15 +32,51 @@ jobs:
               exit 1
             else
               echo "- ### Compilation succeed ✅" >> $GITHUB_STEP_SUMMARY
-              exit 0
             fi
+            ls imageCompressor
+            if [ $? -ne 0 ]; then
+              echo "- ### imageCompressor not found ❌" >> $GITHUB_STEP_SUMMARY
+              echo "imageCompressor not found."
+              exit 1
+            else
+              echo "- ### imageCompressor ✅" >> $GITHUB_STEP_SUMMARY
+            fi
+            exit 0
           }
 
-      - name: check coding style
+##    - name: run functional tests
+##      run: |
+##          echo "## ⚙️ Functionnal Tests" >> $GITHUB_STEP_SUMMARY
+##          {
+##            chown -R $(id -un):$(id -gn) ~
+##            set +e
+##
+##            ./Test.sh
+##            output=$(./Test.sh)
+##            fail_count=$(echo "$output" | grep -o "FAIL" | wc -l)
+##
+##            if [ "$fail_count" -gt 0 ]; then
+##              echo "- ### Functionnal tests have failed with $fail_count errors ❌" >> $GITHUB_STEP_SUMMARY
+##              exit 1
+##            else
+##              echo "- ### All functionnal tests have succeed ! ✅" >> $GITHUB_STEP_SUMMARY
+##            fi
+##            exit 0
+##          }
+
+  check_coding_style:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/epitech/coding-style-checker:latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: code analyse
         run: |
-          lambdananas .
-          CODING_STYLE_ERROR=$(lambdananas . | wc -l)
-          if [ "$(CODING_STYLE_ERROR)" -ne 0 ]; then
+          check.sh $(pwd) $(pwd)
+          cat coding-style-reports.log
+          CODING_STYLE_ERROR=$(cat coding-style-reports.log | wc -l)
+          if [ $(CODING_STYLE_ERROR) -ne 0 ]; then
             echo "::warning::$CODING_STYLE_ERROR coding style error detected !"
             exit 1
           fi
