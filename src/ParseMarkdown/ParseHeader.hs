@@ -13,12 +13,14 @@ parseHeader :: [String] -> IO (Either String PHeader)
 parseHeader line = checkTitle (checkErrorLine (parseEachLine line False []))
 
 checkTitle :: IO (Either String PHeader) -> IO (Either String PHeader)
-checkTitle action = action >>= (\result -> return $ result >>= checkHeaderTitle)
+checkTitle action =
+    action >>= \result ->
+        return $ either (Left) (\header -> checkHeaderTitle header) result
 
 checkHeaderTitle :: PHeader -> Either String PHeader
-checkHeaderTitle header
-    | length (header_title header) == 0 = Left "Error: No title has been entered or the header is not correct"
-    | otherwise = Right header
+checkHeaderTitle PHeader { header_title = title }
+    | null title = Left "Error: No title has been entered or the header is not correct"
+checkHeaderTitle header = Right header
 
 checkErrorLine :: Either String [String] -> IO (Either String PHeader)
 checkErrorLine (Left errorMsg) = return (Left errorMsg)
