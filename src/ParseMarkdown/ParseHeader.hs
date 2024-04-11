@@ -11,12 +11,13 @@ import Content (PHeader(..))
 import ParseMarkdown.DataStructMarkdown (DataParsing(..))
 
 parseHeader :: [String] -> DataParsing -> IO (Either String PHeader, DataParsing)
-parseHeader lines dataParsing = do
-    let (listStringHeader, dataStructModified) = parseEachLine lines False [] dataParsing
-    headerResult <- checkErrorLine listStringHeader
-    case headerResult of
-        Left errorMsg -> return (Left errorMsg, dataStructModified)
-        Right header -> return (checkTitle header, dataStructModified)
+parseHeader line dataParsing =
+    parseEachLine line False [] dataParsing >>= \(listStringHeader, dataStructModified) ->
+    checkErrorLine listStringHeader >>= \headerResult ->
+    return $ either
+        (\errorMsg -> (Left errorMsg, dataStructModified))
+        (\header -> (checkTitle header, dataStructModified))
+        headerResult
 
 checkTitle :: PHeader -> Either String PHeader
 checkTitle header@(PHeader { header_title = title })
@@ -47,10 +48,10 @@ fillPHeader (x:xs)
           Right header { date = Just value }
     | otherwise = Left "Error: Invalid header format or field"
 
-parseEachLine :: [String] -> Bool -> [String] -> DataParsing -> (Either String [String], DataParsing)
-parseEachLine [] _ acc dataParsing = (Right acc, dataParsing)
+parseEachLine :: [String] -> Bool -> [String] -> DataParsing -> IO (Either String [String], DataParsing)
+parseEachLine [] _ acc dataParsing = return (Right acc, dataParsing)
 parseEachLine (x:xs) isInBlock acc dataParsing
     | isInBlock && x /= "---" = parseEachLine xs isInBlock (acc ++ [x]) dataParsing
     | x == "---" && not isInBlock = parseEachLine xs True acc dataParsing
-    | x == "---" && isInBlock = (Right acc, dataParsing {remainingLines = xs})
+    | x == "---" && isInBlock = return (Right acc, dataParsing {remainingLines = xs})
     | otherwise = parseEachLine xs isInBlock acc dataParsing
