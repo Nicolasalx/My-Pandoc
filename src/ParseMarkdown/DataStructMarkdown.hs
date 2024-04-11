@@ -5,9 +5,10 @@
 -- DataStructMarkdown
 -}
 
+module ParseMarkdown.DataStructMarkdown (initializeDataParsing, DataParsing) where
+
 data DataParsing = DataParsing
   {
-    rule :: Maybe Int,
     isInLink :: Bool,
     isInImage :: Bool,
     isInParagraph :: Bool,
@@ -15,3 +16,13 @@ data DataParsing = DataParsing
     levelItem :: Int,
     remainingLines :: [String]
   } deriving (Show, Eq)
+
+initializeDataParsing :: DataParsing
+initializeDataParsing = DataParsing {
+    isInLink = False,
+    isInImage = False,
+    isInParagraph = False,
+    levelSection = 0,
+    levelItem = 0,
+    remainingLines = []
+  }
