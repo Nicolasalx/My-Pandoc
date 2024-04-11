@@ -7,10 +7,10 @@
 
 module Content (PHeader(..), PBody(..),
     PContent(..),
-    PText(..),
+    PText(..), PTextType(..),
     PLink(..), PImage(..),
-    PParagraph(..), PSection(..), PCodeBlock(..),
-    PList(..)) where
+    PParagraph(..), PParagraphType(..), PSection(..), PCodeBlock(..),
+    PList(..), PItem(..)) where
 
 data PHeader = PHeader {
     header_title :: String,
