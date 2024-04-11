@@ -12,17 +12,18 @@ import ParseMarkdown.DataStructMarkdown (DataParsing(..))
 
 parseHeader :: [String] -> DataParsing -> IO (Either String PHeader, DataParsing)
 parseHeader line dataParsing =
-    parseEachLine line False [] dataParsing >>= \(listStringHeader, dataStructModified) ->
-    checkErrorLine listStringHeader >>= \headerResult ->
+    parseEachLine line False [] dataParsing >>=
+        \(listStringHeader, dataStructModified) ->
+    checkErrorLine listStringHeader >>=
+        \headerResult ->
     return $ either
         (\errorMsg -> (Left errorMsg, dataStructModified))
         (\header -> (checkTitle header, dataStructModified))
         headerResult
 
 checkTitle :: PHeader -> Either String PHeader
-checkTitle header@(PHeader { header_title = title })
-    | null title = Left "Error: No title has been entered or the header is not correct"
-    | otherwise = Right header
+checkTitle (PHeader { header_title = "" }) = Left "Error: No title has been entered or the header is not correct"
+checkTitle header = Right header
 
 checkErrorLine :: Either String [String] -> IO (Either String PHeader)
 checkErrorLine (Left errorMsg) = return (Left errorMsg)
