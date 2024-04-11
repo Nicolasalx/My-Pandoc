@@ -8,5 +8,16 @@
 module ParseMarkdown.ParseBody (parseBody) where
 import Content (PContent(..))
 
+data DataParsing = DataParsing
+  {
+    rule :: Maybe Int,
+    isInLink :: Bool,
+    isInImage :: Bool,
+    isInParagraph :: Bool,
+    levelSection :: Int,
+    levelItem :: Int
+  }
+  deriving (Show, Eq)
+
 parseBody :: String -> (Either String [PContent])
 parseBody file_content = Left file_content
