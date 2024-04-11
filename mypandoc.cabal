@@ -28,8 +28,8 @@ library
       ExportFormat.ExportHeader
       LaunchParsing
       Lib
-      ParseJson.ParseHeader
       ParseJson.ParseJson
+      ParseMarkdown.DataStructMarkdown
       ParseMarkdown.ParseBody
       ParseMarkdown.ParseHeader
       ParseMarkdown.ParseMarkdown
