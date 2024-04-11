@@ -1,6 +1,8 @@
 {
     "header": {
-        "title": "Simple example"
+        "title": "Simple example",
+        "author": "John Doe",
+        "date": "2016-01-01"
     },
     "body": [
         "This is a simple example"
