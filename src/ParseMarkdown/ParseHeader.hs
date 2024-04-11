@@ -55,4 +55,5 @@ parseEachLine (x:xs) isInBlock acc dataParsing
     | isInBlock && x /= "---" = parseEachLine xs isInBlock (acc ++ [x]) dataParsing
     | x == "---" && not isInBlock = parseEachLine xs True acc dataParsing
     | x == "---" && isInBlock = return (Right acc, dataParsing {remainingLines = xs})
+    | null acc && x /= "---" = return (Left "Header need to begin in the first line and not have space or anything else before", dataParsing)
     | otherwise = parseEachLine xs isInBlock acc dataParsing
