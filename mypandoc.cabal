@@ -29,6 +29,7 @@ library
       LaunchParsing
       Lib
       ParseJson.ParseHeader
+      ParseJson.ParseBody
       ParseJson.ParseJson
       ParseMarkdown.DataStructMarkdown
       ParseMarkdown.ParseBody

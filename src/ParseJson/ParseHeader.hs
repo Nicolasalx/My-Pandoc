@@ -5,7 +5,7 @@
 -- ParseHeader
 --
 
-module ParseJson.ParseHeader (parseJsonHeader) where
+module ParseJson.ParseHeader (parseHeader) where
 import Content (PHeader(..))
 import Lib (parseJsonKey, strToWordArray)
 
@@ -24,6 +24,11 @@ searchForHeader (x:xs)
     | parseJsonKey "\"header\":" 4 x /= Nothing = parseEachHeaderLine xs PHeader { header_title = "", author = Nothing, date = Nothing }
     | otherwise = searchForHeader xs
 
+checkTitle :: PHeader -> Either String PHeader
+checkTitle pHeader
+    | header_title pHeader == "" = Left "Error: No title found in header"
+    | otherwise = Right pHeader
+
 parseEachHeaderLine :: [String] -> PHeader -> Either String PHeader
 parseEachHeaderLine [] x = Right x
 parseEachHeaderLine (x:xs) pHeader
@@ -33,10 +38,11 @@ parseEachHeaderLine (x:xs) pHeader
         parseEachHeaderLine xs pHeader { author = Just value }
     | Just ("", value) <- parseJsonKey "\"date\":" 4 x =
         parseEachHeaderLine xs pHeader { date = Just value }
+    | Just ("", "") <- parseJsonKey "\"body\":" 4 x = checkTitle pHeader 
     | otherwise = parseEachHeaderLine xs pHeader
 
-parseJsonHeader :: String -> IO (Either String PHeader)
-parseJsonHeader [] = return $ Left "Empty file"
-parseJsonHeader (x:xs) 
+parseHeader :: String -> IO (Either String PHeader)
+parseHeader [] = return $ Left "Empty file"
+parseHeader (x:xs) 
     | checkBracket (x:xs) 0 = return $ searchForHeader (strToWordArray "{}[]," "" (x:xs))
     | otherwise = return $ Left "Error: Invalid json format"
