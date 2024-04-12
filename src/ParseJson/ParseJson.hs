@@ -7,16 +7,19 @@
 
 module ParseJson.ParseJson (parseJson) where
 import Content (PHeader(..), PBody(..))
--- import ParseJson.ParseHeader(parseJsonHeader)
+import ParseJson.ParseHeader(parseHeader)
+import ParseJson.ParseBody(parseBody)
+
+parseJsonBody :: String -> PHeader -> IO (Either String (PHeader, PBody))
+parseJsonBody file_content pHeader = do
+    bodyResult <- parseBody file_content
+    case bodyResult of
+        Right pBody -> return $ Right (pHeader, pBody)
+        Left err -> return $ Left err
 
 parseJson :: String -> IO (Either String (PHeader, PBody))
-parseJson file = do
-    return (Right ((PHeader "" (Just "") (Just "")), PBody []))
-
--- parseJson :: String -> IO (Either String (PHeader, PBody))
--- parseJson file_content = do
---     let allLines = lines file_content
---     headerResult <- parseJsonHeader allLines
---     case headerResult of
---         Right pHeader -> return $ Right (pHeader, PBody [])
---         Left err -> return $ Left err
+parseJson file_content = do
+    headerResult <- parseHeader file_content
+    case headerResult of
+        Right pHeader -> parseJsonBody file_content pHeader
+        Left err -> return $ Left err
