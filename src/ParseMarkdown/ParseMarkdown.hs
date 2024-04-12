@@ -7,7 +7,7 @@
 
 module ParseMarkdown.ParseMarkdown (parseMarkdown) where
 import Content (PHeader(..), PBody(..))
--- import ParseMarkdown.ParseBody (parseBody)
+import ParseMarkdown.ParseBody (parseBody)
 import ParseMarkdown.ParseHeader (parseHeader)
 import ParseMarkdown.DataStructMarkdown (initializeDataParsing)
 
@@ -15,10 +15,13 @@ import ParseMarkdown.DataStructMarkdown (initializeDataParsing)
 
 parseMarkdown :: String -> IO (Either String (PHeader, PBody))
 parseMarkdown file_content = do
-    let allLines = lines file_content
     let dataInitialized = initializeDataParsing
+    let allLines = lines file_content
     (headerResult, newDataParsing) <- parseHeader allLines dataInitialized
-    print newDataParsing
+    bodyResult <- parseBody newDataParsing
+    case bodyResult of
+        Right _ -> print "SUCCEED"
+        Left err -> print err
     case headerResult of
         Right pHeader -> return $ Right (pHeader, PBody [])
         Left err -> return $ Left err

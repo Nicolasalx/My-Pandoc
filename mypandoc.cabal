@@ -33,6 +33,7 @@ library
       ParseMarkdown.ParseBody
       ParseMarkdown.ParseHeader
       ParseMarkdown.ParseMarkdown
+      ParseMarkdown.ParseOneChar
       ParseXml.DataStructXml
       ParseXml.ParseXml
       PrintError

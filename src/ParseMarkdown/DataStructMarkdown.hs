@@ -14,6 +14,10 @@ data DataParsing = DataParsing
     isInParagraph :: Bool,
     levelSection :: Int,
     levelItem :: Int,
+    nbStars :: Int,
+    nbBackTick :: Int,
+    actualList :: String,
+    nbReturnLines :: Int,
     remainingLines :: [String]
   } deriving (Show, Eq)
 
@@ -25,5 +29,9 @@ initializeDataParsing = DataParsing
     isInParagraph = False,
     levelSection = 0,
     levelItem = 0,
+    nbStars = 0,
+    nbBackTick = 0,
+    actualList = "",
+    nbReturnLines = 0,
     remainingLines = []
   }
