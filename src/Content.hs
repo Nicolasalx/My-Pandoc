@@ -10,7 +10,7 @@ module Content (PHeader(..), PBody(..),
     PText(..), PTextType(..),
     PLink(..), PImage(..),
     PParagraph(..), PParagraphType(..), PSection(..), PCodeBlock(..),
-    PList(..), PItem(..)) where
+    PList(..), PItem(..), PItemType(..)) where
 
 data PHeader = PHeader {
     header_title :: String,
@@ -62,5 +62,9 @@ data PCodeBlock = PCodeBlock [String]
 data PList = PList [PItem]
     deriving (Show)
 
-data PItem = PItem [PContent]
+data PItem = PItem [PItemType]
+    deriving (Show)
+
+data PItemType = PParagraphItem PParagraph
+    | PListItem PList
     deriving (Show)

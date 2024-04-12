@@ -33,13 +33,13 @@ jobs:
             else
               echo "- ### Compilation succeed ✅" >> $GITHUB_STEP_SUMMARY
             fi
-            ls imageCompressor
+            ls mypandoc
             if [ $? -ne 0 ]; then
-              echo "- ### imageCompressor not found ❌" >> $GITHUB_STEP_SUMMARY
-              echo "imageCompressor not found."
+              echo "- ### mypandoc not found ❌" >> $GITHUB_STEP_SUMMARY
+              echo "mypandoc not found."
               exit 1
             else
-              echo "- ### imageCompressor ✅" >> $GITHUB_STEP_SUMMARY
+              echo "- ### mypandoc ✅" >> $GITHUB_STEP_SUMMARY
             fi
             exit 0
           }
