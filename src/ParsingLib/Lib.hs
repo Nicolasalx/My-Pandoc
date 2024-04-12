@@ -1,4 +1,4 @@
-module Lib (parseString, parseJsonKey, strToWordArray) where
+module ParsingLib.Lib (parseString, parseJsonKey, strToWordArray) where
 
 type Parser a = String -> Maybe (a , String)
 

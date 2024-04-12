@@ -6,7 +6,7 @@
 -}
 
 module ParseXml.ParseXml (parseXml) where
-import Lib (parseString)
+import ParsingLib.Lib (parseString)
 import Content (PHeader(..), PBody(..))
 import Data.Maybe (fromMaybe)
 import ParseXml.DataStructXml (initializeDataParsing)

@@ -6,7 +6,7 @@
 --
 
 module ParseMarkdown.ParseHeader (parseHeader) where
-import Lib (parseString)
+import ParsingLib.Lib (parseString)
 import Content (PHeader(..))
 import ParseMarkdown.DataStructMarkdown (DataParsing(..))
 

@@ -7,7 +7,7 @@
 
 module ParseJson.ParseHeader (parseHeader) where
 import Content (PHeader(..))
-import Lib (parseJsonKey, strToWordArray)
+import ParsingLib.Lib (parseJsonKey, strToWordArray)
 
 checkBracket :: String -> Int -> Bool
 checkBracket [] 0 = True

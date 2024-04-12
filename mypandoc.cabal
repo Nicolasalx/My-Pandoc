@@ -27,9 +27,8 @@ library
       ExportFormat.ExportFormatData
       ExportFormat.ExportHeader
       LaunchParsing
-      Lib
-      ParseJson.ParseHeader
       ParseJson.ParseBody
+      ParseJson.ParseHeader
       ParseJson.ParseJson
       ParseMarkdown.DataStructMarkdown
       ParseMarkdown.ParseBody
@@ -38,6 +37,8 @@ library
       ParseMarkdown.ParseOneChar
       ParseXml.DataStructXml
       ParseXml.ParseXml
+      ParsingLib.AppendElemToDataStruct
+      ParsingLib.Lib
       PrintError
   other-modules:
       Paths_mypandoc
