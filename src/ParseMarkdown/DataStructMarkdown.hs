@@ -9,8 +9,18 @@ module ParseMarkdown.DataStructMarkdown (initializeDataParsing, DataParsing(..))
 
 data DataParsing = DataParsing
   {
-    isInLink :: Bool,
-    isInImage :: Bool,
+    isInContentLink :: Bool,
+    isInAltImage :: Bool,
+
+    isInUrlLink :: Bool,
+    isInUrlImage :: Bool,
+
+    contentLink :: String,
+    altImg :: String,
+
+    urlLink :: String,
+    urlImg :: String,
+
     isInParagraph :: Bool,
     isInCodeblock :: Bool,
     levelSection :: Int,
@@ -19,14 +29,25 @@ data DataParsing = DataParsing
     nbBackTick :: Int,
     actualList :: String,
     nbReturnLines :: Int,
+    lastCharacter :: Char,
     remainingLines :: [String]
   } deriving (Show, Eq)
 
 initializeDataParsing :: DataParsing
 initializeDataParsing = DataParsing
   {
-    isInLink = False,
-    isInImage = False,
+    isInContentLink = False,
+    isInAltImage = False,
+
+    isInUrlLink = False,
+    isInUrlImage = False,
+
+    contentLink = "",
+    altImg = "",
+
+    urlLink = "",
+    urlImg = "",
+
     isInParagraph = False,
     isInCodeblock = False,
     levelSection = 0,
@@ -35,5 +56,6 @@ initializeDataParsing = DataParsing
     nbBackTick = 0,
     actualList = "",
     nbReturnLines = 0,
+    lastCharacter = ' ',
     remainingLines = []
   }

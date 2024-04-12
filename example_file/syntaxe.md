@@ -22,6 +22,7 @@ This is a paragraph with **`codebold`**, *italic* and
 ```
 This is a code block.
 ```
+
 - list item 1
 - list item 2
 - list item 3
