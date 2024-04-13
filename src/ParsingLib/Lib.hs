@@ -1,11 +1,11 @@
-module ParsingLib.Lib (parseString, parseJsonKey, strToWordArray) where
+module ParsingLib.Lib (parseString, strcmp, parseJsonKey, strToWordArray, nth) where
 
 type Parser a = String -> Maybe (a , String)
 
 -- parseChar :: Char -> Parser Char
 -- parseChar c (x:xs)
 --     | x == c = Just (c, xs)
--- parseChar _ _ = Nothing
+-- parseChar _ _ = Nothings
 
 parseString :: String -> Parser String
 parseString [] input = Just ([], input)
@@ -13,25 +13,6 @@ parseString (s:str) (x:xs)
   | s == x, Just (parsed, rest) <- parseString str xs = Just (s:parsed, rest)
   | otherwise = Nothing
 parseString _ _ = Nothing
-
-parseJsonKey :: String -> Int -> Parser String
-parseJsonKey [] _ [] = Just ([], [])
-parseJsonKey [_] _ [] = Nothing
-parseJsonKey (_:_:_) _ [] = Nothing
-parseJsonKey [] state (' ':xs) = parseJsonKey [] state (xs)
-parseJsonKey [] state ('\n':xs) = parseJsonKey [] state (xs)
-parseJsonKey [] state ('\"':xs) = parseJsonKey [] state (xs)
-parseJsonKey [] state input
-  | last input == '\n' || last input == ' ' = parseJsonKey [] state (init input)
-  | last input == '\"' = Just ([], init input)
-  | otherwise = Nothing
-parseJsonKey (s:str) state (x:xs)
-  | x /= '\"' && state == 4 = parseJsonKey (s:str) 4 (xs) 
-  | x == '\"' && s == '\"' && state == 4 = parseJsonKey str 3 (xs)
-  | s == x && state == 3 = parseJsonKey str 3 (xs)
-  | x == '\"' && s == '\"' && state == 3 = parseJsonKey str 2 (xs)
-  | s == ':' && state == 2 = parseJsonKey str 1 (xs)
-  | otherwise = Nothing
 
 strToWordArray2 :: String -> Char -> Bool
 strToWordArray2 [] _ = True
@@ -47,6 +28,27 @@ strToWordArray str tmp (x:xs)
     | length tmp == 0 = strToWordArray str [] xs
     | otherwise = tmp : strToWordArray str [] xs
 
+strcmp :: String -> String -> Bool
+strcmp [] [] = True
+strcmp [] _ = False
+strcmp _ [] = False
+strcmp (x:xs) (y:ys)
+    | x == y = strcmp xs ys
+    | otherwise = False
+
+parseJsonKey :: [String] -> Int -> Parser String
+parseJsonKey [] _ _ = Nothing
+parseJsonKey _ _ [] = Nothing
+parseJsonKey (x:xs) n input
+  | strcmp x input && n == 2 = parseJsonKey xs (n-1) input
+  | n == 1 && ':' `elem` x = parseJsonKey xs (n-1) input
+  | n == 0 && length x > 0 = Just (input, x)
+  | otherwise = Nothing
+
+nth :: Int -> [String] -> [String]
+nth _ [] = []
+nth 0 x = x
+nth n (_:xs) = nth (n-1) xs
 -- lib bootstrap
 
 -- parseAnyChar :: String -> Parser Char
