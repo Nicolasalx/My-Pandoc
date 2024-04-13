@@ -16,16 +16,16 @@ data PHeader = PHeader {
     header_title :: String,
     author :: Maybe String,
     date :: Maybe String
-} deriving Show
+} deriving (Show)
 
 data PBody = PBody [PContent]
-    deriving Show
+    deriving (Show)
 
 data PContent = PParagraphContent PParagraph
     | PSectionContent PSection
     | PCodeBlockContent PCodeBlock
     | PListContent PList
-    deriving Show
+    deriving (Show)
 
 data PText = PText [PTextType]
     deriving (Show)

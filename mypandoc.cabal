@@ -36,16 +36,21 @@ library
       ExportFormat.ExportLink
       ExportFormat.ExportText
       LaunchParsing
-      Lib
-      ParseJson.ParseHeader
+      ParseJson.DataStructJson
       ParseJson.ParseBody
+      ParseJson.ParseHeader
       ParseJson.ParseJson
       ParseMarkdown.DataStructMarkdown
       ParseMarkdown.ParseBody
       ParseMarkdown.ParseHeader
       ParseMarkdown.ParseMarkdown
+      ParseMarkdown.ParseOneChar
       ParseXml.DataStructXml
+      ParseXml.ParseBody
+      ParseXml.ParseHeader
       ParseXml.ParseXml
+      ParsingLib.AppendElemToDataStruct
+      ParsingLib.Lib
       PrintError
   other-modules:
       Paths_mypandoc
