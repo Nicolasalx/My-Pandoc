@@ -20,8 +20,7 @@ addBasicCharToActualList :: Char -> DataParsing -> IO DataParsing
 addBasicCharToActualList c dataParsing = return (dataParsing { actualList = actualList dataParsing ++ [c], nbReturnLines = 0})
 
 parseOneChar :: Char -> DataParsing -> IO DataParsing
-parseOneChar '`' dataParsing = do -- Text Formatting -> Code (Check if we are in a paragraph)
-    (addCharToActualList '`' dataParsing)
+parseOneChar '`' dataParsing = addCharToActualList '`' dataParsing -- Text Formatting -> Code (Check if we are in a paragraph)
 
 parseOneChar '[' dataParsing = addBasicCharToActualList '[' dataParsing { isInContentLink = True }
 
@@ -29,8 +28,6 @@ parseOneChar ')' dataParsing
     | isInUrlLink dataParsing == True = addCharToActualList ')' (dataParsing { isInUrlLink = False }) -- A link has been completely fill, now i will add in the DataStructure PContent
     | isInUrlImage dataParsing == True = addCharToActualList ')' (dataParsing { isInUrlImage = False }) -- An image has been completely fill, now i will add in the DataStructure PContent
 
-parseOneChar '*' dataParsing = do -- Text Formatting -> Code (Check if we are in a paragraph)
-    (addCharToActualList '*' dataParsing)
+parseOneChar '*' dataParsing = addCharToActualList '*' dataParsing -- Text Formatting -> Code (Check if we are in a paragraph)
 
-parseOneChar c dataParsing = do
-    addCharToActualList c dataParsing
+parseOneChar c dataParsing = addCharToActualList c dataParsing

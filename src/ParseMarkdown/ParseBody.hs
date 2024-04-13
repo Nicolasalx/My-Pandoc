@@ -11,14 +11,12 @@ import ParsingLib.Lib (parseString)
 import ParseMarkdown.DataStructMarkdown (DataParsing(..))
 import ParseMarkdown.ParseOneChar (parseOneChar)
 import ParsingLib.AppendElemToDataStruct (addNewElemToContent)
-import Control.Monad (guard)
 
 parseBody :: DataParsing -> IO (Either String [PContent])
-parseBody dataParsing = do
-    let allContent = []
-    (allContent, dataParsed) <- parseAllString (remainingLines dataParsing) dataParsing allContent
-    print dataParsed
-    print allContent
+parseBody dataParsing =
+    parseAllString (remainingLines dataParsing) dataParsing [] >>= \(allContent, dataParsed) ->
+    print dataParsed >>
+    print allContent >>
     return (Left "ok")
 
 parseAllString :: [String] -> DataParsing -> [PContent] -> IO (Either String [PContent], DataParsing)
@@ -45,15 +43,15 @@ checkFrstStr str dataParsing =
     checkfirstStrIsAnElem str dataParsing >>= \(newDataParsing, newStr) ->
     parseEachString newStr newStr newDataParsing True
 
+-- This case of will be deleted
+
 analyseBasicString :: Char -> String -> DataParsing -> IO DataParsing
-analyseBasicString c cs dataParsing = do
-    (dataAfterLinkImg, newStr) <- checkImgAndLink c cs dataParsing
-    if ((length newStr) > 0)
-    then do
-        parseEachString newStr newStr dataAfterLinkImg True
-    else do
-        newDataParsed <- parseOneChar c dataParsing
-        parseEachString cs cs newDataParsed True
+analyseBasicString c cs dataParsing =
+    checkImgAndLink c cs dataParsing >>= \(dataAfterLinkImg, newStr) ->
+    case length newStr > 0 of
+        True -> parseEachString newStr newStr dataAfterLinkImg True
+        False -> parseOneChar c dataParsing >>= \newDataParsed ->
+            parseEachString cs cs newDataParsed True
 
 tryAddElemToContent :: DataParsing -> [PContent] -> ([PContent], DataParsing)
 tryAddElemToContent dataParsing allContent
