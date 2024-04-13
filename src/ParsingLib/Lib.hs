@@ -1,4 +1,5 @@
-module ParsingLib.Lib (parseString, strcmp, parseJsonKey, strToWordArray, nth, searchSymbol) where
+Zmodule ParsingLib.Lib (parseString, strcmp, parseJsonKey, strToWordArray, nth, searchSymbol, parseUntil, cleanLine) where
+import Data.Char (isSpace)
 
 type Parser a = String -> Maybe (a , String)
 
@@ -56,6 +57,18 @@ searchSymbol _ [] = False
 searchSymbol (x:xs) (y:ys)
     | x == y = searchSymbol xs ys
     | otherwise = searchSymbol (x:xs) ys
+cleanLine :: String -> Maybe String
+cleanLine [] = Nothing
+cleanLine str = Just $ dropWhile isSpace str
+
+parseUntil :: String -> String -> Maybe (String, String)
+parseUntil _ "" = Nothing
+parseUntil target "" = Nothing
+parseUntil target str
+    | strcmp target (take (length target) str) = Just ("", drop (length target) str)
+    | otherwise = do
+        (parsed, rest) <- parseUntil target (tail str)
+        return (head str:parsed, rest)
 
 -- lib bootstrap
 

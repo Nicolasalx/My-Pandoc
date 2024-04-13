@@ -6,7 +6,7 @@
 --
 
 module ParseJson.ParseBody (parseBody) where
-import Content (PContent(..), PParagraph(..), PParagraphType(..), PText(..))
+import Content (PContent(..), PParagraph(..), PParagraphType(..), PText(..), PTextType(..))
 import ParseJson.DataStructJson (DataParsing(..), initializeDataParsing)
 import ParsingLib.AppendElemToDataStruct (addNewElemToContent)
 import ParsingLib.Lib (strToWordArray, strcmp, searchSymbol)
@@ -14,7 +14,7 @@ import ParsingLib.Lib (strToWordArray, strcmp, searchSymbol)
 --p Parsing paragraph 
 
 createParagraph :: String -> PContent
-createParagraph x = PParagraphContent ( PParagraph [PTextParagraph $ PText [Right x]])
+createParagraph x = PParagraphContent (PParagraph [PTextParagraph (PText [PString x])])
 
 parseParagraph :: DataParsing -> [String] -> [PContent] -> Either String [PContent]
 parseParagraph _ [] _ = Left "Error: Missing ] in paragraph"

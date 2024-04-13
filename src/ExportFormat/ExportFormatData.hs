@@ -5,7 +5,36 @@
 -- ExportFormatData
 -}
 
-module ExportFormat.ExportFormatData (ExportFormat(..)) where
+module ExportFormat.ExportFormatData (
+    ExportFormat(..), ExportData(..), initExportData) where
 
 data ExportFormat = JSON | XML | MD
     deriving (Show)
+
+data ExportData = ExportData {
+    format :: ExportFormat,
+    indent :: Int,
+    sep_codeblock :: String,
+    start_codeblock :: String,
+    end_codeblock :: String,
+    sep_paragraph :: String,
+    start_paragraph :: String,
+    end_paragraph :: String,
+    sep_text :: String
+} deriving (Show)
+
+initExportData :: ExportFormat -> ExportData
+initExportData JSON = (ExportData JSON 1
+    ",\n" "\"codeblock\": [\n" "]\n"
+    ",\n" "[\n" "]\n"
+    ",\n")
+
+initExportData XML = (ExportData XML 1
+    "\n" "<codeblock>\n" "</codeblock>\n"
+    "" "<paragraph>" "</paragraph>\n"
+    "")
+
+initExportData MD = (ExportData MD 0
+    "\n" "```\n" "```\n"
+    "" "" "\n"
+    "")
