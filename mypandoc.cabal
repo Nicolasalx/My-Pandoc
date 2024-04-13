@@ -26,6 +26,15 @@ library
       ExportFormat.ExportFormat
       ExportFormat.ExportFormatData
       ExportFormat.ExportHeader
+      ExportFormat.ExportBody
+      ExportFormat.ExportContent
+      ExportFormat.ExportParagraph
+      ExportFormat.MapExport
+      ExportFormat.ExportCodeBlock
+      ExportFormat.AddIndent
+      ExportFormat.ExportImage
+      ExportFormat.ExportLink
+      ExportFormat.ExportText
       LaunchParsing
       Lib
       ParseJson.ParseHeader

@@ -1,7 +1,7 @@
 <document>
-<header title="Simple example">
-</header>
-<body>
-<paragraph>This is a simple example</paragraph>
-</body>
+    <header title="Simple example">
+    </header>
+    <body>
+        <paragraph>This is a simple example</paragraph>
+    </body>
 </document>
