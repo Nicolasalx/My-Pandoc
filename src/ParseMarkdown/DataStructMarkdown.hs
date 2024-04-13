@@ -5,7 +5,10 @@
 -- DataStructMarkdown
 -}
 
-module ParseMarkdown.DataStructMarkdown (initializeDataParsing, DataParsing(..)) where
+module ParseMarkdown.DataStructMarkdown (initializeDataParsing, DataParsing(..), TypeToAdd(..)) where
+
+data TypeToAdd = None | Paragraph | Link | Image | CodeBlock | Section | Item
+  deriving (Show, Eq)
 
 data DataParsing = DataParsing
   {
@@ -20,6 +23,8 @@ data DataParsing = DataParsing
 
     urlLink :: String,
     urlImg :: String,
+
+    typeToAdd :: TypeToAdd,
 
     isInParagraph :: Bool,
     isInCodeblock :: Bool,
@@ -47,6 +52,8 @@ initializeDataParsing = DataParsing
 
     urlLink = "",
     urlImg = "",
+
+    typeToAdd = None,
 
     isInParagraph = False,
     isInCodeblock = False,
