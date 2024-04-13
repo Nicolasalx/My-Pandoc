@@ -27,6 +27,7 @@ library
       ExportFormat.ExportFormatData
       ExportFormat.ExportHeader
       LaunchParsing
+      ParseJson.DataStructJson
       ParseJson.ParseBody
       ParseJson.ParseHeader
       ParseJson.ParseJson

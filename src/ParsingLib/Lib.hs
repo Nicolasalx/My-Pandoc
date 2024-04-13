@@ -1,4 +1,4 @@
-module ParsingLib.Lib (parseString, strcmp, parseJsonKey, strToWordArray, nth) where
+module ParsingLib.Lib (parseString, strcmp, parseJsonKey, strToWordArray, nth, searchSymbol) where
 
 type Parser a = String -> Maybe (a , String)
 
@@ -49,6 +49,14 @@ nth :: Int -> [String] -> [String]
 nth _ [] = []
 nth 0 x = x
 nth n (_:xs) = nth (n-1) xs
+
+searchSymbol :: String -> String -> Bool
+searchSymbol [] _ = True
+searchSymbol _ [] = False
+searchSymbol (x:xs) (y:ys)
+    | x == y = searchSymbol xs ys
+    | otherwise = searchSymbol (x:xs) ys
+
 -- lib bootstrap
 
 -- parseAnyChar :: String -> Parser Char

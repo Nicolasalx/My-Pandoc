@@ -12,9 +12,9 @@ import ParseJson.ParseBody(parseBody)
 
 parseJsonBody :: String -> PHeader -> IO (Either String (PHeader, PBody))
 parseJsonBody file_content pHeader = do
-    bodyResult <- parseBody file_content
-    case bodyResult of
-        Right pBody -> return $ Right (pHeader, pBody)
+    contentResult <- parseBody file_content
+    case contentResult of
+        Right pContent -> return $ Right (pHeader, PBody pContent)
         Left err -> return $ Left err
 
 parseJson :: String -> IO (Either String (PHeader, PBody))

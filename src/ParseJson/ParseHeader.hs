@@ -30,19 +30,24 @@ checkTitle pHeader
     | header_title pHeader == "" = Left "Error: No title found in header"
     | otherwise = Right pHeader
 
-parseEachHeaderLine :: [String] -> PHeader -> Either String PHeader
-parseEachHeaderLine [] _ = Left "Error: No closing bracket found"
-parseEachHeaderLine (x:xs) pHeader
-    | '{' `elem` x || ':' `elem` x = parseEachHeaderLine xs pHeader
-    | Just ("title", value) <- parseJsonKey (x:xs) 2 "title" =
-        parseEachHeaderLine (nth 2 xs) pHeader { header_title = value }
-    | Just ("author", value) <- parseJsonKey (x:xs) 2 "author" =
-        parseEachHeaderLine (nth 2 xs) pHeader { author = Just value }
-    | Just ("date", value) <- parseJsonKey (x:xs) 2 "date" =
-        parseEachHeaderLine (nth 2 xs) pHeader { date = Just value }
+checkVirgule :: [String] -> PHeader -> Either String PHeader
+checkVirgule [] _ = Left "Error: No closing bracket found"
+checkVirgule (x:xs) pHeader
     | '}' `elem` x = checkTitle pHeader
     | ',' `elem` x = parseEachHeaderLine xs pHeader
     | otherwise = Left "Error: Invalid json format"
+
+parseEachHeaderLine :: [String] -> PHeader -> Either String PHeader
+parseEachHeaderLine [] _ = Left "Error: No closing bracket found"
+parseEachHeaderLine (x:xs) pHeader
+    | '{' `elem` x = parseEachHeaderLine xs pHeader
+    | Just ("title", value) <- parseJsonKey (x:xs) 2 "title" =
+        checkVirgule (nth 2 xs) pHeader { header_title = value }
+    | Just ("author", value) <- parseJsonKey (x:xs) 2 "author" =
+        checkVirgule (nth 2 xs) pHeader { author = Just value }
+    | Just ("date", value) <- parseJsonKey (x:xs) 2 "date" =
+        checkVirgule (nth 2 xs) pHeader { date = Just value }
+    | otherwise = Left x
 
 parseHeader :: String -> IO (Either String PHeader)
 parseHeader [] = return $ Left "Empty file"
