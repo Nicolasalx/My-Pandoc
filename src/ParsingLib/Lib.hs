@@ -1,4 +1,4 @@
-Zmodule ParsingLib.Lib (parseString, strcmp, parseJsonKey, strToWordArray, nth, searchSymbol, parseUntil, cleanLine) where
+module ParsingLib.Lib (parseString, strcmp, parseJsonKey, strToWordArray, nth, searchSymbol, parseUntil, cleanLine) where
 import Data.Char (isSpace)
 
 type Parser a = String -> Maybe (a , String)
