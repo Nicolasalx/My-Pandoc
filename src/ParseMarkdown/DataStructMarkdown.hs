@@ -14,7 +14,6 @@ data DataParsing = DataParsing
   {
     isInContentLink :: Bool,
     isInAltImage :: Bool,
-
     isInUrlLink :: Bool,
     isInUrlImage :: Bool,
 
@@ -43,7 +42,6 @@ initializeDataParsing = DataParsing
   {
     isInContentLink = False,
     isInAltImage = False,
-
     isInUrlLink = False,
     isInUrlImage = False,
 
