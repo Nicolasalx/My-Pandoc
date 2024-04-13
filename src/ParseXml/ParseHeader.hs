@@ -21,17 +21,33 @@ checkTitle header =
 fillPHeader :: [String] -> Either String PHeader
 fillPHeader [] = Right PHeader { header_title = "", author = Nothing, date = Nothing }
 fillPHeader (x:xs)
-    | Just ("<title>", value) <- parseString "<title>" x,
-      Just (title, _) <- parseUntil '<' value,
+    | Just cleanedLine <- cleanLine x,
+      Just ("<header title=\"", value) <- parseString "<header title=\"" cleanedLine,
+      Just (title, _) <- parseUntil "\">" value,
       Right header <- fillPHeader xs =
           Right header { header_title = title }
-    | Just ("<author>", value) <- parseString "<author>" x,
-      Just (author, _) <- parseUntil '<' value,
+    | Just cleanedLine <- cleanLine x,
+      Just ("<author>", value) <- parseString "<author>" cleanedLine,
+      Just (author, _) <- parseUntil "</author>" value,
       Right header <- fillPHeader xs =
           Right header { author = Just author }
-    | Just ("<date>", value) <- parseString "<date>" x,
-      Just (date, _) <- parseUntil '<' value,
+    | Just cleanedLine <- cleanLine x,
+      Just ("<date>", value) <- parseString "<date>" cleanedLine,
+      Just (date, _) <- parseUntil "</date>" value,
       Right header <- fillPHeader xs =
           Right header { date = Just date }
-    | elem '<' x = Right PHeader { header_title = "", author = Nothing, date = Nothing }
+    | elem '<' x = fillPHeader xs
     | otherwise = Left "Erreur : Format d'en-tête invalide ou champ invalide"
+
+-- checkTypeBalise :: String -> String
+-- checkBalise str
+--     | strcmp str "<paragraph>" = "paragraph"
+--     | strcmp str "<section>" = "section"
+--     | strcmp str "<date>" = "date"
+--     | strcmp str "<codeblock>" = "codeblock"
+--     | strcmp str "<list>" = "list"
+--     | strcmp str "<bold>" = "bold"
+--     | strcmp str "<italic>" = "italic"
+--     | strcmp str "<image url=" = "image"
+--     | strcmp str "<link url=" = "link"
+--     | otherwise = "unknown" 
