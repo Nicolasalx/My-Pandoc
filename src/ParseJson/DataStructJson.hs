@@ -5,3 +5,4 @@
 -- DataStructJson
 --
 
+module ParseJson.DataStructJson () where
