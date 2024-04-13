@@ -25,8 +25,8 @@ parseOneChar '`' dataParsing = addCharToActualList '`' dataParsing -- Text Forma
 parseOneChar '[' dataParsing = addBasicCharToActualList '[' dataParsing { isInContentLink = True }
 
 parseOneChar ')' dataParsing
-    | isInUrlLink dataParsing == True = addCharToActualList ')' (dataParsing { isInUrlLink = False, typeToAdd = Link }) -- A link has been completely fill, now i will add in the DataStructure PContent
-    | isInUrlImage dataParsing == True = addCharToActualList ')' (dataParsing { isInUrlImage = False, typeToAdd = Image }) -- An image has been completely fill, now i will add in the DataStructure PContent
+    | isInUrlLink dataParsing == True = addCharToActualList ')' (dataParsing { isInUrlLink = False }) -- A link has been completely fill, now i will add in the DataStructure PContent
+    | isInUrlImage dataParsing == True = addCharToActualList ')' (dataParsing { isInUrlImage = False }) -- An image has been completely fill, now i will add in the DataStructure PContent
 
 parseOneChar '*' dataParsing = addCharToActualList '*' dataParsing -- Text Formatting -> Code (Check if we are in a paragraph)
 

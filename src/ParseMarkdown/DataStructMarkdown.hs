@@ -25,6 +25,8 @@ data DataParsing = DataParsing
 
     typeToAdd :: TypeToAdd,
 
+    actualCodeBloc :: [String],
+
     isInParagraph :: Bool,
     isInCodeblock :: Bool,
     levelSection :: Int,
@@ -52,6 +54,8 @@ initializeDataParsing = DataParsing
     urlImg = "",
 
     typeToAdd = None,
+
+    actualCodeBloc = [],
 
     isInParagraph = False,
     isInCodeblock = False,
