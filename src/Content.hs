@@ -27,10 +27,22 @@ data PContent = PParagraphContent PParagraph
     | PListContent PList
     deriving Show
 
-data PText = PText [Either PTextType String]
+data PText = PText [PTextType]
     deriving (Show)
 
-data PTextType = InItalic | InBold | InCode | OutItalic | OutBold | OutCode
+data PTextType = PString String
+    | PBoldText PBold
+    | PItalicText PItalic
+    | PCodeText PCode
+    deriving (Show)
+
+data PBold = PBold [PTextType]
+    deriving (Show)
+
+data PItalic = PItalic [PTextType]
+    deriving (Show)
+
+data PCode = PCode [PTextType]
     deriving (Show)
 
 data PLink = PLink {
