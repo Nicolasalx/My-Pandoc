@@ -37,6 +37,8 @@ library
       ParseMarkdown.ParseMarkdown
       ParseMarkdown.ParseOneChar
       ParseXml.DataStructXml
+      ParseXml.ParseBody
+      ParseXml.ParseHeader
       ParseXml.ParseXml
       ParsingLib.AppendElemToDataStruct
       ParsingLib.Lib
