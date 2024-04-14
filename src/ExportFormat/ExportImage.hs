@@ -12,18 +12,18 @@ import ExportFormat.ExportFormatData (ExportFormat(..))
 import ExportFormat.ExportText (exportText)
 
 exportImage :: PImage -> ExportFormat -> Int -> String
-exportImage (PImage url alt) JSON indent =
+exportImage (PImage url alt_) JSON indent =
     addIndent (indent) ++ "{\n"
     ++ addIndent (indent + 1) ++ "\"image\": {\n"
     ++ addIndent (indent + 2) ++ "\"url\": \"" ++ url ++ "\",\n"
     ++ addIndent (indent + 2) ++ "\"alt\": [\n"
-    ++ exportText alt JSON (indent + 3) ++ "\n"
+    ++ exportText alt_ JSON (indent + 3) ++ "\n"
     ++ addIndent (indent + 2) ++ "]\n"
     ++ addIndent (indent + 1) ++ "}\n"
     ++ addIndent (indent) ++ "}"
 
-exportImage (PImage url alt) XML _ =
-    "<image url=\"" ++ url ++ "\">" ++ exportText alt XML 0 ++ "</image>"
+exportImage (PImage url alt_) XML _ =
+    "<image url=\"" ++ url ++ "\">" ++ exportText alt_ XML 0 ++ "</image>"
 
-exportImage (PImage url alt) MD _ =
-    "![" ++ exportText alt MD 0 ++ "](" ++ url ++ ")"
+exportImage (PImage url alt_) MD _ =
+    "![" ++ exportText alt_ MD 0 ++ "](" ++ url ++ ")"

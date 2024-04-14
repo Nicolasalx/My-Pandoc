@@ -7,7 +7,7 @@
 
 module Content (PHeader(..), PBody(..),
     PContent(..),
-    PText(..), PTextType(..),
+    PText(..), PTextType(..), PBold(..), PItalic(..), PCode(..),
     PLink(..), PImage(..),
     PParagraph(..), PParagraphType(..), PSection(..), PCodeBlock(..),
     PList(..), PItem(..), PItemType(..)) where

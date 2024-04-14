@@ -12,29 +12,26 @@ data ExportFormat = JSON | XML | MD
     deriving (Show)
 
 data ExportData = ExportData {
-    format :: ExportFormat,
-    indent :: Int,
+    format_ :: ExportFormat,
+    indent_ :: Int,
+    current_section :: Int,
     sep_codeblock :: String,
     start_codeblock :: String,
     end_codeblock :: String,
     sep_paragraph :: String,
     start_paragraph :: String,
-    end_paragraph :: String,
-    sep_text :: String
+    end_paragraph :: String
 } deriving (Show)
 
 initExportData :: ExportFormat -> ExportData
-initExportData JSON = (ExportData JSON 1
+initExportData JSON = (ExportData JSON 1 0
     ",\n" "\"codeblock\": [\n" "]\n"
-    ",\n" "[\n" "]\n"
-    ",\n")
+    ",\n" "[\n" "]\n")
 
-initExportData XML = (ExportData XML 1
+initExportData XML = (ExportData XML 1 0
     "\n" "<codeblock>\n" "</codeblock>\n"
-    "" "<paragraph>" "</paragraph>\n"
-    "")
+    "" "<paragraph>" "</paragraph>\n")
 
-initExportData MD = (ExportData MD 0
+initExportData MD = (ExportData MD 0 0
     "\n" "```\n" "```\n"
-    "" "" "\n"
-    "")
+    "" "" "\n")

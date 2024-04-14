@@ -19,7 +19,7 @@ exportHeaderJson (PHeader title_ author_ date_) =
     "{\n    \"header\": {\n       \"title\": \"" ++ title_ ++ "\""
     ++ (exportHeaderJsonMaybeString "author" author_)
     ++ (exportHeaderJsonMaybeString "date" date_)
-    ++ "\n    }"
+    ++ "\n    },\n"
 
 exportHeaderXMLMaybeString :: String -> Maybe String -> String
 exportHeaderXMLMaybeString field_name (Just str) = "\n        <"
@@ -31,7 +31,7 @@ exportHeaderXML (PHeader title_ author_ date_) =
     "<document>\n    <header title=\"" ++ title_ ++ "\">"
     ++ (exportHeaderXMLMaybeString "author" author_)
     ++ (exportHeaderXMLMaybeString "date" date_)
-    ++ "\n    </header>"
+    ++ "\n    </header>\n"
 
 exportHeaderMDMaybeString :: String -> Maybe String -> String
 exportHeaderMDMaybeString field_name (Just str) =

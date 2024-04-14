@@ -20,8 +20,8 @@ exportCodeLine code MD _ = code
 
 exportCodeBlock :: PCodeBlock -> ExportData -> String
 exportCodeBlock (PCodeBlock (code)) (exportData) =
-    (addIndent (indent exportData))
+    (addIndent (indent_ exportData))
     ++ (start_codeblock exportData)
-    ++ mapExport (\line -> exportCodeLine line (format exportData) (indent exportData)) (sep_codeblock exportData) code
-    ++ "\n" ++ (addIndent (indent exportData))
+    ++ mapExport (\line -> exportCodeLine line (format_ exportData) (indent_ exportData)) (sep_codeblock exportData) code
+    ++ "\n" ++ (addIndent (indent_ exportData))
     ++ (end_codeblock exportData)

@@ -8,10 +8,22 @@
 module ExportFormat.ExportBody (exportBody) where
 import Content (PBody(..))
 import ExportFormat.ExportContent (exportContent)
-import ExportFormat.ExportFormatData (ExportData(..))
-import ExportFormat.MapExport (mapExport)
+import ExportFormat.ExportFormatData (ExportData(..), ExportFormat(..))
+import ExportFormat.AddIndent (addIndent)
+
+exportBodyHelper :: PBody -> ExportFormat -> ExportData -> String
+exportBodyHelper (PBody list) JSON exportData =
+    addIndent (indent_ exportData) ++ "\"body\": [\n"
+    ++ concatMap (\line -> exportContent line (exportData {indent_ = (indent_ exportData) + 1})) list
+    ++ addIndent (indent_ exportData) ++ "]\n"
+
+exportBodyHelper (PBody list) XML exportData =
+    addIndent (indent_ exportData) ++ "<body>\n"
+    ++ concatMap (\line -> exportContent line (exportData {indent_ = (indent_ exportData) + 1})) list
+    ++ addIndent (indent_ exportData) ++ "</body>\n"
+
+exportBodyHelper (PBody list) MD exportData = "---\n"
+    ++ concatMap (\line -> exportContent line exportData) list
 
 exportBody :: PBody -> ExportData -> String
-exportBody (PBody (list)) exportData = "" -- start body ! to code
-    ++ mapExport (`exportContent` exportData) "" list
-    ++ "" -- end body ! to code
+exportBody body exportData = exportBodyHelper body (format_ exportData) exportData

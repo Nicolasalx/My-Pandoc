@@ -34,6 +34,7 @@ library
       ExportFormat.ExportLink
       ExportFormat.ExportParagraph
       ExportFormat.ExportText
+      ExportFormat.ExportList
       ExportFormat.MapExport
       LaunchParsing
       ParseJson.DataStructJson

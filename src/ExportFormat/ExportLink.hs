@@ -12,18 +12,18 @@ import ExportFormat.ExportFormatData (ExportFormat(..))
 import ExportFormat.ExportText (exportText)
 
 exportLink :: PLink -> ExportFormat -> Int -> String
-exportLink (PLink url content) JSON indent =
+exportLink (PLink url content_) JSON indent =
     addIndent (indent) ++ "{\n"
     ++ addIndent (indent + 1) ++ "\"link\": {\n"
     ++ addIndent (indent + 2) ++ "\"url\": \"" ++ url ++ "\",\n"
     ++ addIndent (indent + 2) ++ "\"content\": [\n"
-    ++ exportText content JSON (indent + 3) ++ "\n"
+    ++ exportText content_ JSON (indent + 3) ++ "\n"
     ++ addIndent (indent + 2) ++ "]\n"
     ++ addIndent (indent + 1) ++ "}\n"
     ++ addIndent (indent) ++ "}"
 
-exportLink (PLink url content) XML _ =
-    "<link url=\"" ++ url ++ "\">" ++ exportText content XML 0 ++ "</link>"
+exportLink (PLink url content_) XML _ =
+    "<link url=\"" ++ url ++ "\">" ++ exportText content_ XML 0 ++ "</link>"
 
-exportLink (PLink url content) MD _ =
-    "[" ++ exportText content MD 0 ++ "](" ++ url ++ ")"
+exportLink (PLink url content_) MD _ =
+    "[" ++ exportText content_ MD 0 ++ "](" ++ url ++ ")"
