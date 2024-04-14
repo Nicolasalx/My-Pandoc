@@ -9,7 +9,7 @@ module ExportFormat.ExportFormat (exportFormat) where
 import ArgParsing (Format(..))
 import Content (PHeader(..), PBody(..))
 import ExportFormat.ExportBody (exportBody)
-import ExportFormat.ExportFormatData (ExportFormat(..), initExportData)
+import ExportFormat.ExportFormatData (ExportFormat(..), ExportData(..), initExportData)
 import ExportFormat.ExportHeader (exportHeader)
 
 getExportFormat :: Format -> ExportFormat
@@ -22,3 +22,4 @@ exportFormat :: (PHeader, PBody) -> Format -> String
 exportFormat (header, body) format =
     exportHeader header (getExportFormat format)
     ++ exportBody body (initExportData (getExportFormat format))
+    ++ (end_document (initExportData (getExportFormat format)))

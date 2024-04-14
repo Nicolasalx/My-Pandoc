@@ -15,7 +15,7 @@ data Format = NotProvided | JSON | XML | MarkDown
 data PandocArg = PandocArg {
     in_file :: Either String FilePath,
     out_format :: Format,
-    out_file :: Either String FilePath,
+    out_file :: Maybe FilePath,
     in_format :: Format
 } deriving (Show)
 
@@ -24,7 +24,7 @@ defaultPandocArg =
     PandocArg {
         in_file = Left "Missing input file.",
         out_format = NotProvided,
-        out_file = Left "Not provided.",
+        out_file = Nothing,
         in_format = NotProvided
     }
 
@@ -38,7 +38,7 @@ parsePandocArg conf ("-f" : "xml" : remain) =
 parsePandocArg conf ("-f" : "markdown" : remain) =
     parsePandocArg (conf {out_format = MarkDown}) remain
 parsePandocArg conf ("-o" : second : remain) =
-    parsePandocArg (conf {out_file = Right second}) remain
+    parsePandocArg (conf {out_file = Just second}) remain
 parsePandocArg conf ("-e" : "json" : remain) =
     parsePandocArg (conf {in_format = JSON}) remain
 parsePandocArg conf ("-e" : "xml" : remain) =

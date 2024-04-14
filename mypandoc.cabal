@@ -36,6 +36,7 @@ library
       ExportFormat.ExportText
       ExportFormat.ExportList
       ExportFormat.MapExport
+      ExportInFile
       LaunchParsing
       ParseJson.DataStructJson
       ParseJson.ParseBody
