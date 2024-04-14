@@ -25,7 +25,7 @@ data DataParsing = DataParsing
 
     typeToAdd :: TypeToAdd,
 
-    actualCodeBloc :: [String],
+    actualCodeBlock :: [String],
 
     isInParagraph :: Bool,
     isInCodeblock :: Bool,
@@ -55,7 +55,7 @@ initializeDataParsing = DataParsing
 
     typeToAdd = None,
 
-    actualCodeBloc = [],
+    actualCodeBlock = [],
 
     isInParagraph = False,
     isInCodeblock = False,
