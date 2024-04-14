@@ -27,24 +27,25 @@ parseAllString (x:xs) dataParsing allContent = do
     (content, stringParsed) <- parseEachString x x dataParsing False allContent
     (newContent, newData) <- tryAddElemToContent stringParsed content
     let newDataParsed = newData { nbReturnLines = nbReturnLines dataParsing + 1 }
-        finalData = fillElemEmptyActualList newDataParsed
+    finalData <- fillElemEmptyActualList newDataParsed
     parseAllString xs finalData newContent
 
 -- A paragraph is cut by 2 \n too (i don't check actually)
 
 tryAddElemToContent :: DataParsing -> [PContent] -> IO ([PContent], DataParsing)
 tryAddElemToContent dataParsing allContent
-    | typeToAdd dataParsing == Paragraph = return (createParagraph dataParsing allContent)
+    | typeToAdd dataParsing == Paragraph && (nbReturnLines dataParsing) > 0 && (length (actualList dataParsing)) > 0 = return (createParagraph dataParsing allContent)
     | typeToAdd dataParsing == Item = return (createItem dataParsing allContent)
     | otherwise = return (allContent, dataParsing)
 
 -- ! This function will make action with actualList every \n
 
-fillElemEmptyActualList :: DataParsing -> DataParsing
+fillElemEmptyActualList :: DataParsing -> IO DataParsing
 fillElemEmptyActualList dataParsing
-    | isInCodeblock dataParsing == True = dataParsing { actualCodeBlock = actualCodeBlock dataParsing ++ [(actualList dataParsing)], actualList = "" }
+    | hasFillCodeBlock dataParsing == True = return dataParsing { actualCodeBlock = actualCodeBlock dataParsing ++ [(actualList dataParsing)], actualList = "" }
+    | isInCodeblock dataParsing == True = return dataParsing { hasFillCodeBlock = True }
     -- Implement new line for item
-    | otherwise = dataParsing
+    | otherwise = return dataParsing
 
 ------------------------------------------------------------------------------------------------------------
 -----------------------------------       PARSE EACH STRING            -------------------------------------
@@ -64,7 +65,6 @@ checkFrstStr str dataParsing allContent = do
         parseEachString newStr newStr newDataParsing True newContent
     else
         parseEachString "" "" newDataParsing True newContent
-
 
 analyseBasicString :: Char -> String -> DataParsing -> [PContent] -> IO ([PContent], DataParsing)
 analyseBasicString c cs dataParsing allContent = do
@@ -202,12 +202,9 @@ startsWithThreeBackticksAndSpaces ('`':'`':'`':rest) = all (== ' ') rest
 startsWithThreeBackticksAndSpaces _ = False
 
 parseStartCodeBlock :: String -> Maybe (String, String)
-parseStartCodeBlock str =
-    if startsWithThreeBackticksAndSpaces str
-        then
-        parseString "```" str
-    else
-        Nothing
+parseStartCodeBlock str
+    | startsWithThreeBackticksAndSpaces str = parseString "```" str
+    | otherwise = Nothing
 
 tryAddCodeBlock :: DataParsing -> [PContent] -> (DataParsing, [PContent])
 tryAddCodeBlock dataParsing allContent
@@ -221,7 +218,7 @@ addCodeBlockToContent :: DataParsing -> [PContent] -> (DataParsing, [PContent])
 addCodeBlockToContent dataParsing allContent = do
     let codeBlock = initializeCodeBlock dataParsing
         finalContent = checkInsertSection dataParsing codeBlock allContent
-        newDataParsed = dataParsing { actualCodeBlock = [] }
+        newDataParsed = dataParsing { actualCodeBlock = [], hasFillCodeBlock = False }
     (newDataParsed, finalContent)
 
 ------------------------------------------------------------------------------------------------------------
@@ -285,7 +282,7 @@ appendNewSection levelSection diff titleSection dataParsing allContent = do
 -- Use checkInsertSection like in paragraph or codeblock
 
 -- ! TO DO LIST
--- Correct the delimiter when add paragraph
+-- When a codeBlock is Open but don't close -> The program wait the codeBlock close => Find a solution to this
 -- Finish Section
 
 -- Begin the formatting text of a paragraph
@@ -295,4 +292,3 @@ appendNewSection levelSection diff titleSection dataParsing allContent = do
     -- Insert text formatted
 
 -- Begin Item
-

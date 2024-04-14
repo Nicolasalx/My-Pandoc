@@ -25,6 +25,7 @@ data DataParsing = DataParsing
 
     typeToAdd :: TypeToAdd,
 
+    hasFillCodeBlock :: Bool,
     actualCodeBlock :: [String],
 
     isInParagraph :: Bool,
@@ -55,6 +56,7 @@ initializeDataParsing = DataParsing
 
     typeToAdd = None,
 
+    hasFillCodeBlock = False,
     actualCodeBlock = [],
 
     isInParagraph = False,
