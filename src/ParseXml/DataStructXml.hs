@@ -9,10 +9,13 @@ module ParseXml.DataStructXml (initializeDataParsing, DataParsing(..)) where
 
 data DataParsing = DataParsing
   {
-    inHeader :: Bool,
+    isInHeader :: Bool,
     isInLink :: Bool,
     isInImage :: Bool,
     isInParagraph :: Bool,
+    isInCodeBlock :: Bool,
+    isInBold :: Bool,
+    isInItalic :: Bool,
     levelSection :: Int,
     levelItem :: Int,
     remainingLines :: [String]
@@ -21,10 +24,13 @@ data DataParsing = DataParsing
 initializeDataParsing :: DataParsing
 initializeDataParsing = DataParsing
   {
-    inHeader = False,
+    isInHeader = False,
     isInLink = False,
     isInImage = False,
     isInParagraph = False,
+    isInCodeBlock = False,
+    isInBold = False,
+    isInItalic = False,
     levelSection = 0,
     levelItem = 0,
     remainingLines = []

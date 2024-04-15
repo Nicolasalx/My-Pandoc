@@ -38,16 +38,3 @@ fillPHeader (x:xs)
           Right header { date = Just date }
     | elem '<' x = fillPHeader xs
     | otherwise = Left "Erreur : Format d'en-tête invalide ou champ invalide"
-
--- checkTypeBalise :: String -> String
--- checkBalise str
---     | strcmp str "<paragraph>" = "paragraph"
---     | strcmp str "<section>" = "section"
---     | strcmp str "<date>" = "date"
---     | strcmp str "<codeblock>" = "codeblock"
---     | strcmp str "<list>" = "list"
---     | strcmp str "<bold>" = "bold"
---     | strcmp str "<italic>" = "italic"
---     | strcmp str "<image url=" = "image"
---     | strcmp str "<link url=" = "link"
---     | otherwise = "unknown" 
