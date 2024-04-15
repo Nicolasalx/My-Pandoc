@@ -22,6 +22,8 @@ exportParagraphType (PImageParagraph image) (exportData) =
     exportImage image (format_ exportData) (indent_ exportData)
 
 exportParagraph :: PParagraph -> ExportData -> String
-exportParagraph (PParagraph (list)) (exportData) = (start_paragraph exportData) ++
-    mapExport (\line -> exportParagraphType line (exportData)) (sep_paragraph exportData) list
+exportParagraph (PParagraph (list)) (exportData) =
+    (start_paragraph exportData) ++
+    mapExport (\line -> exportParagraphType line
+        (exportData)) (sep_paragraph exportData) list
     ++ (end_paragraph exportData)

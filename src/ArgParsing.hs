@@ -50,7 +50,8 @@ parsePandocArg _ _ = Left "Invalid arg."
 
 checkArgValidity :: Either String PandocArg -> IO (PandocArg)
 checkArgValidity (Right (PandocArg (Left msg) _ _ _)) = printErrorAndExit msg
-checkArgValidity (Right (PandocArg _ NotProvided _ _)) = printErrorAndExit "Output format not provided."
+checkArgValidity (Right (PandocArg _ NotProvided _ _)) =
+    printErrorAndExit "Output format not provided."
 checkArgValidity (Right pandocArg) = return (pandocArg)
 checkArgValidity (Left msg) = printErrorAndExit msg
 
