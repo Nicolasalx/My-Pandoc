@@ -31,3 +31,19 @@ parseOneChar ')' dataParsing
 parseOneChar '*' dataParsing = addCharToActualList '*' dataParsing -- Text Formatting -> Code (Check if we are in a paragraph)
 
 parseOneChar c dataParsing = addCharToActualList c dataParsing
+
+
+------------------------------------------------------------------------------------------------------------
+-----------------------------------               LINK                 -------------------------------------
+------------------------------------------------------------------------------------------------------------
+
+-- insertLinkToParagraph :: DataParsing -> DataParsing
+-- insertLinkToParagraph dataParsing =
+
+
+------------------------------------------------------------------------------------------------------------
+-----------------------------------               IMAGE                 -------------------------------------
+------------------------------------------------------------------------------------------------------------
+
+-- insertImageToParagraph :: DataParsing -> DataParsing
+-- insertImageToParagraph dataParsing =

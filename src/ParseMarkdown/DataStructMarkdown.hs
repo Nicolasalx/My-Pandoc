@@ -6,6 +6,7 @@
 -}
 
 module ParseMarkdown.DataStructMarkdown (initializeDataParsing, DataParsing(..), TypeToAdd(..)) where
+import Content (PParagraphType(..))
 
 data TypeToAdd = None | Paragraph | Link | Image | CodeBlock | Section | Item
   deriving (Show, Eq)
@@ -19,6 +20,8 @@ data DataParsing = DataParsing
 
     contentLink :: String,
     altImg :: String,
+
+    paragraph :: [PParagraphType],
 
     urlLink :: String,
     urlImg :: String,
@@ -50,6 +53,8 @@ initializeDataParsing = DataParsing
 
     contentLink = "",
     altImg = "",
+
+    paragraph = [],
 
     urlLink = "",
     urlImg = "",
