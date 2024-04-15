@@ -22,7 +22,8 @@ exportItem (PItem list) JSON exportData =
 exportItem (PItem list) XML exportData =
     concatMap (\line -> exportItemType line exportData) list
 exportItem (PItem list) MD exportData =
-    concatMap (\line -> "- " ++ exportItemType line exportData) list -- ! list level not handled
+    concatMap (\line -> replicate ((list_level exportData) * 4) ' '
+    ++ "- " ++ exportItemType line (exportData {list_level = (list_level exportData) + 1})) list
 
 exportListHelper :: PList -> ExportFormat -> ExportData -> String
 exportListHelper (PList list) JSON exportData =

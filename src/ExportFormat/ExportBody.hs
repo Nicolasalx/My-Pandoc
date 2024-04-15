@@ -7,9 +7,9 @@
 
 module ExportFormat.ExportBody (exportBody) where
 import Content (PBody(..))
+import ExportFormat.AddIndent (addIndent)
 import ExportFormat.ExportContent (exportContent)
 import ExportFormat.ExportFormatData (ExportData(..), ExportFormat(..))
-import ExportFormat.AddIndent (addIndent)
 
 exportBodyHelper :: PBody -> ExportFormat -> ExportData -> String
 exportBodyHelper (PBody list) JSON exportData =
