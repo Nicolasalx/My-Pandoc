@@ -6,7 +6,7 @@
 --
 
 module ParseMarkdown.ParseBody (parseBody) where
-import Content (PContent(..), PText(..), PParagraph(..), PParagraphType(..), PSection(..), PCodeBlock(..))
+import Content (PContent(..), PText(..), PParagraph(..), PParagraphType(..), PSection(..), PCodeBlock(..), PTextType(..))
 import ParsingLib.Lib (parseString, strcmp)
 import ParseMarkdown.DataStructMarkdown (DataParsing(..), TypeToAdd(..))
 import ParseMarkdown.ParseOneChar (parseOneChar)
@@ -32,7 +32,7 @@ parseAllString (x:xs) dataParsing allContent = do
 
 tryAddElemToContent :: DataParsing -> [PContent] -> IO ([PContent], DataParsing)
 tryAddElemToContent dataParsing allContent
-    | typeToAdd dataParsing == Paragraph && (nbReturnLines dataParsing) > 0 && (length (actualList dataParsing)) > 0 = return (createParagraph dataParsing allContent)
+    | typeToAdd dataParsing == Paragraph && (nbReturnLines dataParsing) > 0 && (length (actualList dataParsing)) > 0 = print ("Actual List: " ++ show (actualList dataParsing)) >> return (createParagraph dataParsing allContent)
     | typeToAdd dataParsing == Item = return (createItem dataParsing allContent)
     | otherwise = return (allContent, dataParsing)
 
@@ -184,27 +184,22 @@ defineParagraphType dataParsing str allContent
         - formatting PText => Check (length actualList) > 0
         - insert PText => Check (length actualList) > 0
         - Insert a new Paragraph in [PContent] with function "checkInsertSection" with data "paragraph dataParsing" 
-
 -}
 
 createParagraph :: DataParsing -> [PContent] -> ([PContent], DataParsing)
 createParagraph dataParsing allContent = do
-    let actualContent = initializePParagraphContent dataParsing
-        parsedData = dataParsing {actualList = ""}
-        finalContent = checkInsertSection parsedData actualContent allContent
-    (finalContent, parsedData)
-
-initializePText :: DataParsing -> PText
-initializePText dataParsing = PText [Right (actualList dataParsing)]
-
-initializePParagraphContent :: DataParsing -> PContent
-initializePParagraphContent dataParsing =
-    PParagraphContent $ PParagraph [PTextParagraph $ initializePText dataParsing]
+    let newContent = convertParagraphToContent (paragraph dataParsing)
+        finalContent = checkInsertSection dataParsing newContent allContent
+    (finalContent, dataParsing { paragraph = [], actualList = "" })
 
 tryAddParagraph :: DataParsing -> [PContent] -> ([PContent], DataParsing)
 tryAddParagraph dataParsing allContent
     | typeToAdd dataParsing == Paragraph = createParagraph dataParsing allContent
     | otherwise = (allContent, dataParsing)
+
+convertParagraphToContent :: [PParagraphType] -> PContent
+convertParagraphToContent paragraphTypes = 
+    PParagraphContent (PParagraph paragraphTypes)
 
 ------------------------------------------------------------------------------------------------------------
 -----------------------------------            ITEM                    -------------------------------------
@@ -264,12 +259,10 @@ createNewSection levelSection titleSection dataParsing allContent isSectionOut
     | isSectionOut = do 
         let newSect = initNewSection titleSection
             newContent = tryAddFrstSection levelSection newSect allContent
-        print newContent
         (checkIndexAndInsert dataParsing levelSection newSect newContent)
     | otherwise = do
         let newSect = initNewSection titleSection
         finalContent <- loopInsertSection 1 1 levelSection newSect allContent
-        print finalContent
         return (finalContent, dataParsing)
 
 checkIndexAndInsert :: DataParsing -> Int -> PContent -> [PContent] -> IO ([PContent], DataParsing)
@@ -321,14 +314,26 @@ tryAddFrstSection levelSection content allContent
 
 -- Use checkInsertSection like in paragraph or codeblock
 
--- ! TO DO LIST
--- When a codeBlock is Open but don't close -> The program wait the codeBlock close => Find a solution to this
+-- TODO LIST
+
+-- ! When a codeBlock is Open but don't close -> The program wait the codeBlock close => Find a solution to this
+
+-- ! If a Section is in codeBlock the result is this:
+-- ```
+-- # Section A
+-- 
+-- abc
+-- 
+-- ```
+
+-- ! Problem with insertion in paragraph
+
+-- => [PSectionContent (PSection {title = "Section A", section_content = [PCodeBlockContent (PCodeBlock ["","","abc",""])]})]
 
 -- Begin the formatting text of a paragraph
 -- Stock the actual paragraph in the dataParsing
     -- Insert link
     -- Insert image
     -- Insert text formatted
-
 
 -- Begin Item

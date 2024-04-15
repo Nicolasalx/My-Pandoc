@@ -5,8 +5,9 @@
 -- parseOneChar
 --
 
-module ParseMarkdown.ParseOneChar(parseOneChar) where
+module ParseMarkdown.ParseOneChar (parseOneChar) where
 import ParseMarkdown.DataStructMarkdown (DataParsing(..), TypeToAdd(..))
+import Content (PParagraphType(..), PText(..), PTextType(..), PLink(..), PImage(..))
 
 addCharToActualList :: Char -> DataParsing -> IO DataParsing
 addCharToActualList c dataParsing
@@ -20,30 +21,76 @@ addBasicCharToActualList :: Char -> DataParsing -> IO DataParsing
 addBasicCharToActualList c dataParsing = return (dataParsing { actualList = actualList dataParsing ++ [c], nbReturnLines = 0})
 
 parseOneChar :: Char -> DataParsing -> IO DataParsing
-parseOneChar '`' dataParsing = addCharToActualList '`' dataParsing -- Text Formatting -> Code (Check if we are in a paragraph)
+parseOneChar '`' dataParsing = addCharToActualList '`' dataParsing -- For text formatting but maybe now unused
 
 parseOneChar '[' dataParsing = addBasicCharToActualList '[' dataParsing { isInContentLink = True }
 
 parseOneChar ')' dataParsing
-    | isInUrlLink dataParsing == True = addCharToActualList ')' (dataParsing { isInUrlLink = False }) -- A link has been completely fill, now i will add in the DataStructure PContent
-    | isInUrlImage dataParsing == True = addCharToActualList ')' (dataParsing { isInUrlImage = False }) -- An image has been completely fill, now i will add in the DataStructure PContent
+    | isInUrlLink dataParsing == True = do
+        newDataParsed <- addCharToActualList ')' (dataParsing { isInUrlLink = False })
+        return (insertLinkToParagraph newDataParsed)
+    | isInUrlImage dataParsing == True = do
+        newDataParsed <- addCharToActualList ')' (dataParsing { isInUrlImage = False })
+        return (insertImageToParagraph newDataParsed)
+    | otherwise = addBasicCharToActualList '[' dataParsing { isInContentLink = True }
 
-parseOneChar '*' dataParsing = addCharToActualList '*' dataParsing -- Text Formatting -> Code (Check if we are in a paragraph)
+parseOneChar '*' dataParsing = addCharToActualList '*' dataParsing -- For text formatting but maybe now unused
 
 parseOneChar c dataParsing = addCharToActualList c dataParsing
-
 
 ------------------------------------------------------------------------------------------------------------
 -----------------------------------               LINK                 -------------------------------------
 ------------------------------------------------------------------------------------------------------------
 
--- insertLinkToParagraph :: DataParsing -> DataParsing
--- insertLinkToParagraph dataParsing =
+insertLinkToParagraph :: DataParsing -> DataParsing
+insertLinkToParagraph dataParsing
+    | length (actualList dataParsing) > 0 = do
+        let newDataParsed = createText dataParsing
+        insertLink newDataParsed
+    | otherwise = insertLink dataParsing
 
+insertLink :: DataParsing -> DataParsing
+insertLink dataParsing = do
+    let newLink = formattingLink dataParsing
+    dataParsing { paragraph = (paragraph dataParsing) ++ [newLink], urlLink = "", contentLink = "" }
+
+formattingLink :: DataParsing -> PParagraphType
+formattingLink dataParsing = do
+    let textFormatted = formattingText (contentLink dataParsing)
+    (PLinkParagraph (PLink (urlLink dataParsing) textFormatted))
+
+createText :: DataParsing -> DataParsing
+createText dataParsing = do
+    let newTextType = formattingElemParagraph dataParsing
+    dataParsing { paragraph = (paragraph dataParsing) ++ [newTextType] }
+
+formattingElemParagraph :: DataParsing -> PParagraphType
+formattingElemParagraph dataParsing = do
+    -- take "actualString dataParsing" and formatte it
+    let textFormatted = formattingText (actualList dataParsing)
+    (PTextParagraph textFormatted)
+
+formattingText :: String -> PText
+formattingText str = do
+    (PText [(PString (str))])
 
 ------------------------------------------------------------------------------------------------------------
------------------------------------               IMAGE                 -------------------------------------
+-----------------------------------               IMAGE                 ------------------------------------
 ------------------------------------------------------------------------------------------------------------
 
--- insertImageToParagraph :: DataParsing -> DataParsing
--- insertImageToParagraph dataParsing =
+insertImageToParagraph :: DataParsing -> DataParsing
+insertImageToParagraph dataParsing
+    | length (actualList dataParsing) > 0 = do
+        let newDataParsed = createText dataParsing
+        insertImage newDataParsed
+    | otherwise = insertImage dataParsing
+
+insertImage:: DataParsing -> DataParsing
+insertImage dataParsing = do
+    let newImage = formattingImg dataParsing
+    dataParsing { paragraph = (paragraph dataParsing) ++ [newImage], urlImg = "", altImg = "" }
+
+formattingImg :: DataParsing -> PParagraphType
+formattingImg dataParsing = do
+    let textFormatted = formattingText (altImg dataParsing)
+    (PImageParagraph (PImage (urlImg dataParsing) textFormatted))
