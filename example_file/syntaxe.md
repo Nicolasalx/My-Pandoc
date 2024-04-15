@@ -13,9 +13,7 @@ Every syntax element is displayed in this document.
 header
 ======
 
-This is a basic paragraph with ```codeblock```
-This is a paragraph with **`codebold`**, *italic* and 
-`code` text.
+This is a paragraph with **bold**, *italic* and `code` text.
 
 ## header 2
 
@@ -32,9 +30,7 @@ This is a code block.
 This is a paragraph with a [link](https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley).
 This is a paragraph with an image ![Text to replace image](https://cdn-images-1.medium.com/max/697/1*tsHrUKwQXG1YZX0l957ISw.png).
 
-####### header 4
-
-# header
+#### header 4
 
 Every syntax element can be use separately or combined.
 

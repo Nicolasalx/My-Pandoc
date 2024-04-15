@@ -26,5 +26,10 @@ parseXml file_content = do
     let linesContent = lines file_content
     let headerResult = fillPHeader linesContent
     case headerResult of
-        Right header -> return $ Right (header, PBody [])
+        Right header -> do
+            bodyResult <- parseXmlBody file_content header
+            case bodyResult of
+                Right (header, body) -> return $ Right (header, body)
+                Left err -> return $ Left err
         Left err -> return $ Left err
+

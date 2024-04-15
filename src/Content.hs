@@ -7,7 +7,7 @@
 
 module Content (PHeader(..), PBody(..),
     PContent(..),
-    PText(..), PTextType(..),
+    PText(..), PTextType(..), PBold(..), PItalic(..), PCode(..),
     PLink(..), PImage(..),
     PParagraph(..), PParagraphType(..), PSection(..), PCodeBlock(..),
     PList(..), PItem(..), PItemType(..)) where
@@ -27,10 +27,22 @@ data PContent = PParagraphContent PParagraph
     | PListContent PList
     deriving (Show, Eq)
 
-data PText = PText [Either PTextType String]
+data PText = PText [PTextType]
     deriving (Show, Eq)
 
-data PTextType = InItalic | InBold | InCode | OutItalic | OutBold | OutCode
+data PTextType = PString String
+    | PBoldText PBold
+    | PItalicText PItalic
+    | PCodeText PCode
+    deriving (Show, Eq)
+
+data PBold = PBold [PTextType]
+    deriving (Show, Eq)
+
+data PItalic = PItalic [PTextType]
+    deriving (Show, Eq)
+
+data PCode = PCode [PTextType]
     deriving (Show, Eq)
 
 data PLink = PLink {

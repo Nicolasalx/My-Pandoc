@@ -8,8 +8,9 @@
 module ExportFormat.ExportFormat (exportFormat) where
 import ArgParsing (Format(..))
 import Content (PHeader(..), PBody(..))
+import ExportFormat.ExportBody (exportBody)
+import ExportFormat.ExportFormatData (ExportFormat(..), ExportData(..), initExportData)
 import ExportFormat.ExportHeader (exportHeader)
-import ExportFormat.ExportFormatData (ExportFormat(..))
 
 getExportFormat :: Format -> ExportFormat
 getExportFormat ArgParsing.JSON = ExportFormat.ExportFormatData.JSON
@@ -18,4 +19,7 @@ getExportFormat ArgParsing.MarkDown = ExportFormat.ExportFormatData.MD
 getExportFormat ArgParsing.NotProvided = ExportFormat.ExportFormatData.JSON
 
 exportFormat :: (PHeader, PBody) -> Format -> String
-exportFormat (header, body) format = exportHeader header (getExportFormat format)
+exportFormat (header, body) format =
+    exportHeader header (getExportFormat format)
+    ++ exportBody body (initExportData (getExportFormat format))
+    ++ (end_document (initExportData (getExportFormat format)))

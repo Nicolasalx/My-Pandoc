@@ -23,9 +23,20 @@ library
   exposed-modules:
       ArgParsing
       Content
+      ExportFormat.AddIndent
+      ExportFormat.ExportBody
+      ExportFormat.ExportCodeBlock
+      ExportFormat.ExportContent
       ExportFormat.ExportFormat
       ExportFormat.ExportFormatData
       ExportFormat.ExportHeader
+      ExportFormat.ExportImage
+      ExportFormat.ExportLink
+      ExportFormat.ExportParagraph
+      ExportFormat.ExportText
+      ExportFormat.ExportList
+      ExportFormat.MapExport
+      ExportInFile
       LaunchParsing
       ParseJson.DataStructJson
       ParseJson.ParseBody

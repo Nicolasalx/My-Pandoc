@@ -1,4 +1,4 @@
-module ParsingLib.Lib (parseString, strcmp, parseJsonKey, strToWordArray, nth, parseUntil, cleanLine, Parser) where
+module ParsingLib.Lib (parseString, strcmp, parseJsonKey, strToWordArray, nth, parseUntil, cleanLine, Parser, searchSymbol, parseUntil) where
 import Data.Char (isSpace)
 
 type Parser a = String -> Maybe (a , String)
@@ -51,6 +51,12 @@ nth _ [] = []
 nth 0 x = x
 nth n (_:xs) = nth (n-1) xs
 
+searchSymbol :: String -> String -> Bool
+searchSymbol [] _ = True
+searchSymbol _ [] = False
+searchSymbol (x:xs) (y:ys)
+    | x == y = searchSymbol xs ys
+    | otherwise = searchSymbol (x:xs) ys
 cleanLine :: String -> Maybe String
 cleanLine [] = Nothing
 cleanLine str = Just $ dropWhile isSpace str

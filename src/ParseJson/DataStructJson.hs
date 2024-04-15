@@ -5,4 +5,27 @@
 -- DataStructJson
 --
 
-module ParseJson.DataStructJson () where
+module ParseJson.DataStructJson (initializeDataParsing, DataParsing(..)) where
+
+data DataParsing = DataParsing
+  {
+    inHeader :: Bool,
+    isInLink :: Bool,
+    isInImage :: Bool,
+    isInParagraph :: Bool,
+    levelSection :: Int,
+    levelItem :: Int,
+    remainingLines :: [String]
+  } deriving (Show, Eq)
+
+initializeDataParsing :: DataParsing
+initializeDataParsing = DataParsing
+  {
+    inHeader = False,
+    isInLink = False,
+    isInImage = False,
+    isInParagraph = False,
+    levelSection = 0,
+    levelItem = 0,
+    remainingLines = []
+  }

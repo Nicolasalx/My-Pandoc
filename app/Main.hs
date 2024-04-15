@@ -6,7 +6,9 @@
 -}
 
 module Main (main) where
-import ArgParsing (launchArgParsing)
+import ArgParsing (launchArgParsing, PandocArg(..))
+import ExportFormat.ExportFormat (exportFormat)
+import ExportInFile (exportInFile)
 import LaunchParsing (getFileContent, launchParsing)
 
 main :: IO ()
@@ -14,4 +16,5 @@ main = do
     arg <- launchArgParsing
     file_content <- getFileContent arg
     res_parsing <- (launchParsing arg file_content)
-    print res_parsing
+    -- print res_parsing
+    exportInFile (out_file arg) (exportFormat res_parsing (out_format arg))
