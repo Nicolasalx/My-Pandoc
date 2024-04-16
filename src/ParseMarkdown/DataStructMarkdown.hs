@@ -11,6 +11,9 @@ import Content (PParagraphType(..))
 data TypeToAdd = None | Paragraph | Link | Image | CodeBlock | Section | Item
   deriving (Show, Eq)
 
+data TypeText = Bold | Italic | Code
+  deriving (Show, Eq)
+
 data DataParsing = DataParsing
   {
     isInContentLink :: Bool,

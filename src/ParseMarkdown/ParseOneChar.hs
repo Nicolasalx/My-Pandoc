@@ -5,8 +5,8 @@
 -- parseOneChar
 --
 
-module ParseMarkdown.ParseOneChar (parseOneChar) where
-import ParseMarkdown.DataStructMarkdown (DataParsing(..), TypeToAdd(..))
+module ParseMarkdown.ParseOneChar (parseOneChar, createText) where
+import ParseMarkdown.DataStructMarkdown (DataParsing(..), TypeToAdd(..), TypeText(..))
 import Content (PParagraphType(..), PText(..), PTextType(..), PLink(..), PImage(..))
 
 addCharToActualList :: Char -> DataParsing -> IO DataParsing
@@ -59,6 +59,10 @@ formattingLink dataParsing = do
     let textFormatted = formattingText (contentLink dataParsing)
     (PLinkParagraph (PLink (urlLink dataParsing) textFormatted))
 
+------------------------------------------------------------------------------------------------------------
+-----------------------------------      FORMAT TEXT OF ACTUAL LIST     ------------------------------------
+------------------------------------------------------------------------------------------------------------
+
 createText :: DataParsing -> DataParsing
 createText dataParsing = do
     let newTextType = formattingElemParagraph dataParsing
@@ -66,13 +70,35 @@ createText dataParsing = do
 
 formattingElemParagraph :: DataParsing -> PParagraphType
 formattingElemParagraph dataParsing = do
-    -- take "actualString dataParsing" and formatte it
     let textFormatted = formattingText (actualList dataParsing)
     (PTextParagraph textFormatted)
 
 formattingText :: String -> PText
 formattingText str = do
+    -- Format the string
+    -- Call checkElemIsClose
+
+
     (PText [(PString (str))])
+
+-- This function will check if the symbol is closed correctly
+-- If symbol is find
+checkElemIsClose :: TypeText -> String -> String
+checkElemIsClose c str
+
+
+{-- ! Example
+
+Bonjour **abc** !
+PString "Bonjour ", PBold [PString "abc"], PString "!"
+
+Bonjour **`abc`** !
+PString "Bonjour ", PBold [PCode [PString "abc"]], PString "!"
+
+Bonjour **`abc**` !
+PString "Bonjour **", PCode [PString "abc**"], PString "!" 
+
+--}
 
 ------------------------------------------------------------------------------------------------------------
 -----------------------------------               IMAGE                 ------------------------------------

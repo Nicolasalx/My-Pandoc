@@ -9,7 +9,7 @@ module ParseMarkdown.ParseBody (parseBody) where
 import Content (PContent(..), PText(..), PParagraph(..), PParagraphType(..), PSection(..), PCodeBlock(..), PTextType(..))
 import ParsingLib.Lib (parseString, strcmp)
 import ParseMarkdown.DataStructMarkdown (DataParsing(..), TypeToAdd(..))
-import ParseMarkdown.ParseOneChar (parseOneChar)
+import ParseMarkdown.ParseOneChar (parseOneChar, createText)
 import ParsingLib.AppendElemToDataStruct (addNewElemToContent)
 
 parseBody :: DataParsing -> IO (Either String [PContent])
@@ -32,7 +32,9 @@ parseAllString (x:xs) dataParsing allContent = do
 
 tryAddElemToContent :: DataParsing -> [PContent] -> IO ([PContent], DataParsing)
 tryAddElemToContent dataParsing allContent
-    | typeToAdd dataParsing == Paragraph && (nbReturnLines dataParsing) > 0 && (length (actualList dataParsing)) > 0 = print ("Actual List: " ++ show (actualList dataParsing)) >> return (createParagraph dataParsing allContent)
+    | typeToAdd dataParsing == Paragraph && (nbReturnLines dataParsing) > 0 && (length (actualList dataParsing)) > 0 = do
+        let newDataParsed = createText dataParsing
+        (createParagraph newDataParsed allContent)
     | typeToAdd dataParsing == Item = return (createItem dataParsing allContent)
     | otherwise = return (allContent, dataParsing)
 
@@ -108,36 +110,36 @@ skipSpaces index (x:xs)
 checkfirstStrIsAnElem :: String -> DataParsing -> [PContent] -> IO (DataParsing, String, [PContent])
 checkfirstStrIsAnElem str dataParsing allContent
     | Just (_, rightPart) <- isSectionSix = do
-        let (newContent, newData) = tryAddParagraph dataParsing allContent
+        (newContent, newData) <- tryAddParagraph dataParsing allContent
         (finalContent, finalData) <- createSection 6 rightPart newData newContent
         return (finalData { levelSection = 6, typeToAdd = Section }, rightPart, finalContent)
     | Just (_, rightPart) <- isSectionFive = do
-        let (newContent, newData) = tryAddParagraph dataParsing allContent
+        (newContent, newData) <- tryAddParagraph dataParsing allContent
         (finalContent, finalData) <- createSection 5 rightPart newData newContent
         return (finalData { levelSection = 5, typeToAdd = Section }, rightPart, finalContent)
     | Just (_, rightPart) <- isSectionFour = do
-        let (newContent, newData) = tryAddParagraph dataParsing allContent
+        (newContent, newData) <- tryAddParagraph dataParsing allContent
         (finalContent, finalData) <- createSection 4 rightPart newData newContent
         return (finalData { levelSection = 4, typeToAdd = Section }, rightPart, finalContent)
     | Just (_, rightPart) <- isSectionThree = do
-        let (newContent, newData) = tryAddParagraph dataParsing allContent
+        (newContent, newData) <- tryAddParagraph dataParsing allContent
         (finalContent, finalData) <- createSection 3 rightPart newData newContent
         return (finalData { levelSection = 3, typeToAdd = Section }, rightPart, finalContent)
     | Just (_, rightPart) <- isSectionTwo = do
-        let (newContent, newData) = tryAddParagraph dataParsing allContent
+        (newContent, newData) <- tryAddParagraph dataParsing allContent
         (finalContent, finalData) <- createSection 2 rightPart newData newContent
         return (finalData { levelSection = 2, typeToAdd = Section }, rightPart, finalContent)
     | Just (_, rightPart) <- isSectionOne = do
-        let (newContent, newData) = tryAddParagraph dataParsing allContent
+        (newContent, newData) <- tryAddParagraph dataParsing allContent
         (finalContent, finalData) <- createSection 1 rightPart newData newContent
         return (finalData { levelSection = 1, typeToAdd = Section }, rightPart, finalContent)
     | Just (_, rightPart) <- isCodeBlock = do
-        let (newfrstContent, newData) = tryAddParagraph dataParsing allContent
+        (newfrstContent, newData) <- tryAddParagraph dataParsing allContent
         let newDataParsed = newData { isInCodeblock = not (isInCodeblock dataParsing), typeToAdd = CodeBlock }
             (finalDataParsed, newContent) = tryAddCodeBlock newDataParsed newfrstContent
         return (finalDataParsed, rightPart, newContent)
     | Just (_, rightPart) <- isItem = do
-        let (newContent, newData) = tryAddParagraph dataParsing allContent
+        (newContent, newData) <- tryAddParagraph dataParsing allContent
         return (newData { levelItem = (levelItem dataParsing) + 1, typeToAdd = Item }, rightPart, newContent)
     | otherwise = defineParagraphType dataParsing str allContent
   where
@@ -186,16 +188,18 @@ defineParagraphType dataParsing str allContent
         - Insert a new Paragraph in [PContent] with function "checkInsertSection" with data "paragraph dataParsing" 
 -}
 
-createParagraph :: DataParsing -> [PContent] -> ([PContent], DataParsing)
-createParagraph dataParsing allContent = do
-    let newContent = convertParagraphToContent (paragraph dataParsing)
-        finalContent = checkInsertSection dataParsing newContent allContent
-    (finalContent, dataParsing { paragraph = [], actualList = "" })
+createParagraph :: DataParsing -> [PContent] -> IO ([PContent], DataParsing)
+createParagraph dataParsing allContent
+    | length (paragraph dataParsing) > 0 = do
+        let newContent = convertParagraphToContent (paragraph dataParsing)
+            finalContent = checkInsertSection dataParsing newContent allContent
+        return (finalContent, dataParsing { paragraph = [], actualList = "" })
+    | otherwise = return (allContent, dataParsing)
 
-tryAddParagraph :: DataParsing -> [PContent] -> ([PContent], DataParsing)
+tryAddParagraph :: DataParsing -> [PContent] -> IO ([PContent], DataParsing)
 tryAddParagraph dataParsing allContent
     | typeToAdd dataParsing == Paragraph = createParagraph dataParsing allContent
-    | otherwise = (allContent, dataParsing)
+    | otherwise = return (allContent, dataParsing)
 
 convertParagraphToContent :: [PParagraphType] -> PContent
 convertParagraphToContent paragraphTypes = 
@@ -245,7 +249,7 @@ addCodeBlockToContent dataParsing allContent = do
 
 createSection :: Int -> String -> DataParsing -> [PContent] -> IO ([PContent], DataParsing)
 createSection actualLevel titleSection dataParsing allContent
-    | levelSection dataParsing == 0 = createNewSection actualLevel titleSection dataParsing allContent False
+    | levelSection dataParsing == 0 = createNewSection actualLevel titleSection dataParsing allContent True
     | (levelSection dataParsing) >= actualLevel = createNewSection actualLevel titleSection dataParsing allContent True
     | otherwise = createNewSection (actualLevel - (levelSection dataParsing))  titleSection dataParsing allContent False
 
@@ -256,7 +260,7 @@ initNewSection titleSection = PSectionContent $ PSection { title = titleSection,
 
 createNewSection :: Int -> String -> DataParsing -> [PContent] -> Bool -> IO ([PContent], DataParsing)
 createNewSection levelSection titleSection dataParsing allContent isSectionOut
-    | isSectionOut = do 
+    | isSectionOut = do
         let newSect = initNewSection titleSection
             newContent = tryAddFrstSection levelSection newSect allContent
         (checkIndexAndInsert dataParsing levelSection newSect newContent)
