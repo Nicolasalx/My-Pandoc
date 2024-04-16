@@ -33,7 +33,7 @@ parseAllString (x:xs) dataParsing allContent = do
 tryAddElemToContent :: DataParsing -> [PContent] -> IO ([PContent], DataParsing)
 tryAddElemToContent dataParsing allContent
     | typeToAdd dataParsing == Paragraph && (nbReturnLines dataParsing) > 0 && (length (actualList dataParsing)) > 0 = do
-        let newDataParsed = createText dataParsing
+        newDataParsed <- createText dataParsing
         (createParagraph newDataParsed allContent)
     | typeToAdd dataParsing == Item = return (createItem dataParsing allContent)
     | otherwise = return (allContent, dataParsing)
@@ -322,17 +322,13 @@ tryAddFrstSection levelSection content allContent
 
 -- ! When a codeBlock is Open but don't close -> The program wait the codeBlock close => Find a solution to this
 
--- ! If a Section is in codeBlock the result is this:
+-- ! If a Section is in codeBlock the result is this: [PSectionContent (PSection {title = "Section A", section_content = [PCodeBlockContent (PCodeBlock ["","","abc",""])]})]
 -- ```
 -- # Section A
 -- 
 -- abc
 -- 
 -- ```
-
--- ! Problem with insertion in paragraph
-
--- => [PSectionContent (PSection {title = "Section A", section_content = [PCodeBlockContent (PCodeBlock ["","","abc",""])]})]
 
 -- Begin the formatting text of a paragraph
 -- Stock the actual paragraph in the dataParsing

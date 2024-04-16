@@ -5,14 +5,51 @@
 -- DataStructMarkdown
 -}
 
-module ParseMarkdown.DataStructMarkdown (initializeDataParsing, DataParsing(..), TypeToAdd(..)) where
-import Content (PParagraphType(..))
+module ParseMarkdown.DataStructMarkdown (initializeDataParsing, DataParsing(..), TypeToAdd(..), initializeDataText, TypeText(..), DataText(..), ElemTextType(..)) where
+import Content (PParagraphType(..), PTextType(..))
 
 data TypeToAdd = None | Paragraph | Link | Image | CodeBlock | Section | Item
   deriving (Show, Eq)
 
 data TypeText = Bold | Italic | Code
   deriving (Show, Eq)
+
+data ElemTextType = TString String
+    | TBold TypeText
+    | TItalic TypeText
+    | TCode TypeText
+    deriving (Show, Eq)
+
+data DataText = DataText
+  {
+    basicStr :: String,
+
+    levelText :: Int,
+
+    isInBold :: Bool,
+    isInItalic :: Bool,
+    isInCode :: Bool,
+
+    contentText :: [PTextType],
+  
+    listText :: [ElemTextType]
+  } deriving (Show, Eq)
+
+initializeDataText :: DataText
+initializeDataText = DataText
+  {
+    basicStr = "",
+
+    levelText = 0,
+
+    isInBold = False,
+    isInItalic = False,
+    isInCode = False,
+
+    contentText = [],
+
+    listText = []
+  }
 
 data DataParsing = DataParsing
   {
@@ -38,11 +75,8 @@ data DataParsing = DataParsing
     isInCodeblock :: Bool,
     levelSection :: Int,
     levelItem :: Int,
-    nbStars :: Int,
-    nbBackTick :: Int,
     actualList :: String,
     nbReturnLines :: Int,
-    lastCharacter :: Char,
     remainingLines :: [String]
   } deriving (Show, Eq)
 
@@ -71,10 +105,7 @@ initializeDataParsing = DataParsing
     isInCodeblock = False,
     levelSection = 0,
     levelItem = 0,
-    nbStars = 0,
-    nbBackTick = 0,
     actualList = "",
     nbReturnLines = 0,
-    lastCharacter = ' ',
     remainingLines = []
   }
