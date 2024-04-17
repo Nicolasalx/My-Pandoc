@@ -70,6 +70,9 @@ parseUntil target str
         (parsed, rest) <- parseUntil target (tail str)
         return (head str:parsed, rest)
 
+addParagraph :: String -> PContent -> PContent
+addParagraph str (PParagraphContent (PParagraph list)) = PParagraphContent (PParagraph (list ++ [PTextParagraph (PText [PString str])]))
+
 -- lib bootstrap
 
 -- parseAnyChar :: String -> Parser Char

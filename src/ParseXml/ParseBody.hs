@@ -13,11 +13,11 @@ import Content (PHeader(..), PBody(..),
     PParagraph(..), PParagraphType(..), PSection(..), PCodeBlock(..),
     PList(..), PItem(..), PItemType(..))
 import ParseXml.DataStructXml (DataParsing(..), initializeDataParsing)
-import ParsingLib.Lib (strcmp)
+import ParsingLib.Lib (strcmp, addParagraph)
 
 parseBody :: String -> IO (Either String PBody)
-parseBody file_content = return $ Right (addTextToBody (PBody []) "coucou")
-    
+parseBody file_content = return $ Right (PBody [addParagraph "coucou" (PParagraphContent (PParagraph []))])
+
 checkTypeBalise :: String -> DataParsing -> DataParsing
 checkTypeBalise str dataParsing
     | strcmp str "<paragraph>" = dataParsing { isInParagraph = True }
@@ -38,9 +38,3 @@ checkEndBalise str dataParsing
     | strcmp str "</image>" = dataParsing { isInImage = False }
     | strcmp str "</link>" = dataParsing { isInLink = False }
     | otherwise = dataParsing
-
-addTextToParagraph :: PParagraph -> String -> PParagraph
-addTextToParagraph (PParagraph content) newText = PParagraph (content ++ [PTextParagraph (PText [PString newText])])
-
-addTextToBody :: PBody -> String -> PBody
-addTextToBody (PBody contents) newText = PBody (contents ++ [PParagraphContent (addTextToParagraph (PParagraph []) newText)])
