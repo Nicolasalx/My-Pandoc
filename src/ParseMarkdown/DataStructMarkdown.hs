@@ -32,6 +32,8 @@ data DataText = DataText
 
     contentText :: [PTextType],
   
+    precedentChar :: Char,
+
     listText :: [ElemTextType]
   } deriving (Show, Eq)
 
@@ -48,6 +50,7 @@ initializeDataText = DataText
 
     contentText = [],
 
+    precedentChar = ' ',
     listText = []
   }
 
