@@ -6,84 +6,19 @@
 --
 
 module ParseJson.ParseBody (parseBody) where
-import Content (PContent(..), PParagraph(..), PParagraphType(..), PText(..), PTextType(..))
+import Content (PContent(..), PParagraph(..), PParagraphType(..), PText(..), PTextType(..), PSection(..))
 import ParsingLib.AppendElemToDataStruct (addNewElemToContent)
 import ParsingLib.Lib (strToWordArray, strcmp, searchSymbol)
 
--- data PHeader = PHeader {
---     header_title :: String,
---     author :: Maybe String,
---     date :: Maybe String
--- } deriving (Show)
-
--- data PBody = PBody [PContent]
---     deriving (Show)
-
--- data PContent = PParagraphContent PParagraph
---     | PSectionContent PSection
---     | PCodeBlockContent PCodeBlock
---     | PListContent PList
---     deriving (Show)
-
--- data PText = PText [PTextType]
---     deriving (Show)
-
--- data PTextType = PString String
---     | PBoldText PBold
---     | PItalicText PItalic
---     | PCodeText PCode
---     deriving (Show)
-
--- data PBold = PBold [PTextType]
---     deriving (Show)
-
--- data PItalic = PItalic [PTextType]
---     deriving (Show)
-
--- data PCode = PCode [PTextType]
---     deriving (Show)
-
--- data PLink = PLink {
---     link_url :: String,
---     content :: PText
--- } deriving (Show)
-
--- data PImage = PImage {
---     image_url :: String,
---     alt :: PText
--- } deriving (Show)
-
--- data PParagraph = PParagraph [PParagraphType]
---     deriving (Show)
-
--- data PParagraphType = PTextParagraph PText
---     | PLinkParagraph PLink
---     | PImageParagraph PImage
---     deriving (Show)
-
--- data PSection = PSection {
---     title :: String,
---     section_content :: [PContent]
--- } deriving (Show)
-
--- data PCodeBlock = PCodeBlock [String]
---     deriving (Show)
-
--- data PList = PList [PItem]
---     deriving (Show)
-
--- data PItem = PItem [PItemType]
---     deriving (Show)
-
--- data PItemType = PParagraphItem PParagraph
---     | PListItem PList
---     deriving (Show)
-
 -- fonction pour récupérer le PContent selon le state (endroit)
 -- fonction pour ajouter un PContent vide selon le state (endroit)
--- PParagra
--- addNewPContent :: [String] -> [PContent] -> [PContent]
 
+addNewPContent :: [String] -> Bool -> PContent -> [PContent] -> [PContent]
+addNewPContent [] _ newC content = content ++ [newC]
+addNewPContent (x:xs) isBody newC content
+    | x == "section" && isBody == True = (init content) ++ [PSectionContent ( PSection {title = "", section_content = (addNewPContent (xs) True newC [(last content)])})]
+    | x == "section" && isBody == False = addNewPContent (xs) True newC content
+    | otherwise = addNewPContent (xs) True newC content
 
 -- Parsing paragraph
 
@@ -98,12 +33,12 @@ parseParagraph state (x:xs) content = parseSymbol state xs False ((init content)
 parseText :: [String] -> [String] -> [PContent] -> Either String [PContent]
 parseText _ [] _ = Left "Error: Missing ] in text"
 parseText state (x:xs) content
-    | last state == "paragraph" = parseParagraph state (x:xs) (addNewElemToContent (PParagraphContent (PParagraph [])) content)
+    | last state == "paragraph" = parseParagraph state (x:xs) (addNewPContent state False (PParagraphContent (PParagraph [])) content)
 
 -- rempli la list d'état avec le type de contenu puis appelle parseText
 
 parseSymbolParagraph :: [String] -> [String] -> [PContent] -> Either String [PContent]
-parseSymbolParagraph _ []  content = Left "Error: Missing ] in symbol"
+parseSymbolParagraph _ [] _ = Left "Error: Missing ] in symbol"
 parseSymbolParagraph state ([]:xs) content = parseText state xs content
 parseSymbolParagraph state (x:xs) content
     | head x == ']' && last state == "paragraph" = parseSymbol (init state) (tail x:xs) False content
