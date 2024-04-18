@@ -6,23 +6,22 @@
 --
 
 module ParseMarkdown.ParseBody (parseBody) where
-import Content (PContent(..), PText(..), PParagraph(..), PParagraphType(..), PSection(..), PCodeBlock(..), PTextType(..))
+import Content (PContent(..), PParagraph(..), PParagraphType(..), PSection(..), PCodeBlock(..), PBody(..))
 import ParsingLib.Lib (parseString, strcmp)
 import ParseMarkdown.DataStructMarkdown (DataParsing(..), TypeToAdd(..))
 import ParseMarkdown.ParseOneChar (parseOneChar, createText)
 import ParsingLib.AppendElemToDataStruct (addNewElemToContent)
 
-parseBody :: DataParsing -> IO (Either String [PContent])
+parseBody :: DataParsing -> IO (Either String PBody)
 parseBody dataParsing =
-    parseAllString (remainingLines dataParsing) dataParsing [] >>= \(allContent, dataParsed) ->
-    print dataParsed >>
-    print "" >>
-    print "" >>
-    print allContent >>
-    return (Left "ok")
+    parseAllString (remainingLines dataParsing) dataParsing [] >>= \(allContent) ->
+    case allContent of
+        Left err -> return (Left err)
+        Right contents -> do
+            return (Right (PBody contents))
 
-parseAllString :: [String] -> DataParsing -> [PContent] -> IO (Either String [PContent], DataParsing)
-parseAllString [] dataParsing allContent = return (Right allContent, dataParsing)
+parseAllString :: [String] -> DataParsing -> [PContent] -> IO (Either String [PContent])
+parseAllString [] _ allContent = return (Right allContent)
 parseAllString (x:xs) dataParsing allContent = do
     (content, stringParsed) <- parseEachString x x dataParsing False allContent
     (newContent, newData) <- tryAddElemToContent stringParsed content
@@ -65,7 +64,7 @@ checkFrstStr str dataParsing allContent = do
         parseEachString "" "" newDataParsing True newContent
 
 analyseBasicString :: Char -> String -> DataParsing -> [PContent] -> IO ([PContent], DataParsing)
-analyseBasicString c cs dataParsing allContent = do
+analyseBasicString c cs dataParsing allContent = do 
     (dataAfterLinkImg, newStr) <- checkImgAndLink c cs dataParsing
     case strcmp newStr cs of
         True -> do
@@ -80,8 +79,9 @@ analyseBasicString c cs dataParsing allContent = do
 
 checkImgAndLink :: Char -> String -> DataParsing -> IO (DataParsing, String)
 checkImgAndLink c str dataParsing
-    | Just (_, rightPart) <- parseString "![" str =
-        return (dataParsing { isInAltImage = True }, rightPart)
+    | Just (_, rightPart) <- parseString "![" str = do
+        newData <- parseOneChar c dataParsing
+        return (newData { isInAltImage = True }, rightPart)
     | Just (_, rightPart) <- parseString "](" str =
         endLinkOrImg c rightPart dataParsing
     | otherwise = return (dataParsing, str)
@@ -259,21 +259,21 @@ initNewSection titleSection = PSectionContent $ PSection { title = titleSection,
 -------------------------------- WHEN NO PARENT SECTION EXIST ------------------------------
 
 createNewSection :: Int -> String -> DataParsing -> [PContent] -> Bool -> IO ([PContent], DataParsing)
-createNewSection levelSection titleSection dataParsing allContent isSectionOut
+createNewSection levelSect titleSection dataParsing allContent isSectionOut
     | isSectionOut = do
         let newSect = initNewSection titleSection
-            newContent = tryAddFrstSection levelSection newSect allContent
-        (checkIndexAndInsert dataParsing levelSection newSect newContent)
+            newContent = tryAddFrstSection levelSect newSect allContent
+        (checkIndexAndInsert dataParsing levelSect newSect newContent)
     | otherwise = do
         let newSect = initNewSection titleSection
-        finalContent <- loopInsertSection 1 1 levelSection newSect allContent
+        finalContent <- loopInsertSection 1 1 levelSect newSect allContent
         return (finalContent, dataParsing)
 
 checkIndexAndInsert :: DataParsing -> Int -> PContent -> [PContent] -> IO ([PContent], DataParsing)
-checkIndexAndInsert dataParsing levelSection newSect newContent
-    | levelSection == 1 = return (newContent, dataParsing)
+checkIndexAndInsert dataParsing levelSect newSect newContent
+    | levelSect == 1 = return (newContent, dataParsing)
     | otherwise = do
-        finalContent <- loopInsertSection 1 1 (levelSection - 1) newSect newContent
+        finalContent <- loopInsertSection 1 1 (levelSect - 1) newSect newContent
         return (finalContent, dataParsing)
 
 loopInsertSection :: Int -> Int -> Int -> PContent -> [PContent] -> IO [PContent]
@@ -308,8 +308,8 @@ checkInsertSection dataParsing actualContent allContent
 --------------------------- WHEN A PARENT SECTION ALREADY EXIST ---------------------------
 
 tryAddFrstSection :: Int -> PContent -> [PContent] -> [PContent]
-tryAddFrstSection levelSection content allContent
-    | levelSection == 1 = addNewElemToContent content allContent
+tryAddFrstSection levelSect content allContent
+    | levelSect == 1 = addNewElemToContent content allContent
     | otherwise = addNewElemToContent (initNewSection "") allContent
 
 ------------------------------------------------------------------------------------------------------------

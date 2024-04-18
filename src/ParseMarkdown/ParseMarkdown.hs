@@ -18,10 +18,14 @@ parseMarkdown file_content = do
     let dataInitialized = initializeDataParsing
     let allLines = lines file_content
     (headerResult, newDataParsing) <- parseHeader allLines dataInitialized
-    bodyResult <- parseBody newDataParsing
-    case bodyResult of
-        Right _ -> print "SUCCEED"
-        Left err -> print err
-    case headerResult of
-        Right pHeader -> return $ Right (pHeader, PBody [])
-        Left err -> return $ Left err
+    pBodyResult <- parseBody newDataParsing
+    case pBodyResult of
+        Right pBody -> do
+            -- print pBody
+            case headerResult of
+                Right pHeader -> return $ Right (pHeader, pBody)
+                Left err -> return $ Left err
+        Left err -> do
+            -- print err
+            return $ Left err
+

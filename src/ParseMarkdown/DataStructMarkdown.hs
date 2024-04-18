@@ -6,7 +6,7 @@
 -}
 
 module ParseMarkdown.DataStructMarkdown (initializeDataParsing, DataParsing(..), TypeToAdd(..), initializeDataText, TypeText(..), DataText(..), ElemTextType(..)) where
-import Content (PParagraphType(..), PTextType(..))
+import Content (PParagraphType(..), PText(..))
 
 data TypeToAdd = None | Paragraph | Link | Image | CodeBlock | Section | Item
   deriving (Show, Eq)
@@ -30,7 +30,9 @@ data DataText = DataText
     isInItalic :: Bool,
     isInCode :: Bool,
 
-    contentText :: [PTextType],
+    contentText :: PText,
+
+    indexListText :: Int,
   
     precedentChar :: Char,
 
@@ -48,7 +50,9 @@ initializeDataText = DataText
     isInItalic = False,
     isInCode = False,
 
-    contentText = [],
+    contentText = PText [],
+
+    indexListText = 0,
 
     precedentChar = ' ',
     listText = []
