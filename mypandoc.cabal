@@ -39,6 +39,7 @@ library
       ExportInFile
       LaunchParsing
       ParseJson.ParseBody
+      ParseJson.ParseFunction
       ParseJson.ParseHeader
       ParseJson.ParseJson
       ParseMarkdown.DataStructMarkdown
