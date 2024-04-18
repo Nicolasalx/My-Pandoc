@@ -6,7 +6,8 @@
     },
     "body": [
         [
-            "This document is a simple example of the JSON syntax."
+            "This document is a simple example of the JSON syntax.",
+            "It is used to describe the structure of the document."
         ],
         [
             "Every syntax element is displayed in this document."
