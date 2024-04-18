@@ -9,6 +9,7 @@ module ParseJson.ParseBody (parseBody) where
 import Content (PContent(..), PParagraph(..), PParagraphType(..), PText(..), PTextType(..), PSection(..))
 import ParsingLib.Lib (strToWordArray, strcmp, nth)
 import ParseJson.ParseFunction (notBracketChar, appendPContent, initPContent, lastPContent)
+import Debug.Trace
 
 addTitle :: String -> PContent -> PContent
 addTitle str (PSectionContent (PSection {title = _, section_content = content})) = PSectionContent (PSection {title = str, section_content = content})
@@ -22,7 +23,7 @@ addParagraph :: String -> PContent -> PContent
 addParagraph str (PParagraphContent (PParagraph list)) = PParagraphContent (PParagraph (list ++ [PTextParagraph (PText [PString str])]))
 
 parseParagraph :: [String] -> [String] -> [PContent] -> Either String [PContent]
-parseParagraph state (x:xs) content = parseSymbol state xs ((initPContent state content) ++ [addParagraph x (lastPContent state content)])
+parseParagraph state (x:xs) content = parseSymbol state xs (appendPContent state (addParagraph x (lastPContent state content)) ((initPContent state content)))
 
 -- check quel est le type du text et call la bonne fonction
 
