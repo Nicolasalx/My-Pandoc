@@ -7,8 +7,14 @@
 
 module ParseJson.ParseBody (parseBody) where
 import Content (PContent(..), PParagraph(..), PParagraphType(..), PText(..), PTextType(..), PSection(..))
-import ParsingLib.Lib (strToWordArray, strcmp, searchSymbol)
+import ParsingLib.Lib (strToWordArray, strcmp, nth)
 import ParseJson.ParseFunction (notBracketChar, appendPContent, initPContent, lastPContent)
+
+addTitle :: String -> PContent -> PContent
+addTitle str (PSectionContent (PSection {title = _, section_content = content})) = PSectionContent (PSection {title = str, section_content = content})
+
+parseTitle :: [String] -> [String] -> [PContent] -> Either String [PContent]
+parseTitle state (x:xs) content = parseSymbol (state ++ ["section"]) xs ((initPContent state content) ++ [addTitle x (lastPContent state content)])
 
 -- Parsing paragraph
 
@@ -24,15 +30,22 @@ parseText :: [String] -> [String] -> [PContent] -> Either String [PContent]
 parseText _ [] _ = Left "Error: Missing ] in text"
 parseText state (x:xs) content
     | last state == "paragraph" = parseParagraph state (x:xs) content
-    | last state == "?" && x == "section" = parseSymbol ((init state) ++ ["section"]) xs content
-
+    | last state == "?" && x == "section" = parseSymbol ((init state) ++ ["beforeSection"]) xs (appendPContent state (PSectionContent (PSection {title = "", section_content = []})) content)
+    | last state == "beforeSection" && x == "title" = parseTitle state (nth 1 xs) content
+    | last state == "section" && x == "content" = parseSymbol state xs content
+    | otherwise = Right content
 -- rempli la list d'état avec le type de contenu puis appelle parseText
 
 parseSymbolParagraph :: [String] -> [String] -> [PContent] -> Either String [PContent]
 parseSymbolParagraph _ [] _ = Left "Error: Missing ] in symbol"
-parseSymbolParagraph state ([]:xs) content = parseText state xs content
 parseSymbolParagraph state (x:xs) content
     | head x == ']' && last state == "paragraph" = parseSymbol (init state) (tail x:xs) content
+    | otherwise = parseSymbolSection state (x:xs) content
+
+parseSymbolSection :: [String] -> [String] -> [PContent] -> Either String [PContent]
+parseSymbolSection _ [] _ = Left "Error: Missing ] in symbol"
+parseSymbolSection state (x:xs) content
+    | head x == '{' && last state == "beforeSection" = parseSymbol state (tail x:xs) content
     | otherwise = Right content
 
 parseSymbol :: [String] -> [String] -> [PContent] -> Either String [PContent]

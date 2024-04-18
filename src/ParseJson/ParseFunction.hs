@@ -19,7 +19,7 @@ notBracketChar (_:_) = False
 -- ajoute un nouveau PContent à la fin
 
 retrieveTitle :: PContent -> String
-retrieveTitle (PSectionContent (PSection {title = title, section_content = _})) = title
+retrieveTitle (PSectionContent (PSection {title = theTitle, section_content = _})) = theTitle
 retrieveTitle _ = ""
 
 addNewPContent :: [String] -> Bool -> PContent -> [PContent] -> [PContent]
