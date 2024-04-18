@@ -8,12 +8,6 @@ date: 2024-01-01
 # Section A
 
 
-abc **ghi** *def* **`code**`    
-
-
-
-
-
-
+***a***
 
 
