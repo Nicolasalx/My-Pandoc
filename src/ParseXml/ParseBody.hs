@@ -14,27 +14,43 @@ import Content (PHeader(..), PBody(..),
     PList(..), PItem(..), PItemType(..))
 import ParseXml.DataStructXml (DataParsing(..), initializeDataParsing)
 import ParsingLib.Lib (strcmp, addParagraph)
+import Data.List (isPrefixOf)
 
 parseBody :: String -> IO (Either String PBody)
-parseBody file_content = return $ Right (PBody [addParagraph "coucou" (PParagraphContent (PParagraph []))])
+parseBody file_content = do
+    let linesContent = lines file_content
+    case analyzeContent ["paragraph"] linesContent [] of
+        Left err -> return $ Left err
+        Right content -> return $ Right (PBody content)
 
-checkTypeBalise :: String -> DataParsing -> DataParsing
-checkTypeBalise str dataParsing
-    | strcmp str "<paragraph>" = dataParsing { isInParagraph = True }
-    | strcmp str "<section>" = dataParsing { levelSection = levelSection dataParsing + 1 }
-    | strcmp str "<codeblock>" = dataParsing { isInCodeBlock = True }
-    | strcmp str "<bold>" = dataParsing { isInBold = True }
-    | strcmp str "<italic>" = dataParsing { isInItalic = True }
-    | strcmp str "<image url=" = dataParsing { isInImage = True }
-    | strcmp str "<link url=" = dataParsing { isInLink = True }
-    | otherwise = dataParsing
+analyzeContent :: [String] -> [String] -> [PContent] -> Either String [PContent]
+analyzeContent _ [] content = Right content
+analyzeContent state (x:xs) content
+    | "<paragraph>" `isPrefixOf` x && last state == "paragraph" = analyzeContent state xs (addParagraphContent x : init content)
+    | "<section>" `isPrefixOf` x = analyzeContent (last state : state) xs (addSectionContent x [] : content)
+    | "<codeblock>" `isPrefixOf` x && last state == "paragraph" = analyzeContent state xs (addCodeBlock [getContentBetweenTags "<codeblock>" x] : content)
+    | "<list>" `isPrefixOf` x && last state == "paragraph" = analyzeContent state xs (addList [] : content)
+    | "</section>" `isPrefixOf` x = case state of
+                                        "section":restState -> analyzeContent restState xs (finalizeSectionContent (head content) : tail content)
+                                        _ -> Left "Unexpected end of section tag"
+    | otherwise = analyzeContent state xs content
 
-checkEndBalise :: String -> DataParsing -> DataParsing
-checkEndBalise str dataParsing
-    | strcmp str "</paragraph>" = dataParsing { isInParagraph = False }
-    | strcmp str "</codeblock>" = dataParsing { isInCodeBlock = False }
-    | strcmp str "</bold>" = dataParsing { isInBold = False }
-    | strcmp str "</italic>" = dataParsing { isInItalic = False }
-    | strcmp str "</image>" = dataParsing { isInImage = False }
-    | strcmp str "</link>" = dataParsing { isInLink = False }
-    | otherwise = dataParsing
+addParagraphContent :: String -> PContent
+addParagraphContent x = PParagraphContent (PParagraph [PTextParagraph (PText [PString (getContentBetweenTags "<paragraph>" x)])])
+
+addSectionContent :: String -> [PContent] -> PContent
+addSectionContent x subcontent = PSectionContent (PSection (getContentBetweenTags "<section>" x) subcontent)
+
+finalizeSectionContent :: PContent -> PContent
+finalizeSectionContent (PSectionContent (PSection title subcontent)) = PSectionContent (PSection title (reverse subcontent))
+finalizeSectionContent _ = error "finalizeSectionContent: not a section content"
+
+getContentBetweenTags :: String -> String -> String
+getContentBetweenTags str tag = drop (length tag) $ take (length str - length tag + 1) str
+
+addCodeBlock :: [String] -> PContent
+addCodeBlock codeLines = PCodeBlockContent (PCodeBlock codeLines)
+
+addList :: [PItem] -> PContent
+addList items = PListContent (PList items)
+

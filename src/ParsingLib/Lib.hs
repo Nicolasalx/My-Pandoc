@@ -1,5 +1,11 @@
-module ParsingLib.Lib (parseString, strcmp, parseJsonKey, strToWordArray, nth, searchSymbol, parseUntil, cleanLine) where
+module ParsingLib.Lib (parseString, strcmp, parseJsonKey, strToWordArray, nth, searchSymbol, parseUntil, cleanLine, addParagraph) where
 import Data.Char (isSpace)
+import Content (PHeader(..), PBody(..),
+    PContent(..),
+    PText(..), PTextType(..), PBold(..), PItalic(..), PCode(..),
+    PLink(..), PImage(..),
+    PParagraph(..), PParagraphType(..), PSection(..), PCodeBlock(..),
+    PList(..), PItem(..), PItemType(..))
 
 type Parser a = String -> Maybe (a , String)
 
