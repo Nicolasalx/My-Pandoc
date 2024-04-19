@@ -8,7 +8,7 @@
 module ParseJson.ParseBody (parseBody) where
 import Content (PContent(..), PParagraph(..), PParagraphType(..), PText(..), PBold(..), PItalic(..), PCode(..), PTextType(..), PSection(..), PCodeBlock(..))
 import ParsingLib.Lib (strToWordArray, strcmp, nth)
-import ParseJson.ParseFunction (notBracketChar, appendPContent, initPContent, lastPContent)
+import ParseJson.ParseFunction (notBracketChar, appendPContent, initPContent, lastPContent, appendCodeBlock)
 import Debug.Trace
 
 addTitle :: String -> PContent -> PContent
@@ -37,7 +37,7 @@ parseText state (x:xs) content
     | s == "?" && x == "section" = parseSymbol ((init state) ++ ["beforeSection"]) xs (appendPContent state (PSectionContent (PSection {title = "", section_content = []})) content)
     | s == "beforeSection" && x == "title" = parseTitle state (nth 1 xs) content
     | s == "section" && x == "content" = parseSymbol state xs content
-    | s == "?" && x == "codeblock" = parseSymbol ((init state) ++ ["beforeCodeblock"]) xs (appendPContent state (PCodeBlockContent (PCodeBlock [])) content)
+    | s == "?" && x == "codeblock" = trace ("\nstate = " ++ show state ++ "\n") parseSymbol ((init state) ++ ["beforeCodeblock"]) xs (appendCodeBlock state (PCodeBlockContent (PCodeBlock [])) content)
     | s == "?" && (x == "bold" || x == "italic" || x == "code") = parseSymbol ((init state) ++ [x])  xs content
     | (s == "bold" || s == "italic" || s == "code") = parseParagraph s state (x:xs) content
     | otherwise = Right content

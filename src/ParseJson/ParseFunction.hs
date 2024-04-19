@@ -5,7 +5,7 @@
 -- ParseFunction
 --
 
-module ParseJson.ParseFunction (notBracketChar, appendPContent, initPContent, lastPContent) where
+module ParseJson.ParseFunction (notBracketChar, appendPContent, initPContent, lastPContent, appendCodeBlock) where
 import Content (PContent(..), PParagraph(..), PParagraphType(..), PText(..), PTextType(..), PSection(..))
 import Debug.Trace
 
@@ -23,13 +23,29 @@ retrieveTitle :: PContent -> String
 retrieveTitle (PSectionContent (PSection {title = theTitle, section_content = _})) = theTitle
 retrieveTitle _ = ""
 
+checkLastContent :: PContent -> Bool
+checkLastContent (PSectionContent (PSection {title = _, section_content = _})) = True
+checkLastContent _ = False
+
+addCodeBlock :: [String] -> Bool -> PContent -> [PContent] -> [PContent]
+addCodeBlock [] _ newC (PSectionContent (PSection {title = _, section_content = content}):_) = trace (show newC ++ " : 1\n") content ++ [newC]
+addCodeBlock [] _ newC content
+    | checkLastContent (last content) = trace (show newC ++ " : 2\n") (init content) ++ [PSectionContent (PSection {title = retrieveTitle (last content), section_content = (addCodeBlock [] True newC [(last content)])})]
+    | otherwise = trace (show newC ++ " : 2\n") content ++ [newC]
+addCodeBlock ("section":xs) True newC (PSectionContent (PSection {title = theTitle, section_content = content}):_) = trace (show newC ++ " : 3\n") addCodeBlock (xs) True newC content
+addCodeBlock ("section":xs) True newC content = trace (show newC ++ " : 4\n") (init content) ++ [PSectionContent (PSection {title = retrieveTitle (last content), section_content = (addCodeBlock (xs) True newC [(last content)])})]
+addCodeBlock ("section":xs) False newC content = trace (show newC ++ " : 5\n") addCodeBlock (xs) True newC content
+addCodeBlock (_:xs) isBody newC content = trace (show newC ++ " : 6\n") addCodeBlock (xs) isBody newC content
+ 
+appendCodeBlock :: [String] -> PContent -> [PContent] -> [PContent]
+appendCodeBlock state newC content = addCodeBlock state False newC content
+
 addNewPContent :: [String] -> Bool -> PContent -> [PContent] -> [PContent]
-addNewPContent [] _ newC (PSectionContent (PSection {title = _, section_content = content}):_) = content ++ [newC]
-addNewPContent [] _ newC content = content ++ [newC]
-addNewPContent ("section":xs) True newC (PSectionContent (PSection {title = theTitle, section_content = content}):_) = addNewPContent (xs) True newC content
-addNewPContent ("section":xs) True newC content = (init content) ++ [PSectionContent (PSection {title = retrieveTitle (last content), section_content = (addNewPContent (xs) True newC [(last content)])})]
-addNewPContent ("section":xs) False newC content = addNewPContent (xs) True newC content
-addNewPContent (_:xs) isBody newC content = addNewPContent (xs) isBody newC content
+addNewPContent [] _ newC (PSectionContent (PSection {title = _, section_content = content}):_) = trace (show newC ++ " : 1\n") content ++ [newC]
+addNewPContent [] _ newC content = trace (show newC ++ " : 2\n") content ++ [newC]
+addNewPContent ("section":xs) True newC content = trace (show newC ++ " : 4\n") (init content) ++ [PSectionContent (PSection {title = retrieveTitle (last content), section_content = (addNewPContent (xs) True newC [(last content)])})]
+addNewPContent ("section":xs) False newC content = trace (show newC ++ " : 5\n") addNewPContent (xs) True newC content
+addNewPContent (_:xs) isBody newC content = trace (show newC ++ " : 6\n") addNewPContent (xs) isBody newC content
  
 appendPContent :: [String] -> PContent -> [PContent] -> [PContent]
 appendPContent state newC content = addNewPContent state False newC content
