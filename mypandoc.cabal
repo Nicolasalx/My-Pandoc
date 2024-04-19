@@ -47,6 +47,18 @@ library
       ParseMarkdown.ParseHeader
       ParseMarkdown.ParseMarkdown
       ParseMarkdown.ParseOneChar
+      ParseMarkdown.FormatText.AppendElemToList
+      ParseMarkdown.FormatText.BrowseStr
+      ParseMarkdown.FormatText.CleanList
+      ParseMarkdown.FormatText.CreateText
+      ParseMarkdown.FormatText.DetectSymbol
+      ParseMarkdown.FormatText.FormatList
+      ParseMarkdown.FormatText.TextType.Bold
+      ParseMarkdown.FormatText.TextType.Code
+      ParseMarkdown.FormatText.TextType.Italic
+      ParseMarkdown.FormatText.TryAddBasicList
+      ParseMarkdown.LinksAndImages.Image
+      ParseMarkdown.LinksAndImages.Links
       ParseXml.DataStructXml
       ParseXml.ParseBody
       ParseXml.ParseHeader
