@@ -6,7 +6,7 @@
 --
 
 module ParseJson.ParseBody (parseBody) where
-import Content (PContent(..), PParagraph(..), PParagraphType(..), PText(..), PBold(..), PItalic(..), PCode(..), PTextType(..), PSection(..))
+import Content (PContent(..), PParagraph(..), PParagraphType(..), PText(..), PBold(..), PItalic(..), PCode(..), PTextType(..), PSection(..), PCodeBlock(..))
 import ParsingLib.Lib (strToWordArray, strcmp, nth)
 import ParseJson.ParseFunction (notBracketChar, appendPContent, initPContent, lastPContent)
 import Debug.Trace
@@ -37,6 +37,7 @@ parseText state (x:xs) content
     | s == "?" && x == "section" = parseSymbol ((init state) ++ ["beforeSection"]) xs (appendPContent state (PSectionContent (PSection {title = "", section_content = []})) content)
     | s == "beforeSection" && x == "title" = parseTitle state (nth 1 xs) content
     | s == "section" && x == "content" = parseSymbol state xs content
+    | s == "?" && x == "codeblock" = parseSymbol ((init state) ++ ["beforeCodeblock"]) xs (appendPContent state (PCodeBlockContent (PCodeBlock [])) content)
     | s == "?" && (x == "bold" || x == "italic" || x == "code") = parseSymbol ((init state) ++ [x])  xs content
     | (s == "bold" || s == "italic" || s == "code") = parseParagraph s state (x:xs) content
     | otherwise = Right content
@@ -56,6 +57,12 @@ parseSymbolSection :: [String] -> [String] -> [PContent] -> Either String [PCont
 parseSymbolSection _ [] _ = Left "Error: Missing ] in symbol"
 parseSymbolSection state (x:xs) content
     | head x == '{' && last state == "beforeSection" = parseSymbol state (tail x:xs) content
+    | otherwise = parseSymbolCodeblock state (x:xs) content
+
+parseSymbolCodeblock :: [String] -> [String] -> [PContent] -> Either String [PContent]
+parseSymbolCodeblock _ [] _ = Left "Error: Missing ] in symbol"
+parseSymbolCodeblock state (x:xs) content
+    | head x == '[' && last state == "beforeCodeblock" = parseSymbol (state ++ ["codeblock"]) (tail x:xs) content
     | otherwise = Right content
 
 parseSymbol :: [String] -> [String] -> [PContent] -> Either String [PContent]
@@ -90,7 +97,7 @@ parseBaseLoop dataParsing (x:xs) content
 enterInSection :: [String] -> [String] -> [PContent] -> Either String [PContent]
 enterInSection _ [] content = Right content
 enterInSection dataParsing (x:xs) content
-    | '{' `elem` x = trace (show (parseBaseLoop dataParsing xs content)) parseBaseLoop dataParsing xs content
+    | '{' `elem` x = parseBaseLoop dataParsing xs content
     | otherwise = Left "Error: Missing { in section"
 
 parseBody :: String -> IO (Either String [PContent])
