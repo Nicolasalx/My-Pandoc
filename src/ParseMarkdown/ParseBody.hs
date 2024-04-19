@@ -14,14 +14,16 @@ import ParsingLib.AppendElemToDataStruct (addNewElemToContent)
 
 parseBody :: DataParsing -> IO (Either String PBody)
 parseBody dataParsing =
-    parseAllString (remainingLines dataParsing) dataParsing [] >>= \(allContent) ->
+    parseAllString (remainingLines dataParsing) dataParsing [] >>= \(allContent, newDataParsed) ->
     case allContent of
         Left err -> return (Left err)
         Right contents -> do
-            return (Right (PBody contents))
+            dataPars <- createText newDataParsed
+            (newContent, _) <- tryAddParagraph dataPars contents
+            return (Right (PBody newContent))
 
-parseAllString :: [String] -> DataParsing -> [PContent] -> IO (Either String [PContent])
-parseAllString [] _ allContent = return (Right allContent)
+parseAllString :: [String] -> DataParsing -> [PContent] -> IO (Either String [PContent], DataParsing)
+parseAllString [] dataParsing allContent = return ((Right allContent), dataParsing)
 parseAllString (x:xs) dataParsing allContent = do
     (content, stringParsed) <- parseEachString x x dataParsing False allContent
     (newContent, newData) <- tryAddElemToContent stringParsed content
@@ -321,6 +323,7 @@ tryAddFrstSection levelSect content allContent
 -- TODO LIST
 
 -- ! When a codeBlock is Open but don't close -> The program wait the codeBlock close => Find a solution to this
+    -- ! Solution : Make a function to check if the codeblock is closed
 
 -- ! If a Section is in codeBlock the result is this: [PSectionContent (PSection {title = "Section A", section_content = [PCodeBlockContent (PCodeBlock ["","","abc",""])]})]
 -- ```
@@ -330,10 +333,7 @@ tryAddFrstSection levelSect content allContent
 -- 
 -- ```
 
--- Begin the formatting text of a paragraph
--- Stock the actual paragraph in the dataParsing
-    -- Insert link
-    -- Insert image
-    -- Insert text formatted
+-- ! If a [ is Open but not close (if it's not a link i will try to get all the line and not continue)
+    -- ! Solution : Make a function to check if the link is closed 
 
--- Begin Item
+-- ! Add a section with ====
