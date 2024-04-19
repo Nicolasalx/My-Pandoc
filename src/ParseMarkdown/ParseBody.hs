@@ -9,8 +9,9 @@ module ParseMarkdown.ParseBody (parseBody) where
 import Content (PContent(..), PParagraph(..), PParagraphType(..), PSection(..), PCodeBlock(..), PBody(..))
 import ParsingLib.Lib (parseString, strcmp)
 import ParseMarkdown.DataStructMarkdown (DataParsing(..), TypeToAdd(..))
-import ParseMarkdown.ParseOneChar (parseOneChar, createText)
+import ParseMarkdown.ParseOneChar (parseOneChar)
 import ParsingLib.AppendElemToDataStruct (addNewElemToContent)
+import ParseMarkdown.FormatText.CreateText (createText)
 
 parseBody :: DataParsing -> IO (Either String PBody)
 parseBody dataParsing =
