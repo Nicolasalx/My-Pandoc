@@ -84,9 +84,11 @@ formattingImg dataParsing = do
 ------------------------------------------------------------------------------------------------------------
 
 createText :: DataParsing -> IO DataParsing
-createText dataParsing = do
-    newTextType <- formattingElemParagraph dataParsing
-    return dataParsing { paragraph = (paragraph dataParsing) ++ [newTextType] }
+createText dataParsing
+    | length (actualList dataParsing) > 0 = do
+        newTextType <- formattingElemParagraph dataParsing
+        return dataParsing { paragraph = (paragraph dataParsing) ++ [newTextType] }
+    | otherwise = return dataParsing
 
 formattingElemParagraph :: DataParsing -> IO PParagraphType
 formattingElemParagraph dataParsing = do
