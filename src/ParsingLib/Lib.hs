@@ -63,6 +63,7 @@ searchSymbol _ [] = False
 searchSymbol (x:xs) (y:ys)
     | x == y = searchSymbol xs ys
     | otherwise = searchSymbol (x:xs) ys
+    
 cleanLine :: String -> Maybe String
 cleanLine [] = Nothing
 cleanLine str = Just $ dropWhile isSpace str
