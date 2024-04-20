@@ -13,7 +13,7 @@ import ExportFormat.MapExport (mapExport)
 
 exportBold :: PBold -> ExportFormat -> Int -> String
 exportBold (PBold text) JSON indent =
-    addIndent (indent - 1) ++ "{\n"
+    addIndent indent ++ "{\n"
     ++ addIndent (indent + 1) ++ "\"bold\": "
     ++ exportText (PText text) JSON (indent + 1)
     ++ addIndent indent ++ "}"
@@ -42,7 +42,7 @@ exportCode (PCode text) XML _ =
 exportCode (PCode text) MD _ = "`" ++ exportText (PText text) MD 0 ++ "`"
 
 exportString :: String -> ExportFormat -> Int -> String
-exportString str JSON _ = "\"" ++ str ++ "\""
+exportString str JSON indent = (addIndent indent) ++ "\"" ++ str ++ "\""
 exportString str XML _ = str
 exportString str MD _ = str
 
@@ -55,7 +55,7 @@ exportTextType (PCodeText code) format indent = exportCode code format indent
 
 exportText :: PText -> ExportFormat -> Int -> String
 exportText (PText list) JSON indent =
-    mapExport (\line -> (addIndent indent) ++ exportTextType line JSON indent)
+    mapExport (\line -> exportTextType line JSON indent)
     ",\n" list
     ++ "\n"
 exportText (PText list) format indent =

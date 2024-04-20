@@ -12,7 +12,7 @@ import ExportFormat.ExportImage (exportImage)
 import ExportFormat.ExportLink (exportLink)
 import ExportFormat.ExportText (exportText)
 import ExportFormat.MapExport (mapExport)
-import ExportFormat.AddIndent
+import ExportFormat.AddIndent (addIndent)
 
 exportParagraphType :: PParagraphType -> ExportData -> String
 exportParagraphType (PTextParagraph text) (exportData) =
@@ -23,13 +23,19 @@ exportParagraphType (PImageParagraph image) (exportData) =
     exportImage image (format_ exportData) (indent_ exportData)
 
 exportParagraphHelper :: PParagraph -> ExportFormat -> ExportData -> String
+exportParagraphHelper (PParagraph (list)) JSON (exportData) =
+    (addIndent (indent_ exportData)) ++ (start_paragraph exportData) ++
+    mapExport (\line -> exportParagraphType line
+        (exportData {indent_ = (indent_ exportData) + 1})) (sep_paragraph exportData) list
+    ++ (addIndent (indent_ exportData)) ++ (end_paragraph exportData)
+
 exportParagraphHelper (PParagraph (list)) XML (exportData) =
     (addIndent (indent_ exportData)) ++ (start_paragraph exportData) ++
     mapExport (\line -> exportParagraphType line
         (exportData)) (sep_paragraph exportData) list
     ++ (end_paragraph exportData)
 
-exportParagraphHelper (PParagraph (list)) _ (exportData) =
+exportParagraphHelper (PParagraph (list)) MD (exportData) =
     (start_paragraph exportData) ++
     mapExport (\line -> exportParagraphType line
         (exportData)) (sep_paragraph exportData) list
