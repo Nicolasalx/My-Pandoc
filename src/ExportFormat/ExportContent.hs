@@ -28,12 +28,13 @@ exportSectionType (PSection title_ content) JSON exportData =
 
 exportSectionType (PSection title_ content) XML exportData =
     addIndent (indent_ exportData) ++ "<section title=\"" ++ title_ ++ "\">\n"
-    ++ concatMap (\line -> exportContent line (exportData) ++ "\n") content
+    ++ concatMap (\line -> exportContent line (exportData {indent_ = (indent_ exportData) + 1})) content
     ++ addIndent (indent_ exportData) ++ "</section>\n"
 
 exportSectionType (PSection title_ content) MD exportData
-    | length title_ == 0 = ""
-    | otherwise = replicate (current_section exportData) '#'
+    | length title_ == 0 = concatMap (\line -> exportContent line
+    (exportData {current_section = (current_section exportData) + 1})) content
+    | otherwise = "\n" ++ replicate (current_section exportData) '#'
     ++ " " ++ title_ ++ "\n" ++
     concatMap (\line -> exportContent line
     (exportData {current_section = (current_section exportData) + 1})) content
