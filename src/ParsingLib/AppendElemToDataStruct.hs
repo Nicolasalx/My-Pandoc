@@ -6,7 +6,7 @@
 --
 
 module ParsingLib.AppendElemToDataStruct (addNewElemToContent) where
-import Content (PContent(..), PText(..), )
+import Content (PContent(..))
 
 addNewElemToContent :: PContent -> [PContent] -> [PContent]
 addNewElemToContent actualContent allContent = allContent ++ [actualContent]

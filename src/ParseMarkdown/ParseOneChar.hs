@@ -5,8 +5,11 @@
 -- parseOneChar
 --
 
-module ParseMarkdown.ParseOneChar(parseOneChar) where
-import ParseMarkdown.DataStructMarkdown (DataParsing(..), TypeToAdd(..))
+module ParseMarkdown.ParseOneChar (parseOneChar) where
+import ParseMarkdown.DataStructMarkdown (DataParsing(..))
+import Content ()
+import ParseMarkdown.LinksAndImages.Links (insertLinkToParagraph)
+import ParseMarkdown.LinksAndImages.Image (insertImageToParagraph)
 
 addCharToActualList :: Char -> DataParsing -> IO DataParsing
 addCharToActualList c dataParsing
@@ -20,14 +23,17 @@ addBasicCharToActualList :: Char -> DataParsing -> IO DataParsing
 addBasicCharToActualList c dataParsing = return (dataParsing { actualList = actualList dataParsing ++ [c], nbReturnLines = 0})
 
 parseOneChar :: Char -> DataParsing -> IO DataParsing
-parseOneChar '`' dataParsing = addCharToActualList '`' dataParsing -- Text Formatting -> Code (Check if we are in a paragraph)
-
-parseOneChar '[' dataParsing = addBasicCharToActualList '[' dataParsing { isInContentLink = True }
+-- ! Verify Link or Image
+-- parseOneChar '[' dataParsing = addBasicCharToActualList '[' dataParsing { isInContentLink = True }
+parseOneChar '[' dataParsing = return (dataParsing { isInContentLink = True, nbReturnLines = 0 })
 
 parseOneChar ')' dataParsing
-    | isInUrlLink dataParsing == True = addCharToActualList ')' (dataParsing { isInUrlLink = False, typeToAdd = Link }) -- A link has been completely fill, now i will add in the DataStructure PContent
-    | isInUrlImage dataParsing == True = addCharToActualList ')' (dataParsing { isInUrlImage = False, typeToAdd = Image }) -- An image has been completely fill, now i will add in the DataStructure PContent
-
-parseOneChar '*' dataParsing = addCharToActualList '*' dataParsing -- Text Formatting -> Code (Check if we are in a paragraph)
+    | isInUrlLink dataParsing = do
+        newDataParsed <- return (dataParsing { isInUrlLink = False })
+        (insertLinkToParagraph newDataParsed)
+    | isInUrlImage dataParsing = do
+        newDataParsed <- return (dataParsing { isInUrlImage = False })
+        (insertImageToParagraph newDataParsed)
+    | otherwise = addBasicCharToActualList '[' dataParsing { isInContentLink = True }
 
 parseOneChar c dataParsing = addCharToActualList c dataParsing

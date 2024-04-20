@@ -2,6 +2,8 @@
     <header title="Simple example">
     </header>
 <body>
-        <paragraph>This is a simple example</paragraph>
+    <paragraph>This is a simple example</paragraph>
+    <section title="header 1">
+    <paragraph>2</paragraph>
     </body>
 </document>

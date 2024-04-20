@@ -16,67 +16,67 @@ data PHeader = PHeader {
     header_title :: String,
     author :: Maybe String,
     date :: Maybe String
-} deriving (Show)
+} deriving (Show, Eq)
 
 data PBody = PBody [PContent]
-    deriving (Show)
+    deriving (Show, Eq)
 
 data PContent = PParagraphContent PParagraph
     | PSectionContent PSection
     | PCodeBlockContent PCodeBlock
     | PListContent PList
-    deriving (Show)
+    deriving (Show, Eq)
 
 data PText = PText [PTextType]
-    deriving (Show)
+    deriving (Show, Eq)
 
 data PTextType = PString String
     | PBoldText PBold
     | PItalicText PItalic
     | PCodeText PCode
-    deriving (Show)
+    deriving (Show, Eq)
 
 data PBold = PBold [PTextType]
-    deriving (Show)
+    deriving (Show, Eq)
 
 data PItalic = PItalic [PTextType]
-    deriving (Show)
+    deriving (Show, Eq)
 
 data PCode = PCode [PTextType]
-    deriving (Show)
+    deriving (Show, Eq)
 
 data PLink = PLink {
     link_url :: String,
     content :: PText
-} deriving (Show)
+} deriving (Show, Eq)
 
 data PImage = PImage {
     image_url :: String,
     alt :: PText
-} deriving (Show)
+} deriving (Show, Eq)
 
 data PParagraph = PParagraph [PParagraphType]
-    deriving (Show)
+    deriving (Show, Eq)
 
 data PParagraphType = PTextParagraph PText
     | PLinkParagraph PLink
     | PImageParagraph PImage
-    deriving (Show)
+    deriving (Show, Eq)
 
 data PSection = PSection {
     title :: String,
     section_content :: [PContent]
-} deriving (Show)
+} deriving (Show, Eq)
 
 data PCodeBlock = PCodeBlock [String]
-    deriving (Show)
+    deriving (Show, Eq)
 
 data PList = PList [PItem]
-    deriving (Show)
+    deriving (Show, Eq)
 
 data PItem = PItem [PItemType]
-    deriving (Show)
+    deriving (Show, Eq)
 
 data PItemType = PParagraphItem PParagraph
     | PListItem PList
-    deriving (Show)
+    deriving (Show, Eq)
