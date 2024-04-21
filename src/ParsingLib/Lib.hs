@@ -1,4 +1,4 @@
-module ParsingLib.Lib (parseString, strcmp, parseJsonKey, strToWordArray, nth, parseUntil, cleanLine, Parser, searchSymbol, parseUntil) where
+module ParsingLib.Lib (parseString, strcmp, parseJsonKey, strToWordArray, nth, parseUntil, cleanLine, Parser, searchSymbol, checkIsInString) where
 import Data.Char (isSpace)
 
 type Parser a = String -> Maybe (a , String)
@@ -29,6 +29,13 @@ strToWordArray str tmp (x:xs)
     | length tmp == 0 = strToWordArray str [] xs
     | otherwise = tmp : strToWordArray str [] xs
 
+checkIsInString :: String -> String -> Bool
+checkIsInString [] _ = False
+checkIsInString _ [] = False
+checkIsInString (x:xs) str
+    | x `elem` str = True
+    | otherwise = checkIsInString xs str
+
 strcmp :: String -> String -> Bool
 strcmp [] [] = True
 strcmp [] _ = False
@@ -57,13 +64,13 @@ searchSymbol _ [] = False
 searchSymbol (x:xs) (y:ys)
     | x == y = searchSymbol xs ys
     | otherwise = searchSymbol (x:xs) ys
+
 cleanLine :: String -> Maybe String
 cleanLine [] = Nothing
 cleanLine str = Just $ dropWhile isSpace str
 
 parseUntil :: String -> String -> Maybe (String, String)
 parseUntil _ "" = Nothing
-parseUntil target "" = Nothing
 parseUntil target str
     | strcmp target (take (length target) str) = Just ("", drop (length target) str)
     | otherwise = do
