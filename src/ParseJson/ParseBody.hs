@@ -28,7 +28,7 @@ addParagraph "text" str (PParagraphContent (PParagraph list)) = PParagraphConten
 addParagraph "bold" str (PParagraphContent (PParagraph list)) = PParagraphContent $ PParagraph $ list ++ [PTextParagraph (PText [PBoldText (PBold [PString str])])]
 addParagraph "italic" str (PParagraphContent (PParagraph list)) = PParagraphContent $ PParagraph $ list ++ [PTextParagraph (PText [PItalicText (PItalic [PString str])])]
 addParagraph "code" str (PParagraphContent (PParagraph list)) = PParagraphContent $ PParagraph $ list ++ [PTextParagraph (PText [PCodeText (PCode [PString str])])]
-addParagraph "link" str (PParagraphContent (PParagraph list)) = PParagraphContent $ PParagraph $ list ++ [PLinkParagraph (PLink {link_url = "", contenu = PText []})]
+addParagraph "link" str (PParagraphContent (PParagraph list)) = PParagraphContent $ PParagraph $ list ++ [PLinkParagraph (PLink {link_url = "", content = PText []})]
 addParagraph "image" str (PParagraphContent (PParagraph list)) = PParagraphContent $ PParagraph $ list ++ [PImageParagraph (PImage {image_url = "", alt = PText []})]
 
 parseParagraph :: String -> [String] -> [String] -> [PContent] -> Either String [PContent]
@@ -53,8 +53,8 @@ parseList state (x:xs) contenu = parseSymbol state xs (appendPContent state (add
 -- Parsing link and Image
 
 getLinkUrl :: String -> PParagraphType -> PParagraphType
-getLinkUrl str (PLinkParagraph (PLink {link_url = "", contenu = contenu})) = PLinkParagraph (PLink {link_url = str, contenu = contenu})
-getLinkUrl str (PLinkParagraph (PLink {link_url = theTitle, contenu = PText []})) = PLinkParagraph (PLink {link_url = theTitle, contenu = PText [PString str]})
+getLinkUrl str (PLinkParagraph (PLink {link_url = "", content = contenu})) = PLinkParagraph (PLink {link_url = str, content = contenu})
+getLinkUrl str (PLinkParagraph (PLink {link_url = theTitle, content = PText []})) = PLinkParagraph (PLink {link_url = theTitle, content = PText [PString str]})
 
 addLinkUrl :: String -> PContent -> PContent
 addLinkUrl str (PParagraphContent (PParagraph list)) = PParagraphContent $ PParagraph $ init list ++ [getLinkUrl str (last list)]
@@ -82,14 +82,14 @@ parseText state (x:xs) contenu
     | s == "paragraph" = parseParagraph "text" state (x:xs) contenu
     | s == "?" && x == "section" = parseSymbol ((init state) ++ ["beforeSection"]) xs (appendPContent state (PSectionContent (PSection {title = "", section_content = []})) contenu)
     | s == "beforeSection" && x == "title" = parseTitle state (nth 1 xs) contenu
-    | s == "section" && x == "contenu" = parseSymbol state xs contenu
+    | s == "section" && x == "content" = parseSymbol state xs contenu
     | s == "?" && x == "codeblock" = parseSymbol ((init state) ++ ["beforeCodeblock"]) xs (appendPContent state (PCodeBlockContent (PCodeBlock [])) contenu)
     | s == "?" && x == "list" = parseSymbol ((init state) ++ ["beforeList"]) xs (appendPContent state (PListContent (PList [])) contenu)
     | s == "?" && x == "link" = parseParagraph "link" ((init state) ++ ["beforeLink"]) (x:xs) contenu
     | s == "?" && x == "image" = parseParagraph "image" ((init state) ++ ["beforeImage"]) (x:xs) contenu
     | s == "?" && (x == "bold" || x == "italic" || x == "code") = parseSymbol ((init state) ++ [x])  xs contenu
     | s == "inlink" && x == "url" = parseLinkUrl state (nth 1 xs) contenu
-    | s == "inlink" && x == "contenu" = parseSymbol state xs contenu
+    | s == "inlink" && x == "content" = parseSymbol state xs contenu
     | s == "inimage" && x == "url" = parseImageUrl state (nth 1 xs) contenu
     | s == "inimage" && x == "alt" = parseSymbol state xs contenu
     | s == "contentlink" = parseLinkUrl state (x:xs) contenu
@@ -135,9 +135,9 @@ parseSymbol state ([]:xs) contenu
     | otherwise = parseText state xs contenu
 parseSymbol state (x:xs) contenu
     | head x == '}' || head x == ']' = parseSymbol (init state) (tail x:xs) contenu
-    | head x == '[' && last state == "section" = parseSymbol (state ++ ["contenu"]) (tail x:xs) contenu
-    | head x == '[' && last state == "contenu" = parseSymbol (state ++ ["paragraph"]) (tail x:xs) (appendPContent state (PParagraphContent (PParagraph [])) contenu)
-    | head x == '{' && last state == "contenu" = parseSymbol (state ++ ["?"]) (tail x:xs) contenu
+    | head x == '[' && last state == "section" = parseSymbol (state ++ ["content"]) (tail x:xs) contenu
+    | head x == '[' && last state == "content" = parseSymbol (state ++ ["paragraph"]) (tail x:xs) (appendPContent state (PParagraphContent (PParagraph [])) contenu)
+    | head x == '{' && last state == "content" = parseSymbol (state ++ ["?"]) (tail x:xs) contenu
     | notBracketChar x = parseSymbol state (tail x:xs) contenu
     | otherwise = parseSymbolParagraph state (x:xs) contenu
 
