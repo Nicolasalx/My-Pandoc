@@ -3,6 +3,9 @@
 RETURN_VALUE=0
 i_test=0
 
+NB_TEST=0
+NB_PASSED_TEST=0
+
 if [ $# -ne 1 ]; then
     echo "Usage: $0 [XML | JSON | MD | ALL]"
     exit 1
@@ -20,10 +23,12 @@ test_return_0()
 {
     if [ $? -eq 0 ]; then
         echo -e "[\e[92mPASS\e[0m]"
+        ((NB_PASSED_TEST++))
     else
         echo -e "[\e[91mFAIL\e[0m]"
         RETURN_VALUE=1
     fi
+    ((NB_TEST++))
 }
 
 test_return_84()
@@ -34,6 +39,35 @@ test_return_84()
         echo -e "[\e[91mFAIL\e[0m]"
         RETURN_VALUE=1
     fi
+}
+
+display_progress_bar()
+{
+    local passed="$1"
+    local total="$2"
+    local percentage=$(( passed * 100 / total ))
+    local width=50
+
+    local filled=$(( percentage * width / 100 ))
+    local empty=$(( width - filled ))
+
+    printf "\n["
+    if [ "$percentage" -ge 75 ]; then
+        printf "\e[92m%${filled}s\e[0m" | tr ' ' '='
+        printf "\e[92m%${empty}s\e[0m" | tr ' ' ' '
+    elif [ "$percentage" -ge 25 ]; then
+        printf "\e[93m%${filled}s\e[0m" | tr ' ' '='
+        printf "\e[93m%${empty}s\e[0m" | tr ' ' ' '
+    else
+        printf "\e[91m%${filled}s\e[0m" | tr ' ' '='
+        printf "\e[91m%${empty}s\e[0m" | tr ' ' ' '
+    fi
+
+
+    # printf "\e[91m%${filled}s\e[0m" | tr ' ' '█'
+    # printf "\e[91m%${empty}s\e[0m" | tr ' ' '▒'
+
+    printf "] %d%% (%d/%d)\n" "$percentage" "$passed" "$total"
 }
 
 test_json()
@@ -76,6 +110,8 @@ test_json()
         # ./mypandoc -i $file -f json -e json &> /dev/null
         # test_return_84
     # done
+
+    display_progress_bar $NB_PASSED_TEST $NB_TEST
 }
 
 test_xml()
@@ -118,6 +154,8 @@ test_xml()
 ##        ./mypandoc -i $file -f xml -e xml &> /dev/null
 ##        test_return_84
 ##    done
+
+    display_progress_bar $NB_PASSED_TEST $NB_TEST
 }
 
 test_md()
@@ -160,6 +198,8 @@ test_md()
         ./mypandoc -i $file -f markdown -e markdown &> /dev/null
         test_return_84
     done
+
+    display_progress_bar $NB_PASSED_TEST $NB_TEST
 }
 
 
