@@ -13,7 +13,7 @@ import ParseMarkdown.FormatText.CreateText (createText, formattingText)
 insertImageToParagraph :: DataParsing -> IO DataParsing
 insertImageToParagraph dataParsing
     | length (actualList dataParsing) > 0 = do
-        newDataParsed <- createText dataParsing
+        newDataParsed <- createText (dataParsing { insertLinkOrImage = True })
         (insertImage newDataParsed)
     | otherwise = (insertImage dataParsing)
 

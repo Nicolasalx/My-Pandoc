@@ -6,7 +6,7 @@
 -}
 
 module ParseMarkdown.DataStructMarkdown (initializeDataParsing, DataParsing(..), TypeToAdd(..), initializeDataText, TypeText(..), DataText(..), ElemTextType(..)) where
-import Content (PParagraphType(..), PText(..))
+import Content (PParagraphType(..), PText(..), PItem(..))
 
 data TypeToAdd = None | Paragraph | Link | Image | CodeBlock | Section | Item
   deriving (Show, Eq)
@@ -60,6 +60,7 @@ initializeDataText = DataText
 
 data DataParsing = DataParsing
   {
+    insertLinkOrImage :: Bool,
     isInContentLink :: Bool,
     isInAltImage :: Bool,
     isInUrlLink :: Bool,
@@ -81,7 +82,11 @@ data DataParsing = DataParsing
     isInParagraph :: Bool,
     isInCodeblock :: Bool,
     levelSection :: Int,
+    
     levelItem :: Int,
+    preElemIsItem :: Bool,
+    listItem :: [PItem],
+
     actualList :: String,
     nbReturnLines :: Int,
     remainingLines :: [String]
@@ -90,6 +95,7 @@ data DataParsing = DataParsing
 initializeDataParsing :: DataParsing
 initializeDataParsing = DataParsing
   {
+    insertLinkOrImage = False,
     isInContentLink = False,
     isInAltImage = False,
     isInUrlLink = False,
@@ -111,7 +117,11 @@ initializeDataParsing = DataParsing
     isInParagraph = False,
     isInCodeblock = False,
     levelSection = 0,
+    
     levelItem = 0,
+    preElemIsItem = False,
+    listItem = [],
+
     actualList = "",
     nbReturnLines = 0,
     remainingLines = []

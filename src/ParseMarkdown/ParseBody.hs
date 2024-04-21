@@ -5,7 +5,7 @@
 -- parseBody
 --
 
-module ParseMarkdown.ParseBody (parseBody) where
+module ParseMarkdown.ParseBody (parseBody, skipSpaces) where
 import Content (PContent(..), PParagraph(..), PParagraphType(..), PSection(..), PCodeBlock(..), PBody(..))
 import ParsingLib.Lib (parseString, strcmp)
 import ParseMarkdown.DataStructMarkdown (DataParsing(..), TypeToAdd(..))
@@ -34,10 +34,14 @@ parseAllString (x:xs) dataParsing allContent = do
 
 tryAddElemToContent :: DataParsing -> [PContent] -> IO ([PContent], DataParsing)
 tryAddElemToContent dataParsing allContent
+    | typeToAdd dataParsing == Paragraph && insertLinkOrImage dataParsing && (length (actualList dataParsing)) > 0 = do
+        newDataParsed <- createText (dataParsing { insertLinkOrImage = False })
+        (createParagraph newDataParsed allContent)
+    | typeToAdd dataParsing == Paragraph && insertLinkOrImage dataParsing = do
+        (createParagraph (dataParsing { insertLinkOrImage = False }) allContent)
     | typeToAdd dataParsing == Paragraph && (nbReturnLines dataParsing) > 0 && (length (actualList dataParsing)) > 0 = do
         newDataParsed <- createText dataParsing
         (createParagraph newDataParsed allContent)
-    | typeToAdd dataParsing == Item = return (createItem dataParsing allContent)
     | otherwise = return (allContent, dataParsing)
 
 fillElemEmptyActualList :: DataParsing -> IO DataParsing
@@ -142,8 +146,11 @@ checkfirstStrIsAnElem str dataParsing allContent
             (finalDataParsed, newContent) = tryAddCodeBlock newDataParsed newfrstContent
         return (finalDataParsed, rightPart, newContent)
     | Just (_, rightPart) <- isItem = do
+        -- ! Item
         (newContent, newData) <- tryAddParagraph dataParsing allContent
+        createItem str rightPart newData newContent
         return (newData { levelItem = (levelItem dataParsing) + 1, typeToAdd = Item }, rightPart, newContent)
+
     | otherwise = defineParagraphType dataParsing str allContent
   where
     stringSkipSpaces = skipSpaces 3 str
@@ -162,34 +169,59 @@ defineParagraphType dataParsing str allContent
     | otherwise = return (dataParsing, str, allContent)
 
 ------------------------------------------------------------------------------------------------------------
------------------------------------            PARAGRAPH               -------------------------------------
+-----------------------------------            ITEM                    -------------------------------------
 ------------------------------------------------------------------------------------------------------------
 
-{-
-    The moment where i need to push to (paragraph dataParsing)
+frstElemNotSpaceOrHyphen :: String -> Int
+frstElemNotSpaceOrHyphen [] = 0
+frstElemNotSpaceOrHyphen (x:xs)
+    | x == '-' = 1
+    | x /= ' ' && x /= '-' = 2
+    | otherwise = frstElemNotSpaceOrHyphen xs
 
-    When a new link
-        - create PText with content of actualList => Check (length actualList) > 0
-        - formatting PText => Check (length actualList) > 0
-        - insert PText => Check (length actualList) > 0
-        - create Link
-        - insert Link
-        ! Don't push now just insert in (paragraph dataParsing)
+determineDepthItem :: String -> Int -> IO (Int, String)
+determineDepthItem str actualLevel = do
+    let index = frstElemNotSpaceOrHyphen str
+    (newLevel, newStr) <- chooseIndexItem index str actualLevel
+    return (newLevel, newStr)
 
-    When a new image
-        - create PText with content of actualList => Check (length actualList) > 0 
-        - formatting PText => Check (length actualList) > 0
-        - insert PText => Check (length actualList) > 0
-        - create Image
-        - insert Image
-        ! Don't push now just insert in (paragraph dataParsing)
+chooseIndexItem :: Int -> String -> Int -> IO (Int, String)
+chooseIndexItem 0 _ _ = return (0, "")
+chooseIndexItem 1 str actualLevel = do
+    let stringSkipSpaces = skipSpaces 100 str
+    case parseString "-" stringSkipSpaces of
+        Just (_, rightPart) -> (determineDepthItem rightPart (actualLevel + 1)) -- Nested Item
 
-    When i will "createParagraph"
-        - create PText with content of actualList => Check (length actualList) > 0 
-        - formatting PText => Check (length actualList) > 0
-        - insert PText => Check (length actualList) > 0
-        - Insert a new Paragraph in [PContent] with function "checkInsertSection" with data "paragraph dataParsing" 
--}
+        Nothing -> return (0, "")
+chooseIndexItem 2 str actualLevel = return (actualLevel + 1, (skipSpaces 100 str))
+chooseIndexItem _ _ _ = return (0, "")
+
+createItem :: String -> String -> DataParsing -> [PContent] -> IO ([PContent], DataParsing)
+createItem initialStr rightPart dataParsing allContent = do
+    (levelItem, restStr) <- determineDepthItem rightPart 0
+    if levelItem > 0
+        then do
+            -- ! print ("LEVEL ITEM: " ++ show (levelItem) ++ " / Str : " ++ restStr)
+            let newDataParsed = dataParsing { actualList = restStr, levelItem = levelItem, preElemIsItem = True }
+
+            -- Transformer restStr en 1 paragraphe (Assez complexe)
+            -- Il juste prendre en compte le level de l'item dans cette fonction
+            -- Après on laisse remplir (paragraph dataParsing)
+
+            -- ! En dehors de cette fonction
+            -- A la fin de cette string (il faut trouver un moyen de détecter quand la string est fini)
+            -- Ensuite récupère (paragraph dataParsing)
+            -- Insérer le paragraphe dans le dernier (Item listItem) avec le (levelItem dataParsing)
+
+            return (allContent, dataParsing { actualList = "" })
+  
+    else do
+        -- ! print ("Bad string after detection of item '-' STR: [" ++ initialStr ++ "]")
+        return (allContent, dataParsing { actualList = initialStr })
+
+------------------------------------------------------------------------------------------------------------
+-----------------------------------            PARAGRAPH               -------------------------------------
+------------------------------------------------------------------------------------------------------------
 
 createParagraph :: DataParsing -> [PContent] -> IO ([PContent], DataParsing)
 createParagraph dataParsing allContent
@@ -207,15 +239,6 @@ tryAddParagraph dataParsing allContent
 convertParagraphToContent :: [PParagraphType] -> PContent
 convertParagraphToContent paragraphTypes = 
     PParagraphContent (PParagraph paragraphTypes)
-
-------------------------------------------------------------------------------------------------------------
------------------------------------            ITEM                    -------------------------------------
-------------------------------------------------------------------------------------------------------------
-
--- Check actual Level Item
-createItem :: DataParsing -> [PContent] -> ([PContent], DataParsing)
-createItem dataParsing allContent = (allContent, dataParsing)
--- After create the Item, i will place it in the correct section
 
 ------------------------------------------------------------------------------------------------------------
 -----------------------------------          CODEBLOCK                 -------------------------------------
@@ -252,9 +275,9 @@ addCodeBlockToContent dataParsing allContent = do
 
 createSection :: Int -> String -> DataParsing -> [PContent] -> IO ([PContent], DataParsing)
 createSection actualLevel titleSection dataParsing allContent
-    | levelSection dataParsing == 0 = createNewSection actualLevel titleSection dataParsing allContent True
-    | (levelSection dataParsing) >= actualLevel = createNewSection actualLevel titleSection dataParsing allContent True
-    | otherwise = createNewSection (actualLevel - (levelSection dataParsing))  titleSection dataParsing allContent False
+    | levelSection dataParsing == 0 = createNewSection actualLevel (skipSpaces 100 titleSection) dataParsing allContent True
+    | (levelSection dataParsing) >= actualLevel = createNewSection actualLevel (skipSpaces 100 titleSection) dataParsing allContent True
+    | otherwise = createNewSection (actualLevel - (levelSection dataParsing))  (skipSpaces 100 titleSection) dataParsing allContent False
 
 initNewSection :: String -> PContent
 initNewSection titleSection = PSectionContent $ PSection { title = titleSection, section_content = [] }
@@ -318,8 +341,6 @@ tryAddFrstSection levelSect content allContent
 ------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------
-
--- Use checkInsertSection like in paragraph or codeblock
 
 -- TODO LIST
 
