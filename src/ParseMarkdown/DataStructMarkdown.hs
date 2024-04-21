@@ -60,6 +60,7 @@ initializeDataText = DataText
 
 data DataParsing = DataParsing
   {
+    insertItem :: Bool,
     insertLinkOrImage :: Bool,
     isInContentLink :: Bool,
     isInAltImage :: Bool,
@@ -95,6 +96,7 @@ data DataParsing = DataParsing
 initializeDataParsing :: DataParsing
 initializeDataParsing = DataParsing
   {
+    insertItem = False,
     insertLinkOrImage = False,
     isInContentLink = False,
     isInAltImage = False,

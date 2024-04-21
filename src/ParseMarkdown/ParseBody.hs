@@ -34,6 +34,13 @@ parseAllString (x:xs) dataParsing allContent = do
 
 tryAddElemToContent :: DataParsing -> [PContent] -> IO ([PContent], DataParsing)
 tryAddElemToContent dataParsing allContent
+    -- | insertItem dataParsing = do
+        -- let newData = dataParsing { insertItem = False }
+        -- print (actualList newData)
+        -- (createParagraph newData allContent)
+        -- set insertItem Boolean to False
+        -- create Paragraph and Push in the item
+        -- Insérer le paragraphe dans le dernier (Item listItem) avec le (levelItem dataParsing)
     | typeToAdd dataParsing == Paragraph && insertLinkOrImage dataParsing && (length (actualList dataParsing)) > 0 = do
         newDataParsed <- createText (dataParsing { insertLinkOrImage = False })
         (createParagraph newDataParsed allContent)
@@ -148,7 +155,10 @@ checkfirstStrIsAnElem str dataParsing allContent
     | Just (_, rightPart) <- isItem = do
         -- ! Item
         (newContent, newData) <- tryAddParagraph dataParsing allContent
-        createItem str rightPart newData newContent
+        (finalContent, finalData) <- createItem str rightPart newData newContent
+
+        defineParagraphType dataParsing str allContent
+
         return (newData { levelItem = (levelItem dataParsing) + 1, typeToAdd = Item }, rightPart, newContent)
 
     | otherwise = defineParagraphType dataParsing str allContent
@@ -191,8 +201,8 @@ chooseIndexItem 1 str actualLevel = do
     let stringSkipSpaces = skipSpaces 100 str
     case parseString "-" stringSkipSpaces of
         Just (_, rightPart) -> (determineDepthItem rightPart (actualLevel + 1)) -- Nested Item
-
         Nothing -> return (0, "")
+
 chooseIndexItem 2 str actualLevel = return (actualLevel + 1, (skipSpaces 100 str))
 chooseIndexItem _ _ _ = return (0, "")
 
@@ -201,23 +211,16 @@ createItem initialStr rightPart dataParsing allContent = do
     (levelItem, restStr) <- determineDepthItem rightPart 0
     if levelItem > 0
         then do
-            -- ! print ("LEVEL ITEM: " ++ show (levelItem) ++ " / Str : " ++ restStr)
-            let newDataParsed = dataParsing { actualList = restStr, levelItem = levelItem, preElemIsItem = True }
-
-            -- Transformer restStr en 1 paragraphe (Assez complexe)
-            -- Il juste prendre en compte le level de l'item dans cette fonction
-            -- Après on laisse remplir (paragraph dataParsing)
-
-            -- ! En dehors de cette fonction
-            -- A la fin de cette string (il faut trouver un moyen de détecter quand la string est fini)
-            -- Ensuite récupère (paragraph dataParsing)
-            -- Insérer le paragraphe dans le dernier (Item listItem) avec le (levelItem dataParsing)
-
-            return (allContent, dataParsing { actualList = "" })
-  
+            -- print ("LEVEL ITEM: " ++ show (levelItem) ++ " / Str : " ++ restStr)
+            let newDataParsed = dataParsing { actualList = restStr, levelItem = levelItem, preElemIsItem = True, insertItem = True }
+            endData <- createText newDataParsed
+            -- print endData
+            return (allContent, endData)    
     else do
         -- ! print ("Bad string after detection of item '-' STR: [" ++ initialStr ++ "]")
         return (allContent, dataParsing { actualList = initialStr })
+
+
 
 ------------------------------------------------------------------------------------------------------------
 -----------------------------------            PARAGRAPH               -------------------------------------
