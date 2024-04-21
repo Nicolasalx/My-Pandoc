@@ -46,8 +46,6 @@ extractSectionTitle line = maybe "" id (extractContentInQuotes (drop 15 cleanLin
         cleanLine = cleanSpace line
         cleanSpace = dropWhile isSpace
 
-
-
 addParagraphContent :: String -> PContent
 addParagraphContent x = PParagraphContent (PParagraph [PTextParagraph (PText [PString x])])
 
