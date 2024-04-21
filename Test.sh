@@ -94,4 +94,14 @@ do
     test_return_84
 done
 
+echo -e "\n\e[1mTest XML simple file:\e[0m\n"
+
+for file in example_file/simple_correct_file/xml/*
+do
+    test_name "File: $file"
+    ./mypandoc -i $file -f xml -o "output_test/"${i_test}"_test_xml.out"
+    colordiff -u $file "output_test/"${i_test}"_test_xml.out"
+    test_return_0
+done
+
 exit $RETURN_VALUE

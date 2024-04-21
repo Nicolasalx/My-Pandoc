@@ -59,7 +59,6 @@ library
       ParseMarkdown.ParseHeader
       ParseMarkdown.ParseMarkdown
       ParseMarkdown.ParseOneChar
-      ParseXml.DataStructXml
       ParseXml.ParseBody
       ParseXml.ParseHeader
       ParseXml.ParseXml

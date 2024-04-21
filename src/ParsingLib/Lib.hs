@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-module ParsingLib.Lib (parseString, strcmp, parseJsonKey, strToWordArray, nth, searchSymbol, parseUntil, cleanLine, addParagraph) where
-=======
-module ParsingLib.Lib (parseString, strcmp, parseJsonKey, strToWordArray, nth, parseUntil, cleanLine, Parser, searchSymbol, checkIsInString) where
->>>>>>> ad587e1f8a9c5b89effeabf806af897304a31f9f
+module ParsingLib.Lib (parseString, strcmp, parseJsonKey, strToWordArray, nth, checkIsInString, searchSymbol, parseUntil, cleanLine, addParagraph) where
 import Data.Char (isSpace)
 import Content (PHeader(..), PBody(..),
     PContent(..),
@@ -46,9 +42,9 @@ checkIsInString (x:xs) str
     | x `elem` str = True
     | otherwise = checkIsInString xs str
 
-strcmp :: String -> String -> Bool
-strcmp [] [] = True
-strcmp [] _ = False
+
+strcmp :: Eq a => [a] -> [a] -> Bool
+strcmp [] _ = True
 strcmp _ [] = False
 strcmp (x:xs) (y:ys)
     | x == y = strcmp xs ys
@@ -74,11 +70,7 @@ searchSymbol _ [] = False
 searchSymbol (x:xs) (y:ys)
     | x == y = searchSymbol xs ys
     | otherwise = searchSymbol (x:xs) ys
-<<<<<<< HEAD
     
-=======
-
->>>>>>> ad587e1f8a9c5b89effeabf806af897304a31f9f
 cleanLine :: String -> Maybe String
 cleanLine [] = Nothing
 cleanLine str = Just $ dropWhile isSpace str

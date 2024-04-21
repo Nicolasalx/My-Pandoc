@@ -9,7 +9,6 @@ module ParseXml.ParseHeader (fillPHeader) where
 import ParsingLib.Lib (parseString)
 import Content (PHeader(..), PBody(..))
 import Data.Maybe (fromMaybe)
-import ParseXml.DataStructXml (initializeDataParsing)
 import ParsingLib.Lib (strToWordArray, nth, strcmp, parseUntil, cleanLine)
 
 checkTitle :: PHeader -> Either String ()
