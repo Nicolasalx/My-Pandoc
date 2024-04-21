@@ -34,6 +34,6 @@ initExportData XML = (ExportData XML 1 0 0
     "\n" "<codeblock>\n" "</codeblock>\n"
     "" "<paragraph>" "</paragraph>\n" "</document>\n")
 
-initExportData MD = (ExportData MD 0 0 0
+initExportData MD = (ExportData MD 0 1 0
     "\n" "```\n" "```\n"
-    "" "" "\n" "")
+    "" "\n" "\n" "")

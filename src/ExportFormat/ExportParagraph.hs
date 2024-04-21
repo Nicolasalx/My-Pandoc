@@ -7,11 +7,12 @@
 
 module ExportFormat.ExportParagraph (exportParagraph) where
 import Content (PParagraph(..), PParagraphType(..))
-import ExportFormat.ExportFormatData (ExportData(..))
+import ExportFormat.ExportFormatData (ExportData(..), ExportFormat(..))
 import ExportFormat.ExportImage (exportImage)
 import ExportFormat.ExportLink (exportLink)
 import ExportFormat.ExportText (exportText)
 import ExportFormat.MapExport (mapExport)
+import ExportFormat.AddIndent (addIndent)
 
 exportParagraphType :: PParagraphType -> ExportData -> String
 exportParagraphType (PTextParagraph text) (exportData) =
@@ -21,9 +22,25 @@ exportParagraphType (PLinkParagraph link) (exportData) =
 exportParagraphType (PImageParagraph image) (exportData) =
     exportImage image (format_ exportData) (indent_ exportData)
 
-exportParagraph :: PParagraph -> ExportData -> String
-exportParagraph (PParagraph (list)) (exportData) =
+exportParagraphHelper :: PParagraph -> ExportFormat -> ExportData -> String
+exportParagraphHelper (PParagraph (list)) JSON (exportData) =
+    (addIndent (indent_ exportData)) ++ (start_paragraph exportData) ++
+    mapExport (\line -> exportParagraphType line
+        (exportData {indent_ = (indent_ exportData) + 1})) (sep_paragraph exportData) list
+    ++ (addIndent (indent_ exportData)) ++ (end_paragraph exportData)
+
+exportParagraphHelper (PParagraph (list)) XML (exportData) =
+    (addIndent (indent_ exportData)) ++ (start_paragraph exportData) ++
+    mapExport (\line -> exportParagraphType line
+        (exportData)) (sep_paragraph exportData) list
+    ++ (end_paragraph exportData)
+
+exportParagraphHelper (PParagraph (list)) MD (exportData) =
     (start_paragraph exportData) ++
     mapExport (\line -> exportParagraphType line
         (exportData)) (sep_paragraph exportData) list
     ++ (end_paragraph exportData)
+
+exportParagraph :: PParagraph -> ExportData -> String
+exportParagraph paragraph (exportData) =
+    exportParagraphHelper paragraph (format_ exportData) exportData

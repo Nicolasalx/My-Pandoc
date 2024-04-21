@@ -1,14 +1,14 @@
 #!/bin/bash
 
 RETURN_VALUE=0
-i_test=1
+i_test=0
 
 make
 
 test_name()
 {
-    echo -e "Test[\e[95m$i_test\e[0m]: $1"
     ((i_test++))
+    echo -e "Test[\e[95m$i_test\e[0m]: $1"
 }
 
 test_return_0()
@@ -65,28 +65,24 @@ do
     test_return_84
 done
 
-echo -e "\n\e[1mTest MD correct file:\e[0m\n"
+echo -e "\n\e[1mTest MD -> MD:\e[0m\n"
 
-for file in example_file/correct_file/md/*
+for file in example_file/simple_correct_file/md/*
 do
     test_name "File: $file"
     ./mypandoc -i $file -f markdown -o "output_test/"${i_test}"_test_md.out"
+    colordiff -u $file "output_test/"${i_test}"_test_md.out"
     test_return_0
-    diff $file "output_test/"${i_test}"_test_md.out" &> /dev/null
-    if [ $? -eq 0 ]; then
-        echo -e "[\e[92mPASS\e[0m]"
-    else
-        echo -e "[\e[91mFAIL\e[0m]"
-        RETURN_VALUE=1
+done
 
-        echo "------------------------------ GET: ------------------------------" > "output_test/test_md_"${file:29}".out"
-        cat "output_test/"${i_test}"_test_md.out" >> "output_test/test_md_"${file:29}".out"
-        echo "------------------------------ EXPECT: ------------------------------" >> "output_test/test_md_"${file:29}".out"
-        cat "$file" >> "output_test/test_md_"${file:29}".out"
-        echo "------------------------------ DIFF: ------------------------------" >> "output_test/test_md_"${file:29}".out"
-        diff $file "output_test/"${i_test}"_test_md.out" >> "output_test/test_md_"${file:29}".out"
-    fi
-    rm "output_test/"${i_test}"_test_md.out"
+echo -e "\n\e[1mTest MD -> XML:\e[0m\n"
+
+for file in example_file/simple_correct_file/md/*
+do
+    test_name "File: $file"
+    ./mypandoc -i $file -f xml -o "output_test/"${i_test}"_test_xml.out"
+    colordiff -u $(echo "$file" | sed 's/\/md\//\/xml\//' | sed 's/.md/.xml/') "output_test/"${i_test}"_test_xml.out"
+    test_return_0
 done
 
 echo -e "\n\e[1mTest MD simple error file:\e[0m\n"
