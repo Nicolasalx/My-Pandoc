@@ -24,6 +24,7 @@ library
       ArgParsing
       Content
       ExportFormat.AddIndent
+      ExportFormat.AddLineBreak
       ExportFormat.ExportBody
       ExportFormat.ExportCodeBlock
       ExportFormat.ExportContent
@@ -34,7 +35,6 @@ library
       ExportFormat.ExportLink
       ExportFormat.ExportList
       ExportFormat.ExportParagraph
-      ExportFormat.AddLineBreak
       ExportFormat.ExportText
       ExportFormat.MapExport
       ExportInFile
@@ -44,10 +44,6 @@ library
       ParseJson.ParseHeader
       ParseJson.ParseJson
       ParseMarkdown.DataStructMarkdown
-      ParseMarkdown.ParseBody
-      ParseMarkdown.ParseHeader
-      ParseMarkdown.ParseMarkdown
-      ParseMarkdown.ParseOneChar
       ParseMarkdown.FormatText.AppendElemToList
       ParseMarkdown.FormatText.BrowseStr
       ParseMarkdown.FormatText.CleanList
@@ -60,7 +56,10 @@ library
       ParseMarkdown.FormatText.TryAddBasicList
       ParseMarkdown.LinksAndImages.Image
       ParseMarkdown.LinksAndImages.Links
-      ParseXml.DataStructXml
+      ParseMarkdown.ParseBody
+      ParseMarkdown.ParseHeader
+      ParseMarkdown.ParseMarkdown
+      ParseMarkdown.ParseOneChar
       ParseXml.ParseBody
       ParseXml.ParseHeader
       ParseXml.ParseXml

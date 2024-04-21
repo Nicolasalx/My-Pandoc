@@ -1,5 +1,11 @@
-module ParsingLib.Lib (parseString, strcmp, parseJsonKey, strToWordArray, nth, parseUntil, cleanLine, Parser, searchSymbol, checkIsInString) where
+module ParsingLib.Lib (parseString, strcmp, parseJsonKey, strToWordArray, nth, checkIsInString, searchSymbol, parseUntil, cleanLine, addParagraph) where
 import Data.Char (isSpace)
+import Content (PHeader(..), PBody(..),
+    PContent(..),
+    PText(..), PTextType(..), PBold(..), PItalic(..), PCode(..),
+    PLink(..), PImage(..),
+    PParagraph(..), PParagraphType(..), PSection(..), PCodeBlock(..),
+    PList(..), PItem(..), PItemType(..))
 
 type Parser a = String -> Maybe (a , String)
 
@@ -36,9 +42,9 @@ checkIsInString (x:xs) str
     | x `elem` str = True
     | otherwise = checkIsInString xs str
 
-strcmp :: String -> String -> Bool
-strcmp [] [] = True
-strcmp [] _ = False
+
+strcmp :: Eq a => [a] -> [a] -> Bool
+strcmp [] _ = True
 strcmp _ [] = False
 strcmp (x:xs) (y:ys)
     | x == y = strcmp xs ys
@@ -64,7 +70,7 @@ searchSymbol _ [] = False
 searchSymbol (x:xs) (y:ys)
     | x == y = searchSymbol xs ys
     | otherwise = searchSymbol (x:xs) ys
-
+    
 cleanLine :: String -> Maybe String
 cleanLine [] = Nothing
 cleanLine str = Just $ dropWhile isSpace str
@@ -76,6 +82,9 @@ parseUntil target str
     | otherwise = do
         (parsed, rest) <- parseUntil target (tail str)
         return (head str:parsed, rest)
+
+addParagraph :: String -> PContent -> PContent
+addParagraph str (PParagraphContent (PParagraph list)) = PParagraphContent (PParagraph (list ++ [PTextParagraph (PText [PString str])]))
 
 -- lib bootstrap
 

@@ -9,7 +9,6 @@ module ParseXml.ParseXml (parseXml) where
 import ParsingLib.Lib (parseString)
 import Content (PHeader(..), PBody(..))
 import Data.Maybe (fromMaybe)
-import ParseXml.DataStructXml (initializeDataParsing)
 import ParseXml.ParseHeader(fillPHeader)
 import ParseXml.ParseBody(parseBody)
 
@@ -22,7 +21,6 @@ parseXmlBody file_content pHeader = do
 
 parseXml :: String -> IO (Either String (PHeader, PBody))
 parseXml file_content = do
-    let dataInitialized = initializeDataParsing
     let linesContent = lines file_content
     let headerResult = fillPHeader linesContent
     case headerResult of
