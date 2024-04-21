@@ -30,8 +30,5 @@ initializeCodeBlock :: DataParsing -> PContent
 initializeCodeBlock dataParsing = PCodeBlockContent $ PCodeBlock ( actualCodeBlock dataParsing )
 
 addCodeBlockToContent :: DataParsing -> [PContent] -> (DataParsing, [PContent])
-addCodeBlockToContent dataParsing allContent = do
-    let codeBlock = initializeCodeBlock dataParsing
-        finalContent = checkInsertSection dataParsing codeBlock allContent
-        newDataParsed = dataParsing { actualCodeBlock = [], hasFillCodeBlock = False }
-    (newDataParsed, finalContent)
+addCodeBlockToContent dataParsing allContent =
+    (dataParsing { actualCodeBlock = [], hasFillCodeBlock = False }, checkInsertSection dataParsing (initializeCodeBlock dataParsing) allContent)

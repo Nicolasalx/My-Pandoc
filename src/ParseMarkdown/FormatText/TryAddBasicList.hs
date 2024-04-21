@@ -15,10 +15,10 @@ parseBasicChar dataText c = dataText { basicStr = (basicStr dataText) ++ [c] }
 fillInvalidPattern :: Int -> Int -> Char -> DataText -> DataText
 fillInvalidPattern index limit c dataText
     | index == limit = dataText
-    | otherwise = do
-        let newDataText = parseBasicChar dataText c
-            endData = newDataText { precedentChar = c }
-        fillInvalidPattern (index + 1) limit c endData
+    | otherwise = fillInvalidPattern (index + 1) limit c (endData { precedentChar = c })
+    where
+        newDataText = parseBasicChar dataText c
+        endData = newDataText
 
 tryAddBasicToList :: DataText -> DataText
 tryAddBasicToList dataText

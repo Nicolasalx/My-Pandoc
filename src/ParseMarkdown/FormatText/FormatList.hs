@@ -12,16 +12,16 @@ import Content ()
 formatLastList :: DataText -> [ElemTextType] -> [ElemTextType] -> [ElemTextType]
 formatLastList _ [] finalList = finalList
 formatLastList dataText (x:xs) finalList
-    | x == TBold Bold = do
-        let (newData, newList) = setBoldList dataText x finalList
-        formatLastList newData xs newList
-    | x == TItalic Italic = do
-        let (newData, newList) = setItalicList dataText x finalList
-        formatLastList newData xs newList
-    | x == TCode Code = do
-        let (newData, newList) = setCodeList dataText x finalList
-        formatLastList newData xs newList
+    | x == TBold Bold = formatLastList newData xs newList
+    | x == TItalic Italic = formatLastList newData xs newList
+    | x == TCode Code = formatLastList newData xs newList
     | otherwise = formatLastList dataText xs (finalList ++ [x])
+    where
+        (newData, newList) = case x of
+            TBold _ -> setBoldList dataText x finalList
+            TItalic _ -> setItalicList dataText x finalList
+            TCode _ -> setCodeList dataText x finalList
+            _ -> (dataText, finalList)
 
 removeElement :: ElemTextType -> [ElemTextType] -> [ElemTextType] -> [ElemTextType]
 removeElement _ [] newList = newList

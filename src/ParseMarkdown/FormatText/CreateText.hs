@@ -16,22 +16,15 @@ import ParseMarkdown.FormatText.TryAddBasicList (tryAddBasicToList)
 
 createText :: DataParsing -> DataParsing
 createText dataParsing
-    | length (actualList dataParsing) > 0 = do
-        let newTextType = formattingElemParagraph dataParsing
-        dataParsing { paragraph = (paragraph dataParsing) ++ [newTextType] }
+    | length (actualList dataParsing) > 0 = 
+        dataParsing { paragraph = paragraph dataParsing ++ [formattingElemParagraph dataParsing] }
     | otherwise = dataParsing
 
 formattingElemParagraph :: DataParsing -> PParagraphType
-formattingElemParagraph dataParsing = do
-    let textFormatted = formattingText (actualList dataParsing)
-    (PTextParagraph textFormatted)
+formattingElemParagraph dataParsing =
+    PTextParagraph (formattingText (actualList dataParsing))
 
 formattingText :: String -> PText
-formattingText str = do
-    let dataText = initializeDataText
-        newDataText = browseStr str dataText False
-        finalData = tryAddBasicToList newDataText
-        newData = closeAllDelim finalData
-        newList = formatLastList dataText (listText newData) []
-        endData = appendAllElem newData newList
-    (contentText endData)
+formattingText str =
+    contentText $ appendAllElem (closeAllDelim (tryAddBasicToList (browseStr str initializeDataText False)))
+                 (formatLastList initializeDataText (listText (closeAllDelim (tryAddBasicToList (browseStr str initializeDataText False)))) [])

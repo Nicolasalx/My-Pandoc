@@ -10,31 +10,25 @@ import ParseMarkdown.DataStructMarkdown (TypeText(..), DataText(..), ElemTextTyp
 import Content ()
 
 closeAllDelim :: DataText -> DataText
-closeAllDelim dataText = do
-    let dataBold = checkRemoveBold dataText
-        dataItalic = checkRemoveItalic dataBold
-        dataCode = checkRemoveCode dataItalic
-    dataCode
+closeAllDelim dataText =
+    checkRemoveCode $ checkRemoveItalic $ checkRemoveBold dataText
 
 checkRemoveBold :: DataText -> DataText
 checkRemoveBold dataText
-    | isInBold dataText = do
-        let updatedList = removeLastDelim (TBold Bold) (listText dataText) [] "**"
-        dataText { listText = updatedList }
+    | isInBold dataText = 
+        dataText { listText = removeLastDelim (TBold Bold) (listText dataText) [] "**" }
     | otherwise = dataText
 
 checkRemoveItalic :: DataText -> DataText
 checkRemoveItalic dataText
-    | isInItalic dataText = do
-        let updatedList = removeLastDelim (TItalic Italic) (listText dataText) [] "*"
-        dataText { listText = updatedList }
+    | isInItalic dataText = 
+        dataText { listText = removeLastDelim (TItalic Italic) (listText dataText) [] "*" }
     | otherwise = dataText
 
 checkRemoveCode :: DataText -> DataText
 checkRemoveCode dataText
-    | isInCode dataText = do
-        let updatedList = removeLastDelim (TCode Code) (listText dataText) [] "`"
-        dataText { listText = updatedList }
+    | isInCode dataText = 
+        dataText { listText = removeLastDelim (TCode Code) (listText dataText) [] "`" }
     | otherwise = dataText
 
 removeLastDelim :: ElemTextType -> [ElemTextType] -> [ElemTextType] -> String -> [ElemTextType]

@@ -12,17 +12,15 @@ import ParseMarkdown.FormatText.CreateText (createText, formattingText)
 
 insertImageToParagraph :: DataParsing -> DataParsing
 insertImageToParagraph dataParsing
-    | length (actualList dataParsing) > 0 = do
-        let newDataParsed = createText (dataParsing { insertLinkOrImage = True })
-        (insertImage newDataParsed)
-    | otherwise = (insertImage dataParsing)
+    | length (actualList dataParsing) > 0 =
+        insertImage (createText (dataParsing { insertLinkOrImage = True }))
+    | otherwise = insertImage dataParsing
 
-insertImage:: DataParsing -> DataParsing
-insertImage dataParsing = do
-    let newImage = formattingImg dataParsing
-    (dataParsing { paragraph = (paragraph dataParsing) ++ [newImage], urlImg = "", altImg = "", actualList = "" })
+insertImage :: DataParsing -> DataParsing
+insertImage dataParsing =
+    dataParsing { paragraph = (paragraph dataParsing) ++
+    [formattingImg dataParsing], urlImg = "", altImg = "", actualList = "" }
 
 formattingImg :: DataParsing -> PParagraphType
-formattingImg dataParsing = do
-    let textFormatted = formattingText (altImg dataParsing)
-    (PImageParagraph (PImage (urlImg dataParsing) textFormatted))
+formattingImg dataParsing =
+    PImageParagraph (PImage (urlImg dataParsing) (formattingText (altImg dataParsing)))

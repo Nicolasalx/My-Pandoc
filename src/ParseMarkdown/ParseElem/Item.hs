@@ -20,10 +20,8 @@ frstElemNotSpaceOrHyphen (x:xs)
     | otherwise = frstElemNotSpaceOrHyphen xs
 
 determineDepthItem :: String -> Int -> (Int, String)
-determineDepthItem str actualLevel = do
-    let index = frstElemNotSpaceOrHyphen str
-    let (newLevel, newStr) = chooseIndexItem index str actualLevel
-    (newLevel, newStr)
+determineDepthItem str actualLevel =
+    chooseIndexItem (frstElemNotSpaceOrHyphen str) str actualLevel
 
 chooseIndexItem :: Int -> String -> Int -> (Int, String)
 chooseIndexItem 0 _ _ = (0, "")

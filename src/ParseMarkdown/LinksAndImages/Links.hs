@@ -12,17 +12,17 @@ import ParseMarkdown.FormatText.CreateText (createText, formattingText)
 
 insertLinkToParagraph :: DataParsing -> DataParsing
 insertLinkToParagraph dataParsing
-    | length (actualList dataParsing) > 0 = do
-        let newDataParsed = createText (dataParsing { insertLinkOrImage = True })
-        (insertLink newDataParsed)
-    | otherwise = (insertLink dataParsing)
+    | length (actualList dataParsing) > 0 =
+        insertLink (createText (dataParsing { insertLinkOrImage = True }))
+    | otherwise = insertLink dataParsing
+
 
 insertLink :: DataParsing -> DataParsing
-insertLink dataParsing = do
-    let newLink = formattingLink dataParsing
-    (dataParsing { paragraph = (paragraph dataParsing) ++ [newLink], urlLink = "", contentLink = "", actualList = "" })
+insertLink dataParsing =
+    dataParsing { paragraph = (paragraph dataParsing) ++
+        [formattingLink dataParsing], urlLink = "", contentLink = "", actualList = "" }
 
 formattingLink :: DataParsing -> PParagraphType
-formattingLink dataParsing = do
-    let textFormatted = formattingText (contentLink dataParsing)
-    (PLinkParagraph (PLink (urlLink dataParsing) textFormatted))
+formattingLink dataParsing =
+    PLinkParagraph (PLink (urlLink dataParsing)
+        (formattingText (contentLink dataParsing)))

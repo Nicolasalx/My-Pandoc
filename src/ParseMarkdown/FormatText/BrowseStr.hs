@@ -13,9 +13,11 @@ import ParseMarkdown.FormatText.DetectSymbol (detectSymbol)
 browseStr :: String -> DataText -> Bool -> DataText
 browseStr [] dataText _ = dataText
 browseStr (x:xs) dataText hasTakeFrstChar
-    | not hasTakeFrstChar = do
-        let (newStr, finalDataText) = detectSymbol ([x] ++ xs) (dataText { precedentChar = x })
-        browseStr newStr finalDataText True
-    | otherwise = do
-        let (newStr, finalDataText) = detectSymbol xs (dataText { precedentChar = x })
-        browseStr newStr finalDataText True
+    | not hasTakeFrstChar = 
+        snd (detectSymbol ([x] ++ xs) (dataText { precedentChar = x })) `seq` 
+        browseStr (fst (detectSymbol ([x] ++ xs) (dataText { precedentChar = x }))) 
+                  (snd (detectSymbol ([x] ++ xs) (dataText { precedentChar = x }))) True
+    | otherwise = 
+        snd (detectSymbol xs (dataText { precedentChar = x })) `seq` 
+        browseStr (fst (detectSymbol xs (dataText { precedentChar = x }))) 
+                  (snd (detectSymbol xs (dataText { precedentChar = x }))) True
