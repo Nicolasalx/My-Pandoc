@@ -9,6 +9,7 @@ module ParseMarkdown.ParseHeader (parseHeader) where
 import ParsingLib.Lib (parseString)
 import Content (PHeader(..))
 import ParseMarkdown.DataStructMarkdown (DataParsing(..))
+import ParseMarkdown.ParseElem.SkipSpaces (skipSpaces)
 
 parseHeader :: [String] -> DataParsing -> IO (Either String PHeader, DataParsing)
 parseHeader line dataParsing =
@@ -39,14 +40,17 @@ fillPHeader :: [String] -> Either String PHeader
 fillPHeader [] = Right PHeader { header_title = "", author = Nothing, date = Nothing }
 fillPHeader (x:xs)
     | Just ("title:", value) <- parseString "title:" x,
-      Right header <- fillPHeader xs =
-          Right header { header_title = value }
+      Right header <- fillPHeader xs = do
+        let newStr = skipSpaces 100 value
+        Right header { header_title = newStr }
     | Just ("author:", value) <- parseString "author:" x,
-      Right header <- fillPHeader xs =
-          Right header { author = Just value }
+      Right header <- fillPHeader xs = do
+        let newStr = skipSpaces 100 value
+        Right header { author = Just newStr }
     | Just ("date:", value) <- parseString "date:" x,
-      Right header <- fillPHeader xs =
-          Right header { date = Just value }
+      Right header <- fillPHeader xs = do
+        let newStr = skipSpaces 100 value
+        Right header { date = Just newStr }
     | otherwise = Left "Error: Invalid header format or field"
 
 parseEachLine :: [String] -> Bool -> [String] -> DataParsing -> IO (Either String [String], DataParsing)

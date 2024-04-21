@@ -13,19 +13,24 @@ import ParseMarkdown.LinksAndImages.Image (insertImageToParagraph)
 
 addCharToActualList :: Char -> DataParsing -> IO DataParsing
 addCharToActualList c dataParsing
-    | isInContentLink dataParsing == True = return (dataParsing { contentLink = contentLink dataParsing ++ [c], nbReturnLines = 0})
-    | isInAltImage dataParsing == True = return (dataParsing { altImg = altImg dataParsing ++ [c], nbReturnLines = 0})
-    | isInUrlLink dataParsing == True = return (dataParsing { urlLink = urlLink dataParsing ++ [c], nbReturnLines = 0})
-    | isInUrlImage dataParsing == True = return (dataParsing { urlImg = urlImg dataParsing ++ [c], nbReturnLines = 0})
-    | otherwise = return (dataParsing { actualList = actualList dataParsing ++ [c], nbReturnLines = 0})
+    | isInContentLink dataParsing == True =
+        return (dataParsing { contentLink = contentLink dataParsing ++ [c], nbReturnLines = 0})
+    | isInAltImage dataParsing == True =
+        return (dataParsing { altImg = altImg dataParsing ++ [c], nbReturnLines = 0})
+    | isInUrlLink dataParsing == True =
+        return (dataParsing { urlLink = urlLink dataParsing ++ [c], nbReturnLines = 0})
+    | isInUrlImage dataParsing == True =
+        return (dataParsing { urlImg = urlImg dataParsing ++ [c], nbReturnLines = 0})
+    | otherwise =
+        return (dataParsing { actualList = actualList dataParsing ++ [c], nbReturnLines = 0})
 
 addBasicCharToActualList :: Char -> DataParsing -> IO DataParsing
-addBasicCharToActualList c dataParsing = return (dataParsing { actualList = actualList dataParsing ++ [c], nbReturnLines = 0})
+addBasicCharToActualList c dataParsing =
+    return (dataParsing { actualList = actualList dataParsing ++ [c], nbReturnLines = 0})
 
 parseOneChar :: Char -> DataParsing -> IO DataParsing
--- ! Verify Link or Image
--- parseOneChar '[' dataParsing = addBasicCharToActualList '[' dataParsing { isInContentLink = True }
-parseOneChar '[' dataParsing = return (dataParsing { isInContentLink = True, nbReturnLines = 0 })
+parseOneChar '[' dataParsing =
+    return (dataParsing { isInContentLink = True, nbReturnLines = 0 })
 
 parseOneChar ')' dataParsing
     | isInUrlLink dataParsing = do

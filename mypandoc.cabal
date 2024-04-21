@@ -60,6 +60,19 @@ library
       ParseMarkdown.ParseHeader
       ParseMarkdown.ParseMarkdown
       ParseMarkdown.ParseOneChar
+      ParseMarkdown.ParseElem.CheckImgAndLinks
+      ParseMarkdown.ParseElem.Codeblock
+      ParseMarkdown.ParseElem.InsertInSection
+      ParseMarkdown.ParseElem.Item
+      ParseMarkdown.ParseElem.NoParentSection
+      ParseMarkdown.ParseElem.Paragraph
+      ParseMarkdown.ParseElem.ParagraphType
+      ParseMarkdown.ParseElem.ParseAllStrings
+      ParseMarkdown.ParseElem.ParseEachString
+      ParseMarkdown.ParseElem.Section
+      ParseMarkdown.ParseElem.SkipSpaces
+      ParseMarkdown.ParseElem.TryAddElem
+
       ParseXml.ParseBody
       ParseXml.ParseHeader
       ParseXml.ParseXml
