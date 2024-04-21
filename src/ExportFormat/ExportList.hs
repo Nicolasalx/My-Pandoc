@@ -12,6 +12,12 @@ import ExportFormat.ExportFormatData (ExportFormat(..), ExportData(..))
 import ExportFormat.ExportParagraph (exportParagraph)
 import ExportFormat.MapExport (mapExport)
 
+delLineBreak :: String -> String
+delLineBreak str
+    | null str = ""
+    | head str == '\n' = tail str
+    | otherwise = str
+
 exportItemType :: PItemType -> ExportData -> String
 exportItemType (PParagraphItem paragraph) exportData =
     exportParagraph paragraph exportData
@@ -24,8 +30,7 @@ exportItem (PItem list) XML exportData =
     concatMap (\line -> exportItemType line exportData) list
 exportItem (PItem list) MD exportData =
     concatMap (\line -> replicate ((list_level exportData) * 4) ' '
-    ++ "- " ++ exportItemType line
-        (exportData {list_level = (list_level exportData) + 1})) list
+    ++ "- " ++ delLineBreak (exportItemType line (exportData {list_level = (list_level exportData) + 1}))) list
 
 exportListHelper :: PList -> ExportFormat -> ExportData -> String
 exportListHelper (PList list) JSON exportData =
@@ -33,7 +38,7 @@ exportListHelper (PList list) JSON exportData =
     ++ addIndent ((indent_ exportData) + 1) ++ "\"list\": [\n"
     ++ mapExport (\line -> exportItem line (format_ exportData)
         (exportData {indent_ = (indent_ exportData) + 2})) ",\n" list
-    ++ addIndent ((indent_ exportData) + 1) ++ "]\n"
+    ++ "\n" ++ addIndent ((indent_ exportData) + 1) ++ "]\n"
     ++ addIndent (indent_ exportData) ++ "}"
 exportListHelper (PList list) XML exportData =
     addIndent (indent_ exportData) ++ "<list>\n"
@@ -41,8 +46,8 @@ exportListHelper (PList list) XML exportData =
         (exportData {indent_ = (indent_ exportData) + 1})) list
     ++ addIndent (indent_ exportData) ++ "</list>\n"
 exportListHelper (PList list) MD exportData =
-    mapExport (\line -> exportItem line
-        (format_ exportData) (exportData)) "\n" list
+    concatMap (\line -> exportItem line
+        (format_ exportData) (exportData)) list
 
 exportList :: PList -> ExportData -> String
 exportList list exportData =

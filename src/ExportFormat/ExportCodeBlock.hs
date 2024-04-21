@@ -26,7 +26,7 @@ exportCodeBlockHelper (PCodeBlock (code)) JSON indent =
     ++ mapExport (\line -> exportCodeLine line JSON (indent + 2)) ",\n" code
     ++ "\n"
     ++ (addIndent (indent + 1)) ++ "]\n"
-    ++ (addIndent indent) ++ "}\n"
+    ++ (addIndent indent) ++ "}"
 
 exportCodeBlockHelper (PCodeBlock (code)) XML indent =
     (addIndent indent)
@@ -36,7 +36,7 @@ exportCodeBlockHelper (PCodeBlock (code)) XML indent =
     ++ "</codeblock>\n"
 
 exportCodeBlockHelper (PCodeBlock (code)) MD _ =
-    "```\n"
+    "\n```\n"
     ++ mapExport (\line -> exportCodeLine line MD 0) "\n" code
     ++ "\n"
     ++ "```\n"
