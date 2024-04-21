@@ -13,14 +13,21 @@ import ParseJson.ParseFunction (notBracketChar, appendPContent, initPContent, la
 -- Adding title to section
 
 addTitle :: String -> PContent -> PContent
-addTitle str (PSectionContent (PSection {title = _, section_content = contenu})) = PSectionContent (PSection {title = str, section_content = contenu})
+addTitle str (PSectionContent (PSection {title = _, 
+    section_content = contenu})) = 
+    PSectionContent (PSection {title = str, section_content = contenu})
 addTitle _ _ = PSectionContent (PSection {title = "", section_content = []})
 
 parseTitle :: [String] -> [String] -> [PContent] -> Either String [PContent]
 parseTitle _ [] _ = Left "Error: Missing symbol in title"
 parseTitle state (x:xs) contenu
-    | checkIsInString (['A'..'Z'] ++ ['a'..'z']) x = parseSymbol (state ++ ["section"]) xs (appendPContent state (addTitle x (lastPContent state contenu)) ((initPContent state contenu)))
-    | otherwise = parseSymbol (state ++ ["section"]) (x:xs) (appendPContent state (addTitle "" (lastPContent state contenu)) ((initPContent state contenu)))
+    | checkIsInString (['A'..'Z'] ++ ['a'..'z']) x = 
+    parseSymbol (state ++ ["section"]) xs (appendPContent state 
+    (addTitle x (lastPContent state contenu)) 
+    ((initPContent state contenu)))
+    | otherwise = parseSymbol (state ++ ["section"]) 
+    (x:xs) (appendPContent state (addTitle "" (lastPContent state contenu))
+    ((initPContent state contenu)))
 
 -- Parsing paragraph
 
@@ -86,12 +93,14 @@ getLinkUrl str (PLinkParagraph (PLink {link_url = "", content = contenu}))
     = PLinkParagraph (PLink {link_url = str, content = contenu})
 getLinkUrl str (PLinkParagraph 
     (PLink {link_url = theTitle, content = PText []})) 
-    = PLinkParagraph (PLink {link_url = theTitle, content = PText [PString str]})
+    = PLinkParagraph 
+    (PLink {link_url = theTitle, content = PText [PString str]})
 getLinkUrl _ _ = PLinkParagraph (PLink {link_url = "", content = PText []})
 
 addLinkUrl :: String -> PContent -> PContent
 addLinkUrl str (PParagraphContent (PParagraph list)) 
-    = PParagraphContent $ PParagraph $ init list ++ [getLinkUrl str (last list)]
+    = PParagraphContent $ PParagraph $ init list ++ 
+    [getLinkUrl str (last list)]
 addLinkUrl _ _ = PParagraphContent $ PParagraph []
 
 parseLinkUrl :: [String] -> [String] -> [PContent] -> Either String [PContent]
@@ -105,7 +114,8 @@ getImageUrl str (PImageParagraph (PImage {image_url = "", alt = contenu}))
     = PImageParagraph (PImage {image_url = str, alt = contenu})
 getImageUrl str (PImageParagraph 
     (PImage {image_url = theTitle, alt = PText []})) 
-    = PImageParagraph (PImage {image_url = theTitle, alt = PText [PString str]})
+    = PImageParagraph 
+    (PImage {image_url = theTitle, alt = PText [PString str]})
 getImageUrl _ _ = PImageParagraph (PImage {image_url = "", alt = PText []})
 
 addImageUrl :: String -> PContent -> PContent
