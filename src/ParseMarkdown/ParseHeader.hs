@@ -9,7 +9,7 @@ module ParseMarkdown.ParseHeader (parseHeader) where
 import ParsingLib.Lib (parseString)
 import Content (PHeader(..))
 import ParseMarkdown.DataStructMarkdown (DataParsing(..))
-import ParseMarkdown.ParseBody (skipSpaces)
+import ParseMarkdown.ParseElem.SkipSpaces (skipSpaces)
 
 parseHeader :: [String] -> DataParsing -> IO (Either String PHeader, DataParsing)
 parseHeader line dataParsing =
