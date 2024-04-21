@@ -1,22 +1,13 @@
---
+{-
 -- EPITECH PROJECT, 2024
 -- B-FUN-400-PAR-4-1-mypandoc-thibaud.cathala
 -- File description:
 -- ParseHeader
---
+-}
 
 module ParseJson.ParseHeader (parseHeader) where
 import Content (PHeader(..))
 import ParsingLib.Lib (strcmp, parseJsonKey, strToWordArray, nth)
-
-checkBracket :: String -> Int -> Bool
-checkBracket [] 0 = True
-checkBracket [] _ = False 
-checkBracket ('{':xs) n = checkBracket xs (n+1)
-checkBracket ('}':xs) n = checkBracket xs (n-1)
-checkBracket ('[':xs) n = checkBracket xs (n+1)
-checkBracket (']':xs) n = checkBracket xs (n-1)
-checkBracket (_:xs) n = checkBracket xs n
 
 searchForHeader :: [String] -> Int -> Either String PHeader
 searchForHeader [] _ = Left "Error: No header found after bracket"
@@ -51,6 +42,4 @@ parseEachHeaderLine (x:xs) pHeader
 
 parseHeader :: String -> IO (Either String PHeader)
 parseHeader [] = return $ Left "Empty file"
-parseHeader (x:xs) 
-    | checkBracket (x:xs) 0 = return $ searchForHeader (strToWordArray "\"" "" (x:xs)) 0
-    | otherwise = return $ Left "Error: Invalid json format"
+parseHeader (x:xs) = return $ searchForHeader (strToWordArray "\"" "" (x:xs)) 0
