@@ -9,39 +9,39 @@ module ParseMarkdown.FormatText.CleanList (closeAllDelim) where
 import ParseMarkdown.DataStructMarkdown (TypeText(..), DataText(..), ElemTextType(..))
 import Content ()
 
-closeAllDelim :: DataText -> IO DataText
+closeAllDelim :: DataText -> DataText
 closeAllDelim dataText = do
-    dataBold <- checkRemoveBold dataText
-    dataItalic <- checkRemoveItalic dataBold
-    dataCode <- checkRemoveCode dataItalic
-    return dataCode
+    let dataBold = checkRemoveBold dataText
+        dataItalic = checkRemoveItalic dataBold
+        dataCode = checkRemoveCode dataItalic
+    dataCode
 
-checkRemoveBold :: DataText -> IO DataText
+checkRemoveBold :: DataText -> DataText
 checkRemoveBold dataText
     | isInBold dataText = do
-        updatedList <- (removeLastDelim (TBold Bold) (listText dataText) [] "**")
-        return dataText { listText = updatedList }
-    | otherwise = return dataText
+        let updatedList = removeLastDelim (TBold Bold) (listText dataText) [] "**"
+        dataText { listText = updatedList }
+    | otherwise = dataText
 
-checkRemoveItalic :: DataText -> IO DataText
+checkRemoveItalic :: DataText -> DataText
 checkRemoveItalic dataText
     | isInItalic dataText = do
-        updatedList <- (removeLastDelim (TItalic Italic) (listText dataText) [] "*")
-        return dataText { listText = updatedList }
-    | otherwise = return dataText
+        let updatedList = removeLastDelim (TItalic Italic) (listText dataText) [] "*"
+        dataText { listText = updatedList }
+    | otherwise = dataText
 
-checkRemoveCode :: DataText -> IO DataText
+checkRemoveCode :: DataText -> DataText
 checkRemoveCode dataText
     | isInCode dataText = do
-        updatedList <- (removeLastDelim (TCode Code) (listText dataText) [] "`")
-        return dataText { listText = updatedList }
-    | otherwise = return dataText
+        let updatedList = removeLastDelim (TCode Code) (listText dataText) [] "`"
+        dataText { listText = updatedList }
+    | otherwise = dataText
 
-removeLastDelim :: ElemTextType -> [ElemTextType] -> [ElemTextType] -> String -> IO [ElemTextType]
+removeLastDelim :: ElemTextType -> [ElemTextType] -> [ElemTextType] -> String -> [ElemTextType]
 removeLastDelim delimToDelete basicList finalList elemToReplace = replaceLastDelim delimToDelete basicList finalList elemToReplace
 
-replaceLastDelim :: ElemTextType -> [ElemTextType] -> [ElemTextType] -> String -> IO [ElemTextType]
-replaceLastDelim _ [] finalList _ = return finalList
+replaceLastDelim :: ElemTextType -> [ElemTextType] -> [ElemTextType] -> String -> [ElemTextType]
+replaceLastDelim _ [] finalList _ = finalList
 replaceLastDelim delimToDelete (x:xs) finalList elemToReplace
     | x == delimToDelete = replaceLastDelim delimToDelete xs (finalList ++ [TString elemToReplace]) elemToReplace 
     | otherwise = replaceLastDelim delimToDelete xs (finalList ++ [x]) elemToReplace 

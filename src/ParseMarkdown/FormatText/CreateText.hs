@@ -14,25 +14,24 @@ import ParseMarkdown.FormatText.FormatList (formatLastList)
 import ParseMarkdown.FormatText.AppendElemToList (appendAllElem)
 import ParseMarkdown.FormatText.TryAddBasicList (tryAddBasicToList)
 
-createText :: DataParsing -> IO DataParsing
+createText :: DataParsing -> DataParsing
 createText dataParsing
     | length (actualList dataParsing) > 0 = do
-        newTextType <- formattingElemParagraph dataParsing
-        return dataParsing { paragraph = (paragraph dataParsing) ++ [newTextType] }
-    | otherwise = return dataParsing
+        let newTextType = formattingElemParagraph dataParsing
+        dataParsing { paragraph = (paragraph dataParsing) ++ [newTextType] }
+    | otherwise = dataParsing
 
-formattingElemParagraph :: DataParsing -> IO PParagraphType
+formattingElemParagraph :: DataParsing -> PParagraphType
 formattingElemParagraph dataParsing = do
-    textFormatted <- formattingText (actualList dataParsing)
-    return (PTextParagraph textFormatted)
+    let textFormatted = formattingText (actualList dataParsing)
+    (PTextParagraph textFormatted)
 
-formattingText :: String -> IO PText
+formattingText :: String -> PText
 formattingText str = do
     let dataText = initializeDataText
-    newDataText <- browseStr str dataText False
-    let finalData = tryAddBasicToList newDataText
-    newData <- closeAllDelim finalData
-    newList <- formatLastList dataText (listText newData) []
-    -- Concat all strings in list
-    endData <- appendAllElem newData newList
-    return (contentText endData)
+        newDataText = browseStr str dataText False
+        finalData = tryAddBasicToList newDataText
+        newData = closeAllDelim finalData
+        newList = formatLastList dataText (listText newData) []
+        endData = appendAllElem newData newList
+    (contentText endData)

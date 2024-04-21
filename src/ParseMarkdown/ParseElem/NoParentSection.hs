@@ -11,7 +11,7 @@ import Content (PContent(..))
 import ParseMarkdown.ParseElem.ParagraphType (initNewSection, tryAddFrstSection)
 import ParseMarkdown.ParseElem.InsertInSection (insertInLastSection)
 
-createNewSection :: Int -> String -> DataParsing -> [PContent] -> Bool -> IO ([PContent], DataParsing)
+createNewSection :: Int -> String -> DataParsing -> [PContent] -> Bool -> ([PContent], DataParsing)
 createNewSection levelSect titleSection dataParsing allContent isSectionOut
     | isSectionOut = do
         let newSect = initNewSection titleSection
@@ -19,20 +19,20 @@ createNewSection levelSect titleSection dataParsing allContent isSectionOut
         (checkIndexAndInsert dataParsing levelSect newSect newContent)
     | otherwise = do
         let newSect = initNewSection titleSection
-        finalContent <- loopInsertSection 1 1 levelSect newSect allContent
-        return (finalContent, dataParsing)
+        let finalContent = loopInsertSection 1 1 levelSect newSect allContent
+        (finalContent, dataParsing)
 
-checkIndexAndInsert :: DataParsing -> Int -> PContent -> [PContent] -> IO ([PContent], DataParsing)
+checkIndexAndInsert :: DataParsing -> Int -> PContent -> [PContent] -> ([PContent], DataParsing)
 checkIndexAndInsert dataParsing levelSect newSect newContent
-    | levelSect == 1 = return (newContent, dataParsing)
+    | levelSect == 1 = (newContent, dataParsing)
     | otherwise = do
-        finalContent <- loopInsertSection 1 1 (levelSect - 1) newSect newContent
-        return (finalContent, dataParsing)
+        let finalContent = loopInsertSection 1 1 (levelSect - 1) newSect newContent
+        (finalContent, dataParsing)
 
-loopInsertSection :: Int -> Int -> Int -> PContent -> [PContent] -> IO [PContent]
+loopInsertSection :: Int -> Int -> Int -> PContent -> [PContent] -> [PContent]
 loopInsertSection limitIndex actualIndex maxIndex actualContent allContent
     | actualIndex == maxIndex = do
-        return (insertInLastSection actualContent allContent)
+        (insertInLastSection actualContent allContent)
     | actualIndex == limitIndex = do
         let newContent = (insertInLastSection (initNewSection "") allContent)
         loopInsertSection limitIndex (actualIndex + 1) maxIndex actualContent newContent

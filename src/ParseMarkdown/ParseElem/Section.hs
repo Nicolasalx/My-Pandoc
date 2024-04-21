@@ -11,7 +11,7 @@ import Content (PContent(..))
 import ParseMarkdown.ParseElem.SkipSpaces (skipSpaces)
 import ParseMarkdown.ParseElem.NoParentSection (createNewSection)
 
-createSection :: Int -> String -> DataParsing -> [PContent] -> IO ([PContent], DataParsing)
+createSection :: Int -> String -> DataParsing -> [PContent] -> ([PContent], DataParsing)
 createSection actualLevel titleSection dataParsing allContent
     | levelSection dataParsing == 0 = createNewSection actualLevel (skipSpaces 100 titleSection) dataParsing allContent True
     | (levelSection dataParsing) >= actualLevel = createNewSection actualLevel (skipSpaces 100 titleSection) dataParsing allContent True

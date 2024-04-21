@@ -10,18 +10,18 @@ import ParseMarkdown.DataStructMarkdown (DataParsing(..), TypeToAdd(..))
 import Content (PContent(..), PParagraphType(..), PParagraph(..))
 import ParseMarkdown.ParseElem.InsertInSection (checkInsertSection)
 
-createParagraph :: DataParsing -> [PContent] -> IO ([PContent], DataParsing)
+createParagraph :: DataParsing -> [PContent] -> ([PContent], DataParsing)
 createParagraph dataParsing allContent
     | length (paragraph dataParsing) > 0 = do
         let newContent = convertParagraphToContent (paragraph dataParsing)
             finalContent = checkInsertSection dataParsing newContent allContent
-        return (finalContent, dataParsing { paragraph = [], actualList = "" })
-    | otherwise = return (allContent, dataParsing)
+        (finalContent, dataParsing { paragraph = [], actualList = "" })
+    | otherwise = (allContent, dataParsing)
 
-tryAddParagraph :: DataParsing -> [PContent] -> IO ([PContent], DataParsing)
+tryAddParagraph :: DataParsing -> [PContent] -> ([PContent], DataParsing)
 tryAddParagraph dataParsing allContent
     | typeToAdd dataParsing == Paragraph = createParagraph dataParsing allContent
-    | otherwise = return (allContent, dataParsing)
+    | otherwise = (allContent, dataParsing)
 
 convertParagraphToContent :: [PParagraphType] -> PContent
 convertParagraphToContent paragraphTypes = 

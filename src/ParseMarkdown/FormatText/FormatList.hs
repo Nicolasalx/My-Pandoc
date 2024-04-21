@@ -9,8 +9,8 @@ module ParseMarkdown.FormatText.FormatList (formatLastList) where
 import ParseMarkdown.DataStructMarkdown (TypeText(..), DataText(..), ElemTextType(..))
 import Content ()
 
-formatLastList :: DataText -> [ElemTextType] -> [ElemTextType] -> IO [ElemTextType]
-formatLastList _ [] finalList = return finalList
+formatLastList :: DataText -> [ElemTextType] -> [ElemTextType] -> [ElemTextType]
+formatLastList _ [] finalList = finalList
 formatLastList dataText (x:xs) finalList
     | x == TBold Bold = do
         let (newData, newList) = setBoldList dataText x finalList
@@ -32,35 +32,30 @@ removeElement elemText (x:xs) newList
 
 setBoldList :: DataText -> ElemTextType -> [ElemTextType] -> (DataText, [ElemTextType])
 setBoldList dataText actualElem actualListText
-    | (isInCode dataText) && not (isInBold dataText) = do
-        -- ! To finish
-        -- reverse List
-        let listWithoutFront = removeElement actualElem actualListText []
-        -- reverse at normal
-        (dataText { isInBold = True }, listWithoutFront)
-    | (isInCode dataText) && (isInBold dataText) = do
-        -- ! To finish
-        let listWithoutBack = removeElement actualElem actualListText []  
-        (dataText { isInBold = False }, listWithoutBack)
-    | not (isInBold dataText) = (dataText { isInBold = True } , actualListText ++ [actualElem])
-    | isInBold dataText = (dataText { isInBold = False } , actualListText ++ [actualElem])
-    | otherwise = (dataText, actualListText)
+    | (isInCode dataText) && not (isInBold dataText) = 
+        (dataText { isInBold = True }, removeElement actualElem actualListText [])
+    | (isInCode dataText) && (isInBold dataText) = 
+        (dataText { isInBold = False }, removeElement actualElem actualListText [])
+    | not (isInBold dataText) = 
+        (dataText { isInBold = True }, actualListText ++ [actualElem])
+    | isInBold dataText = 
+        (dataText { isInBold = False }, actualListText ++ [actualElem])
+    | otherwise = 
+        (dataText, actualListText)
 
 setItalicList :: DataText -> ElemTextType -> [ElemTextType] -> (DataText, [ElemTextType])
 setItalicList dataText actualElem actualListText
-    | (isInCode dataText) && not (isInItalic dataText) = do
-        -- ! To finish
-        -- reverse at list
-        let listWithoutFront = removeElement actualElem actualListText []
-        -- reverse at normal
-        (dataText { isInItalic = True }, listWithoutFront)
-    | (isInCode dataText) && (isInItalic dataText) = do
-        -- ! To finish
-        let listWithoutBack = removeElement actualElem actualListText []
-        (dataText { isInItalic = False }, listWithoutBack)
-    | not (isInItalic dataText) = (dataText { isInItalic = True } , actualListText ++ [actualElem])
-    | isInItalic dataText = (dataText { isInItalic = False } , actualListText ++ [actualElem])
-    | otherwise = (dataText, actualListText)
+    | (isInCode dataText) && not (isInItalic dataText) = 
+        (dataText { isInItalic = True }, removeElement actualElem actualListText [])
+    | (isInCode dataText) && (isInItalic dataText) = 
+        (dataText { isInItalic = False }, removeElement actualElem actualListText [])
+    | not (isInItalic dataText) = 
+        (dataText { isInItalic = True }, actualListText ++ [actualElem])
+    | isInItalic dataText = 
+        (dataText { isInItalic = False }, actualListText ++ [actualElem])
+    | otherwise = 
+        (dataText, actualListText)
+
 
 setCodeList :: DataText -> ElemTextType -> [ElemTextType] -> (DataText, [ElemTextType])
 setCodeList dataText actualElem actualListText

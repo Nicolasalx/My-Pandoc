@@ -14,22 +14,22 @@ import ParseMarkdown.FormatText.TextType.Code (symbolCodedAlreadyOpen, symbolCod
 import ParseMarkdown.FormatText.TryAddBasicList (parseBasicChar)
 import ParsingLib.Lib (parseString)
 
-checkBold :: String -> DataText -> IO (String, DataText)
+checkBold :: String -> DataText -> (String, DataText)
 checkBold str dataText
     | isInBold dataText = symbolBoldAlreadyOpen str dataText
     | otherwise = symbolBoldNotOpen str dataText
 
-checkItalic :: String -> DataText -> IO (String, DataText)
+checkItalic :: String -> DataText -> (String, DataText)
 checkItalic str dataText
     | isInItalic dataText = symbolItalicAlreadyOpen str dataText
     | otherwise = symbolItalicNotOpen str dataText
 
-checkCode :: String -> DataText -> IO (String, DataText)
+checkCode :: String -> DataText -> (String, DataText)
 checkCode str dataText
     | isInCode dataText = symbolCodedAlreadyOpen str dataText
     | otherwise = symbolCodeNotOpen str dataText
 
-detectSymbol :: String -> DataText -> IO (String, DataText)
+detectSymbol :: String -> DataText -> (String, DataText)
 detectSymbol str dataText
     | Just (_, rightPart) <- isBold, not (isInItalic dataText) = checkBold rightPart dataText
     | Just (_, rightPart) <- isItalic = checkItalic rightPart dataText
@@ -39,9 +39,9 @@ detectSymbol str dataText
         if (length str > 0)
             then do
                 let newDataText = parseBasicChar dataText (head str)
-                return (str, newDataText)
+                (str, newDataText)
         else
-            return (str, dataText)            
+            (str, dataText)            
     where
         isBold = parseString "**" str
         isItalic = parseString "*" str

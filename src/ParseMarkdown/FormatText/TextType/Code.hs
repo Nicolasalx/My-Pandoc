@@ -10,14 +10,14 @@ import ParseMarkdown.DataStructMarkdown (TypeText(..), DataText(..), ElemTextTyp
 import Content ()
 import ParseMarkdown.FormatText.TryAddBasicList (tryAddBasicToList)
 
-symbolCodedAlreadyOpen :: String -> DataText -> IO (String, DataText)
+symbolCodedAlreadyOpen :: String -> DataText -> (String, DataText)
 symbolCodedAlreadyOpen str dataText = do
     let tmpDataText = tryAddBasicToList dataText
         newData = tmpDataText { isInCode = False, listText = (listText tmpDataText) ++ [TCode Code] }
-    return ([' '] ++ str, newData)
+    ([' '] ++ str, newData)
 
-symbolCodeNotOpen :: String -> DataText -> IO (String, DataText)
+symbolCodeNotOpen :: String -> DataText -> (String, DataText)
 symbolCodeNotOpen str dataText = do
     let endData = tryAddBasicToList dataText
         newData = endData { isInCode = True, listText = (listText endData) ++ [TCode Code] }
-    return ([' '] ++ str, newData)
+    ([' '] ++ str, newData)

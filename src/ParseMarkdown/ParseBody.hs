@@ -12,16 +12,15 @@ import ParseMarkdown.FormatText.CreateText (createText)
 import ParseMarkdown.ParseElem.ParseAllStrings (parseAllString)
 import ParseMarkdown.ParseElem.Paragraph (tryAddParagraph)
 
-parseBody :: DataParsing -> IO (Either String PBody)
+parseBody :: DataParsing -> Either String PBody
 parseBody dataParsing =
-    parseAllString (remainingLines dataParsing) dataParsing [] >>= \(allContent, newDataParsed) ->
-    case allContent of
-        Left err -> return (Left err)
-        Right contents -> do
-            dataPars <- createText newDataParsed
-            (newContent, _) <- tryAddParagraph dataPars contents
-            return (Right (PBody newContent))
-
+    let (allContent, newDataParsed) = parseAllString (remainingLines dataParsing) dataParsing []
+    in case allContent of
+        Left err -> Left err
+        Right contents ->
+            let dataPars = createText newDataParsed
+                (newContent, _) = tryAddParagraph dataPars contents
+            in Right (PBody newContent)
 
 ------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------

@@ -10,19 +10,19 @@ import ParseMarkdown.DataStructMarkdown (DataParsing(..))
 import Content (PParagraphType(..), PImage(..))
 import ParseMarkdown.FormatText.CreateText (createText, formattingText)
 
-insertImageToParagraph :: DataParsing -> IO DataParsing
+insertImageToParagraph :: DataParsing -> DataParsing
 insertImageToParagraph dataParsing
     | length (actualList dataParsing) > 0 = do
-        newDataParsed <- createText (dataParsing { insertLinkOrImage = True })
+        let newDataParsed = createText (dataParsing { insertLinkOrImage = True })
         (insertImage newDataParsed)
     | otherwise = (insertImage dataParsing)
 
-insertImage:: DataParsing -> IO DataParsing
+insertImage:: DataParsing -> DataParsing
 insertImage dataParsing = do
-    newImage <- formattingImg dataParsing
-    return (dataParsing { paragraph = (paragraph dataParsing) ++ [newImage], urlImg = "", altImg = "", actualList = "" })
+    let newImage = formattingImg dataParsing
+    (dataParsing { paragraph = (paragraph dataParsing) ++ [newImage], urlImg = "", altImg = "", actualList = "" })
 
-formattingImg :: DataParsing -> IO PParagraphType
+formattingImg :: DataParsing -> PParagraphType
 formattingImg dataParsing = do
-    textFormatted <- formattingText (altImg dataParsing)
-    return (PImageParagraph (PImage (urlImg dataParsing) textFormatted))
+    let textFormatted = formattingText (altImg dataParsing)
+    (PImageParagraph (PImage (urlImg dataParsing) textFormatted))

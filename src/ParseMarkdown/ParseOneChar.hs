@@ -11,34 +11,39 @@ import Content ()
 import ParseMarkdown.LinksAndImages.Links (insertLinkToParagraph)
 import ParseMarkdown.LinksAndImages.Image (insertImageToParagraph)
 
-addCharToActualList :: Char -> DataParsing -> IO DataParsing
+addCharToActualList :: Char -> DataParsing -> DataParsing
 addCharToActualList c dataParsing
     | isInContentLink dataParsing == True =
-        return (dataParsing { contentLink = contentLink dataParsing ++ [c], nbReturnLines = 0})
+        (dataParsing {
+            contentLink = contentLink dataParsing ++ [c], nbReturnLines = 0})
     | isInAltImage dataParsing == True =
-        return (dataParsing { altImg = altImg dataParsing ++ [c], nbReturnLines = 0})
+        (dataParsing {
+            altImg = altImg dataParsing ++ [c], nbReturnLines = 0})
     | isInUrlLink dataParsing == True =
-        return (dataParsing { urlLink = urlLink dataParsing ++ [c], nbReturnLines = 0})
+        (dataParsing {
+            urlLink = urlLink dataParsing ++ [c], nbReturnLines = 0})
     | isInUrlImage dataParsing == True =
-        return (dataParsing { urlImg = urlImg dataParsing ++ [c], nbReturnLines = 0})
+        (dataParsing {
+            urlImg = urlImg dataParsing ++ [c], nbReturnLines = 0})
     | otherwise =
-        return (dataParsing { actualList = actualList dataParsing ++ [c], nbReturnLines = 0})
+        (dataParsing {
+            actualList = actualList dataParsing ++ [c], nbReturnLines = 0})
 
-addBasicCharToActualList :: Char -> DataParsing -> IO DataParsing
+addBasicCharToActualList :: Char -> DataParsing -> DataParsing
 addBasicCharToActualList c dataParsing =
-    return (dataParsing { actualList = actualList dataParsing ++ [c], nbReturnLines = 0})
+    (dataParsing {
+        actualList = actualList dataParsing ++ [c], nbReturnLines = 0})
 
-parseOneChar :: Char -> DataParsing -> IO DataParsing
+parseOneChar :: Char -> DataParsing -> DataParsing
 parseOneChar '[' dataParsing =
-    return (dataParsing { isInContentLink = True, nbReturnLines = 0 })
+    (dataParsing { isInContentLink = True, nbReturnLines = 0 })
 
 parseOneChar ')' dataParsing
-    | isInUrlLink dataParsing = do
-        newDataParsed <- return (dataParsing { isInUrlLink = False })
-        (insertLinkToParagraph newDataParsed)
-    | isInUrlImage dataParsing = do
-        newDataParsed <- return (dataParsing { isInUrlImage = False })
-        (insertImageToParagraph newDataParsed)
-    | otherwise = addBasicCharToActualList '[' dataParsing { isInContentLink = True }
+    | isInUrlLink dataParsing = 
+        insertLinkToParagraph (dataParsing { isInUrlLink = False })
+    | isInUrlImage dataParsing = 
+        insertImageToParagraph (dataParsing { isInUrlImage = False })
+    | otherwise = 
+        addBasicCharToActualList '[' dataParsing { isInContentLink = True }
 
 parseOneChar c dataParsing = addCharToActualList c dataParsing

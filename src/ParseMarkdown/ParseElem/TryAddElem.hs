@@ -11,7 +11,7 @@ import Content (PContent(..))
 import ParseMarkdown.FormatText.CreateText (createText)
 import ParseMarkdown.ParseElem.Paragraph (createParagraph)
 
-tryAddElemToContent :: DataParsing -> [PContent] -> IO ([PContent], DataParsing)
+tryAddElemToContent :: DataParsing -> [PContent] -> ([PContent], DataParsing)
 tryAddElemToContent dataParsing allContent
     -- | insertItem dataParsing = do
         -- let newData = dataParsing { insertItem = False }
@@ -21,18 +21,18 @@ tryAddElemToContent dataParsing allContent
         -- create Paragraph and Push in the item
         -- Insérer le paragraphe dans le dernier (Item listItem) avec le (levelItem dataParsing)
     | typeToAdd dataParsing == Paragraph && insertLinkOrImage dataParsing && (length (actualList dataParsing)) > 0 = do
-        newDataParsed <- createText (dataParsing { insertLinkOrImage = False })
+        let newDataParsed = createText (dataParsing { insertLinkOrImage = False })
         (createParagraph newDataParsed allContent)
     | typeToAdd dataParsing == Paragraph && insertLinkOrImage dataParsing = do
         (createParagraph (dataParsing { insertLinkOrImage = False }) allContent)
     | typeToAdd dataParsing == Paragraph && (nbReturnLines dataParsing) > 0 && (length (actualList dataParsing)) > 0 = do
-        newDataParsed <- createText dataParsing
+        let newDataParsed = createText dataParsing
         (createParagraph newDataParsed allContent)
-    | otherwise = return (allContent, dataParsing)
+    | otherwise = (allContent, dataParsing)
 
-fillElemEmptyActualList :: DataParsing -> IO DataParsing
+fillElemEmptyActualList :: DataParsing -> DataParsing
 fillElemEmptyActualList dataParsing
-    | hasFillCodeBlock dataParsing == True = return dataParsing { actualCodeBlock = actualCodeBlock dataParsing ++ [(actualList dataParsing)], actualList = "" }
-    | isInCodeblock dataParsing == True = return dataParsing { hasFillCodeBlock = True }
+    | hasFillCodeBlock dataParsing == True = dataParsing { actualCodeBlock = actualCodeBlock dataParsing ++ [(actualList dataParsing)], actualList = "" }
+    | isInCodeblock dataParsing == True = dataParsing { hasFillCodeBlock = True }
     -- Implement new line for item
-    | otherwise = return dataParsing
+    | otherwise = dataParsing

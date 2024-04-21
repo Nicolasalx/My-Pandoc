@@ -10,30 +10,30 @@ import ParseMarkdown.DataStructMarkdown (TypeText(..),  DataText(..), ElemTextTy
 import Content ()
 import ParseMarkdown.FormatText.TryAddBasicList (tryAddBasicToList, fillInvalidPattern)
 
-symbolBoldAlreadyOpen :: String -> DataText -> IO (String, DataText)
+symbolBoldAlreadyOpen :: String -> DataText -> (String, DataText)
 symbolBoldAlreadyOpen str dataText = do
     if ((length (basicStr dataText) == 0  || ((precedentChar dataText) /= ' ') && (last (basicStr dataText) /= ' ')))
         then do
             let tmpDataText = tryAddBasicToList dataText
                 newData = tmpDataText { isInBold = False, listText = (listText tmpDataText) ++ [TBold Bold] }
-            return ([' '] ++ str, newData)
+            ([' '] ++ str, newData)
     else do
         let newData = fillInvalidPattern 0 2 '*' dataText
         if ((length (str) > 0 && head (str) /= ' '))
-            then return ([' '] ++ str, newData)
+            then ([' '] ++ str, newData)
         else
-            return ([' '] ++ str, newData)
+            ([' '] ++ str, newData)
 
-symbolBoldNotOpen :: String -> DataText -> IO (String, DataText)
+symbolBoldNotOpen :: String -> DataText -> (String, DataText)
 symbolBoldNotOpen str dataText = do
     if ((length (str) > 0 && head (str) /= ' '))
         then do
             let endData = tryAddBasicToList dataText
                 newData = endData { isInBold = True, listText = (listText endData) ++ [TBold Bold] }
-            return ([' '] ++str, newData)
+            ([' '] ++str, newData)
     else do
         let newData = fillInvalidPattern 0 2 '*' dataText
         if ((length (str) > 0 && head (str) /= ' '))
-            then return (str, newData)
+            then (str, newData)
         else
-            return ([' '] ++str, newData)
+            ([' '] ++str, newData)

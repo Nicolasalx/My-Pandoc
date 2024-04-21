@@ -9,12 +9,12 @@ module ParseMarkdown.FormatText.AppendElemToList (appendAllElem) where
 import ParseMarkdown.DataStructMarkdown (TypeText(..), DataText(..), ElemTextType(..))
 import Content (PText(..), PTextType(..), PBold(..), PItalic(..), PCode(..))
 
-appendAllElem :: DataText -> [ElemTextType] -> IO DataText
-appendAllElem dataText [] = return (dataText { contentText = (reversePText (contentText dataText)) })
+appendAllElem :: DataText -> [ElemTextType] -> DataText
+appendAllElem dataText [] = (dataText { contentText = (reversePText (contentText dataText)) })
 appendAllElem dataText (x:xs)
     | x == (TBold Bold) && not (isInBold dataText) = do
         let newData = dataText { isInBold = True }
-        newList <- findGoodPosition (indexListText newData) (PBoldText (PBold [])) (contentText newData)
+        let newList = findGoodPosition (indexListText newData) (PBoldText (PBold [])) (contentText newData)
         let finalData = newData { contentText = newList, indexListText = (indexListText newData) + 1 }
         appendAllElem finalData xs
 
@@ -24,7 +24,7 @@ appendAllElem dataText (x:xs)
 ------------------------------------------------------------------------------------------
     | x == (TItalic Italic) && not (isInItalic dataText) = do
         let newData = dataText { isInItalic = True }
-        newList <- findGoodPosition (indexListText newData) (PItalicText (PItalic [])) (contentText newData)
+        let newList = findGoodPosition (indexListText newData) (PItalicText (PItalic [])) (contentText newData)
         let finalData = newData { contentText = newList, indexListText = (indexListText newData) + 1 }
         appendAllElem finalData xs
 
@@ -34,7 +34,7 @@ appendAllElem dataText (x:xs)
 ------------------------------------------------------------------------------------------
     | x == (TCode Code) && not (isInCode dataText) = do
         let newData = dataText { isInCode = True }
-        newList <- findGoodPosition (indexListText newData) (PCodeText (PCode [])) (contentText newData)
+        let newList = findGoodPosition (indexListText newData) (PCodeText (PCode [])) (contentText newData)
         let finalData = newData { contentText = newList, indexListText = (indexListText newData) + 1 }
         appendAllElem finalData xs
 
@@ -44,7 +44,7 @@ appendAllElem dataText (x:xs)
 ------------------------------------------------------------------------------------------    
     | otherwise = case x of
         TString str -> do
-            newList <- findGoodPosition (indexListText dataText) (PString str) (contentText dataText)
+            let newList = findGoodPosition (indexListText dataText) (PString str) (contentText dataText)
             appendAllElem (dataText { contentText = newList }) xs
         _ -> appendAllElem dataText xs
 
@@ -60,10 +60,9 @@ reversePTextType (PBoldText (PBold ts)) = PBoldText (PBold (reversePTextList ts)
 reversePTextType (PItalicText (PItalic ts)) = PItalicText (PItalic (reversePTextList ts))
 reversePTextType (PCodeText (PCode ts)) = PCodeText (PCode (reversePTextList ts))
 
-findGoodPosition :: Int -> PTextType -> PText -> IO PText
-findGoodPosition index actualElem (PText list) = do
-    let newPText = (insertAtIndex index actualElem (list))
-    return (PText newPText)
+findGoodPosition :: Int -> PTextType -> PText -> PText
+findGoodPosition index actualElem (PText list) =
+    (PText (insertAtIndex index actualElem list))
 
 insertAtIndex :: Int -> PTextType -> [PTextType] -> [PTextType]
 insertAtIndex index actualElem list

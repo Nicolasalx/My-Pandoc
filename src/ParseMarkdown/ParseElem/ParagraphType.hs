@@ -18,7 +18,7 @@ tryAddFrstSection levelSect content allContent
     | levelSect == 1 = addNewElemToContent content allContent
     | otherwise = addNewElemToContent (initNewSection "") allContent
 
-defineParagraphType :: DataParsing -> String -> [PContent] -> IO (DataParsing, String, [PContent])
+defineParagraphType :: DataParsing -> String -> [PContent] -> (DataParsing, String, [PContent])
 defineParagraphType dataParsing str allContent
-    | not (isInCodeblock dataParsing) && not (isInParagraph dataParsing) = return (dataParsing { typeToAdd = Paragraph }, str, allContent)
-    | otherwise = return (dataParsing, str, allContent)
+    | not (isInCodeblock dataParsing) && not (isInParagraph dataParsing) = (dataParsing { typeToAdd = Paragraph }, str, allContent)
+    | otherwise = (dataParsing, str, allContent)

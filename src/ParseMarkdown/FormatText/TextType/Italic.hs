@@ -10,31 +10,31 @@ import ParseMarkdown.DataStructMarkdown (TypeText(..), DataText(..), ElemTextTyp
 import Content ()
 import ParseMarkdown.FormatText.TryAddBasicList (tryAddBasicToList, fillInvalidPattern)
 
-symbolItalicAlreadyOpen :: String -> DataText -> IO (String, DataText)
+symbolItalicAlreadyOpen :: String -> DataText -> (String, DataText)
 symbolItalicAlreadyOpen str dataText = do
     if ((length (basicStr dataText) == 0  || (precedentChar dataText) /= ' ' && (last (basicStr dataText) /= ' ')))
         then do
             let tmpDataText = tryAddBasicToList dataText
                 newData = tmpDataText { isInItalic = False, listText = (listText tmpDataText) ++ [TItalic Italic] }
-            return ([' '] ++str, newData)
+            ([' '] ++str, newData)
     else do
         let newData = fillInvalidPattern 0 1 '*' dataText
         if ((length (str) > 0 && head (str) /= ' '))
-            then return ([' '] ++ str, newData)
+            then ([' '] ++ str, newData)
         else
-            return ([' '] ++ str, newData)
+            ([' '] ++ str, newData)
 
-symbolItalicNotOpen :: String -> DataText -> IO (String, DataText)
+symbolItalicNotOpen :: String -> DataText -> (String, DataText)
 symbolItalicNotOpen str dataText = do
     if ((length (str) > 0 && head (str) /= ' '))
         then do
             let endData = tryAddBasicToList dataText
                 newData = endData { isInItalic = True, listText = (listText endData) ++ [TItalic Italic] }
 
-            return ([' '] ++ str, newData)
+            ([' '] ++ str, newData)
     else do
         let newData = fillInvalidPattern 0 1 '*' dataText
         if ((length (str) > 0 && head (str) /= ' '))
-            then return ([' '] ++ str, newData)
+            then ([' '] ++ str, newData)
         else
-            return ([' '] ++ str, newData)
+            ([' '] ++ str, newData)

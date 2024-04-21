@@ -13,19 +13,14 @@ import ParseMarkdown.DataStructMarkdown (initializeDataParsing)
 
 -- THIS FUNCTION WILL CHANGE DON T WORRY !
 
-parseMarkdown :: String -> IO (Either String (PHeader, PBody))
-parseMarkdown file_content = do
+parseMarkdown :: String -> Either String (PHeader, PBody)
+parseMarkdown file_content =
     let dataInitialized = initializeDataParsing
-    let allLines = lines file_content
-    (headerResult, newDataParsing) <- parseHeader allLines dataInitialized
-    pBodyResult <- parseBody newDataParsing
-    case pBodyResult of
-        Right pBody -> do
-            -- print pBody
+        allLines = lines file_content
+        (headerResult, newDataParsing) = parseHeader allLines dataInitialized
+    in case parseBody newDataParsing of
+        Right pBody ->
             case headerResult of
-                Right pHeader -> return $ Right (pHeader, pBody)
-                Left err -> return $ Left err
-        Left err -> do
-            -- print err
-            return $ Left err
-
+                Right pHeader -> Right (pHeader, pBody)
+                Left err -> Left err
+        Left err -> Left err

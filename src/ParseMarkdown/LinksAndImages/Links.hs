@@ -10,19 +10,19 @@ import ParseMarkdown.DataStructMarkdown (DataParsing(..))
 import Content (PParagraphType(..), PLink(..))
 import ParseMarkdown.FormatText.CreateText (createText, formattingText)
 
-insertLinkToParagraph :: DataParsing -> IO DataParsing
+insertLinkToParagraph :: DataParsing -> DataParsing
 insertLinkToParagraph dataParsing
     | length (actualList dataParsing) > 0 = do
-        newDataParsed <- createText (dataParsing { insertLinkOrImage = True })
+        let newDataParsed = createText (dataParsing { insertLinkOrImage = True })
         (insertLink newDataParsed)
     | otherwise = (insertLink dataParsing)
 
-insertLink :: DataParsing -> IO DataParsing
+insertLink :: DataParsing -> DataParsing
 insertLink dataParsing = do
-    newLink <- formattingLink dataParsing
-    return (dataParsing { paragraph = (paragraph dataParsing) ++ [newLink], urlLink = "", contentLink = "", actualList = "" })
+    let newLink = formattingLink dataParsing
+    (dataParsing { paragraph = (paragraph dataParsing) ++ [newLink], urlLink = "", contentLink = "", actualList = "" })
 
-formattingLink :: DataParsing -> IO PParagraphType
+formattingLink :: DataParsing -> PParagraphType
 formattingLink dataParsing = do
-    textFormatted <- formattingText (contentLink dataParsing)
-    return (PLinkParagraph (PLink (urlLink dataParsing) textFormatted))
+    let textFormatted = formattingText (contentLink dataParsing)
+    (PLinkParagraph (PLink (urlLink dataParsing) textFormatted))

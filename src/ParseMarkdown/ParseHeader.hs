@@ -11,13 +11,11 @@ import Content (PHeader(..))
 import ParseMarkdown.DataStructMarkdown (DataParsing(..))
 import ParseMarkdown.ParseElem.SkipSpaces (skipSpaces)
 
-parseHeader :: [String] -> DataParsing -> IO (Either String PHeader, DataParsing)
-parseHeader line dataParsing =
-    parseEachLine line False [] dataParsing >>=
-        \(listStringHeader, dataStructModified) ->
-    checkErrorLine listStringHeader >>=
-        \headerResult ->
-    return $ either
+parseHeader :: [String] -> DataParsing -> (Either String PHeader, DataParsing)
+parseHeader line dataParsing = do
+    let (listStringHeader, dataStructModified) = parseEachLine line False [] dataParsing
+        headerResult = checkErrorLine listStringHeader
+    either
         (\errorMsg -> (Left errorMsg, dataStructModified))
         (\header -> (checkTitle header, dataStructModified))
         headerResult
@@ -26,12 +24,12 @@ checkTitle :: PHeader -> Either String PHeader
 checkTitle (PHeader { header_title = "" }) = Left "Error: No title has been entered or the header is not correct"
 checkTitle header = Right header
 
-checkErrorLine :: Either String [String] -> IO (Either String PHeader)
-checkErrorLine (Left errorMsg) = return (Left errorMsg)
+checkErrorLine :: Either String [String] -> (Either String PHeader)
+checkErrorLine (Left errorMsg) = (Left errorMsg)
 checkErrorLine (Right list2) = computeHeader list2
 
-computeHeader :: [String] -> IO (Either String PHeader)
-computeHeader list = return $ eitherResult (fillPHeader list)
+computeHeader :: [String] -> (Either String PHeader)
+computeHeader list = eitherResult (fillPHeader list)
     where
         eitherResult (Left err) = Left err
         eitherResult (Right header) = Right header
@@ -53,11 +51,11 @@ fillPHeader (x:xs)
         Right header { date = Just newStr }
     | otherwise = Left "Error: Invalid header format or field"
 
-parseEachLine :: [String] -> Bool -> [String] -> DataParsing -> IO (Either String [String], DataParsing)
-parseEachLine [] _ acc dataParsing = return (Right acc, dataParsing)
+parseEachLine :: [String] -> Bool -> [String] -> DataParsing -> (Either String [String], DataParsing)
+parseEachLine [] _ acc dataParsing = (Right acc, dataParsing)
 parseEachLine (x:xs) isInBlock acc dataParsing
     | isInBlock && x /= "---" = parseEachLine xs isInBlock (acc ++ [x]) dataParsing
     | x == "---" && not isInBlock = parseEachLine xs True acc dataParsing
-    | x == "---" && isInBlock = return (Right acc, dataParsing {remainingLines = xs})
-    | null acc && x /= "---" = return (Left "Header need to begin in the first line and not have space or anything else before", dataParsing)
+    | x == "---" && isInBlock = (Right acc, dataParsing {remainingLines = xs})
+    | null acc && x /= "---" = (Left "Header need to begin in the first line and not have space or anything else before", dataParsing)
     | otherwise = parseEachLine xs isInBlock acc dataParsing

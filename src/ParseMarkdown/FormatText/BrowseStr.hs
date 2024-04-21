@@ -10,14 +10,12 @@ import ParseMarkdown.DataStructMarkdown (DataText(..))
 import Content ()
 import ParseMarkdown.FormatText.DetectSymbol (detectSymbol)
 
-browseStr :: String -> DataText -> Bool -> IO DataText
-browseStr [] dataText _ = return dataText
+browseStr :: String -> DataText -> Bool -> DataText
+browseStr [] dataText _ = dataText
 browseStr (x:xs) dataText hasTakeFrstChar
     | not hasTakeFrstChar = do
-        let newDataText = dataText { precedentChar = x }
-        (newStr, finalDataText) <- detectSymbol ([x] ++ xs) newDataText
+        let (newStr, finalDataText) = detectSymbol ([x] ++ xs) (dataText { precedentChar = x })
         browseStr newStr finalDataText True
     | otherwise = do
-        let newDataText = dataText { precedentChar = x }
-        (newStr, finalDataText) <- detectSymbol xs newDataText
+        let (newStr, finalDataText) = detectSymbol xs (dataText { precedentChar = x })
         browseStr newStr finalDataText True
