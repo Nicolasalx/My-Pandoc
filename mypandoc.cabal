@@ -24,6 +24,7 @@ library
       ArgParsing
       Content
       ExportFormat.AddIndent
+      ExportFormat.AddLineBreak
       ExportFormat.ExportBody
       ExportFormat.ExportCodeBlock
       ExportFormat.ExportContent
@@ -34,7 +35,6 @@ library
       ExportFormat.ExportLink
       ExportFormat.ExportList
       ExportFormat.ExportParagraph
-      ExportFormat.AddLineBreak
       ExportFormat.ExportText
       ExportFormat.MapExport
       ExportInFile
