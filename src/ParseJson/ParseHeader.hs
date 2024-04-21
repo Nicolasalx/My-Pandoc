@@ -11,10 +11,12 @@ import ParsingLib.Lib (strcmp, parseJsonKey, strToWordArray, nth)
 
 searchForHeader :: [String] -> Int -> Either String PHeader
 searchForHeader [] _ = Left "Error: No header found after bracket"
-searchForHeader (x:xs) n
-    | n == 0 && '{' `elem` x = searchForHeader xs 1
-    | n == 1 && strcmp "header" x = parseEachHeaderLine xs PHeader { header_title = "", author = Nothing, date = Nothing }
-    | otherwise = Left "Error: No header found"
+searchForHeader (x:xs) 0
+    | '{' `elem` x = searchForHeader xs 1
+searchForHeader (x:xs) 1
+    | strcmp "header" x = parseEachHeaderLine xs 
+    PHeader {header_title = "", author = Nothing, date = Nothing}
+searchForHeader _ _ = Left "Error: No header found after bracket"
 
 checkTitle :: PHeader -> Either String PHeader
 checkTitle pHeader
