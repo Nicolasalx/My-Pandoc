@@ -9,14 +9,15 @@ module ParseJson.ParseBody (parseBody) where
 import Content (PContent(..), PParagraph(..), PParagraphType(..), PText(..), PBold(..), PItalic(..), PCode(..), PTextType(..), PSection(..), PCodeBlock(..), PList(..), PItem(..), PItemType(..), PLink(..), PImage(..))
 import ParsingLib.Lib (strToWordArray, strcmp, nth, checkIsInString)
 import ParseJson.ParseFunction (notBracketChar, appendPContent, initPContent, lastPContent)
-import Debug.Trace
 
 -- Adding title to section
 
 addTitle :: String -> PContent -> PContent
 addTitle str (PSectionContent (PSection {title = _, section_content = contenu})) = PSectionContent (PSection {title = str, section_content = contenu})
+addTitle _ _ = PSectionContent (PSection {title = "", section_content = []})
 
 parseTitle :: [String] -> [String] -> [PContent] -> Either String [PContent]
+parseTitle _ [] _ = Left "Error: Missing symbol in title"
 parseTitle state (x:xs) contenu
     | checkIsInString (['A'..'Z'] ++ ['a'..'z']) x = parseSymbol (state ++ ["section"]) xs (appendPContent state (addTitle x (lastPContent state contenu)) ((initPContent state contenu)))
     | otherwise = parseSymbol (state ++ ["section"]) (x:xs) (appendPContent state (addTitle "" (lastPContent state contenu)) ((initPContent state contenu)))
@@ -28,26 +29,32 @@ addParagraph "text" str (PParagraphContent (PParagraph list)) = PParagraphConten
 addParagraph "bold" str (PParagraphContent (PParagraph list)) = PParagraphContent $ PParagraph $ list ++ [PTextParagraph (PText [PBoldText (PBold [PString str])])]
 addParagraph "italic" str (PParagraphContent (PParagraph list)) = PParagraphContent $ PParagraph $ list ++ [PTextParagraph (PText [PItalicText (PItalic [PString str])])]
 addParagraph "code" str (PParagraphContent (PParagraph list)) = PParagraphContent $ PParagraph $ list ++ [PTextParagraph (PText [PCodeText (PCode [PString str])])]
-addParagraph "link" str (PParagraphContent (PParagraph list)) = PParagraphContent $ PParagraph $ list ++ [PLinkParagraph (PLink {link_url = "", content = PText []})]
-addParagraph "image" str (PParagraphContent (PParagraph list)) = PParagraphContent $ PParagraph $ list ++ [PImageParagraph (PImage {image_url = "", alt = PText []})]
+addParagraph "link" _ (PParagraphContent (PParagraph list)) = PParagraphContent $ PParagraph $ list ++ [PLinkParagraph (PLink {link_url = "", content = PText []})]
+addParagraph "image" _ (PParagraphContent (PParagraph list)) = PParagraphContent $ PParagraph $ list ++ [PImageParagraph (PImage {image_url = "", alt = PText []})]
+addParagraph _ _ _ = PParagraphContent $ PParagraph []
 
 parseParagraph :: String -> [String] -> [String] -> [PContent] -> Either String [PContent]
+parseParagraph _ _ [] _ = Left "Error: Missing symbol in paragraph"
 parseParagraph typeStr state (x:xs) contenu = parseSymbol state xs (appendPContent state (addParagraph typeStr x (lastPContent state contenu)) ((initPContent state contenu)))
 
 -- Parsing codeblock
 
 addCodeBlock :: String -> PContent -> PContent
 addCodeBlock str (PCodeBlockContent (PCodeBlock list)) = PCodeBlockContent $ PCodeBlock $ list ++ [str]
+addCodeBlock _ _ = PCodeBlockContent $ PCodeBlock []
 
 parseCodeBlock :: [String] -> [String] -> [PContent] -> Either String [PContent]
+parseCodeBlock _ [] _ = Left "Error: Missing symbol in codeblock"
 parseCodeBlock state (x:xs) contenu = parseSymbol state xs (appendPContent state (addCodeBlock x (lastPContent state contenu)) ((initPContent state contenu)))
 
 -- Parsing list
 
 addList :: String -> PContent -> PContent
 addList str (PListContent (PList list)) = PListContent $ PList $ list ++ [PItem [(PParagraphItem (PParagraph [PTextParagraph (PText [PString str])]))]]
+addList _ _ = PListContent $ PList []
 
 parseList :: [String] -> [String] -> [PContent] -> Either String [PContent]
+parseList _ [] _ = Left "Error: Missing symbol in list"
 parseList state (x:xs) contenu = parseSymbol state xs (appendPContent state (addList x (lastPContent state contenu)) ((initPContent state contenu)))
 
 -- Parsing link and Image
@@ -55,29 +62,34 @@ parseList state (x:xs) contenu = parseSymbol state xs (appendPContent state (add
 getLinkUrl :: String -> PParagraphType -> PParagraphType
 getLinkUrl str (PLinkParagraph (PLink {link_url = "", content = contenu})) = PLinkParagraph (PLink {link_url = str, content = contenu})
 getLinkUrl str (PLinkParagraph (PLink {link_url = theTitle, content = PText []})) = PLinkParagraph (PLink {link_url = theTitle, content = PText [PString str]})
+getLinkUrl _ _ = PLinkParagraph (PLink {link_url = "", content = PText []})
 
 addLinkUrl :: String -> PContent -> PContent
 addLinkUrl str (PParagraphContent (PParagraph list)) = PParagraphContent $ PParagraph $ init list ++ [getLinkUrl str (last list)]
+addLinkUrl _ _ = PParagraphContent $ PParagraph []
 
 parseLinkUrl :: [String] -> [String] -> [PContent] -> Either String [PContent]
+parseLinkUrl _ [] _ = Left "Error: Missing symbol in link"
 parseLinkUrl state (x:xs) contenu = parseSymbol state xs (appendPContent state (addLinkUrl x (lastPContent state contenu)) ((initPContent state contenu)))
 
 getImageUrl :: String -> PParagraphType -> PParagraphType
-getImageUrl str (PImageParagraph (PImage {image_url = "", alt = alt})) = PImageParagraph (PImage {image_url = str, alt = alt})
+getImageUrl str (PImageParagraph (PImage {image_url = "", alt = contenu})) = PImageParagraph (PImage {image_url = str, alt = contenu})
 getImageUrl str (PImageParagraph (PImage {image_url = theTitle, alt = PText []})) = PImageParagraph (PImage {image_url = theTitle, alt = PText [PString str]})
+getImageUrl _ _ = PImageParagraph (PImage {image_url = "", alt = PText []})
 
 addImageUrl :: String -> PContent -> PContent
 addImageUrl str (PParagraphContent (PParagraph list)) = PParagraphContent $ PParagraph $ init list ++ [getImageUrl str (last list)]
+addImageUrl _ _ = PParagraphContent $ PParagraph []
 
 parseImageUrl :: [String] -> [String] -> [PContent] -> Either String [PContent]
+parseImageUrl _ [] _ = Left "Error: Missing symbol in image"
 parseImageUrl state (x:xs) contenu = parseSymbol state xs (appendPContent state (addImageUrl x (lastPContent state contenu)) ((initPContent state contenu)))
-
 
 -- check quel est le type du text et call la bonne fonction
 
 parseText :: [String] -> [String] -> [PContent] -> Either String [PContent]
 parseText [] _ _ = Left "Error: Missing symbol in text"
-parseText _ [] contenu = Left "Error: Missing } in text"
+parseText _ [] _ = Left "Error: Missing } in text"
 parseText state (x:xs) contenu
     | s == "paragraph" = parseParagraph "text" state (x:xs) contenu
     | s == "?" && x == "section" = parseSymbol ((init state) ++ ["beforeSection"]) xs (appendPContent state (PSectionContent (PSection {title = "", section_content = []})) contenu)
@@ -129,7 +141,7 @@ parseSymbolCodeblock state (x:xs) contenu
     | otherwise = Left "Error: Missing symbol"
 
 parseSymbol :: [String] -> [String] -> [PContent] -> Either String [PContent]
-parseSymbol _ [] contenu = Left "Error: Missing } in text"
+parseSymbol _ [] _ = Left "Error: Missing } in text"
 parseSymbol state ([]:xs) contenu 
     | xs == [] = Right contenu
     | otherwise = parseText state xs contenu

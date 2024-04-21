@@ -6,8 +6,7 @@
 --
 
 module ParseJson.ParseFunction (notBracketChar, appendPContent, initPContent, lastPContent) where
-import Content (PContent(..), PParagraph(..), PParagraphType(..), PText(..), PTextType(..), PSection(..))
-import Debug.Trace
+import Content (PContent(..), PSection(..))
 
 notBracketChar :: String -> Bool
 notBracketChar [] = False
@@ -28,7 +27,8 @@ checkLastContent (PSectionContent (PSection {title = _, section_content = _})) =
 checkLastContent _ = False
 
 getLastPSection :: PContent -> [PContent]
-getLastPSection (PSectionContent (PSection {title = theTitle, section_content = contenu})) = contenu
+getLastPSection (PSectionContent (PSection {title = _, section_content = contenu})) = contenu
+getLastPSection _ = []
 
 addNewPContent :: [String] -> Bool -> PContent -> [PContent] -> [PContent]
 addNewPContent [] _ newC contenu = contenu ++ [newC]

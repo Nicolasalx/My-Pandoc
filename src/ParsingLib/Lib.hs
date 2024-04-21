@@ -1,4 +1,4 @@
-module ParsingLib.Lib (parseString, strcmp, parseJsonKey, strToWordArray, nth, parseUntil, cleanLine, Parser, searchSymbol, parseUntil, checkIsInString) where
+module ParsingLib.Lib (parseString, strcmp, parseJsonKey, strToWordArray, nth, parseUntil, cleanLine, Parser, searchSymbol, checkIsInString) where
 import Data.Char (isSpace)
 
 type Parser a = String -> Maybe (a , String)
@@ -71,7 +71,6 @@ cleanLine str = Just $ dropWhile isSpace str
 
 parseUntil :: String -> String -> Maybe (String, String)
 parseUntil _ "" = Nothing
-parseUntil target "" = Nothing
 parseUntil target str
     | strcmp target (take (length target) str) = Just ("", drop (length target) str)
     | otherwise = do
