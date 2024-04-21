@@ -70,8 +70,8 @@ echo -e "\n\e[1mTest MD -> MD:\e[0m\n"
 for file in example_file/simple_correct_file/md/*
 do
     test_name "File: $file"
-    ./mypandoc -i $file -f markdown -o "output_test/"${i_test}"_test_md.out"
-    colordiff -u $file "output_test/"${i_test}"_test_md.out"
+    ./mypandoc -i $file -f markdown -o "output_test/"${i_test}"_test.md"
+    colordiff -u $file "output_test/"${i_test}"_test.md"
     test_return_0
 done
 
@@ -80,8 +80,18 @@ echo -e "\n\e[1mTest MD -> XML:\e[0m\n"
 for file in example_file/simple_correct_file/md/*
 do
     test_name "File: $file"
-    ./mypandoc -i $file -f xml -o "output_test/"${i_test}"_test_xml.out"
-    colordiff -u $(echo "$file" | sed 's/\/md\//\/xml\//' | sed 's/.md/.xml/') "output_test/"${i_test}"_test_xml.out"
+    ./mypandoc -i $file -f xml -o "output_test/"${i_test}"_test.xml"
+    colordiff -u $(echo "$file" | sed 's/\/md\//\/xml\//' | sed 's/.md/.xml/') "output_test/"${i_test}"_test.xml"
+    test_return_0
+done
+
+echo -e "\n\e[1mTest MD -> JSON:\e[0m\n"
+
+for file in example_file/simple_correct_file/md/*
+do
+    test_name "File: $file"
+    ./mypandoc -i $file -f json -o "output_test/"${i_test}"_test.json"
+    colordiff -u $(echo "$file" | sed 's/\/md\//\/json\//' | sed 's/.md/.json/') "output_test/"${i_test}"_test.json"
     test_return_0
 done
 

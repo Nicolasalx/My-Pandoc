@@ -13,6 +13,7 @@ import ExportFormat.ExportFormatData (ExportFormat(..), ExportData(..))
 import ExportFormat.ExportList (exportList)
 import ExportFormat.ExportParagraph (exportParagraph)
 import ExportFormat.MapExport (mapExport)
+import ExportFormat.AddLineBreak (addLineBreak)
 
 exportSectionType :: PSection -> ExportFormat -> ExportData -> String
 exportSectionType (PSection title_ content) JSON exportData =
@@ -20,10 +21,10 @@ exportSectionType (PSection title_ content) JSON exportData =
     ++ addIndent ((indent_ exportData) + 1) ++ "\"section\": {\n"
     ++ addIndent ((indent_ exportData) + 2) ++ "\"title\": \"" ++ title_
     ++ "\",\n" ++ addIndent ((indent_ exportData) + 2) ++ "\"content\": [\n"
-    ++ mapExport (\line -> exportContent line
-        (exportData {indent_ = (indent_ exportData) + 2})) ",\n" content
+    ++ addLineBreak (mapExport (\line -> exportContent line
+        (exportData {indent_ = (indent_ exportData) + 3})) ",\n" content)
     ++ addIndent ((indent_ exportData) + 2) ++ "]\n"
-    ++ addIndent ((indent_ exportData) + 1) ++ "]\n"
+    ++ addIndent ((indent_ exportData) + 1) ++ "}\n"
     ++ addIndent ((indent_ exportData)) ++ "}\n"
 
 exportSectionType (PSection title_ content) XML exportData =

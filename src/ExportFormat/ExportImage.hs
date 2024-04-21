@@ -17,13 +17,13 @@ exportImage (PImage url alt_) JSON indent =
     ++ addIndent (indent + 1) ++ "\"image\": {\n"
     ++ addIndent (indent + 2) ++ "\"url\": \"" ++ url ++ "\",\n"
     ++ addIndent (indent + 2) ++ "\"alt\": [\n"
-    ++ exportText alt_ JSON (indent + 3) ++ "\n"
+    ++ exportText alt_ JSON (indent + 3) False ++ "\n"
     ++ addIndent (indent + 2) ++ "]\n"
     ++ addIndent (indent + 1) ++ "}\n"
     ++ addIndent (indent) ++ "}"
 
 exportImage (PImage url alt_) XML _ =
-    "<image url=\"" ++ url ++ "\">" ++ exportText alt_ XML 0 ++ "</image>"
+    "<image url=\"" ++ url ++ "\">" ++ exportText alt_ XML 0 False ++ "</image>"
 
 exportImage (PImage url alt_) MD _ =
-    "![" ++ exportText alt_ MD 0 ++ "](" ++ url ++ ")"
+    "![" ++ exportText alt_ MD 0 False ++ "](" ++ url ++ ")"

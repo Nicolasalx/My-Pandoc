@@ -9,13 +9,14 @@ module ExportFormat.ExportBody (exportBody) where
 import Content (PBody(..))
 import ExportFormat.AddIndent (addIndent)
 import ExportFormat.ExportContent (exportContent)
+import ExportFormat.MapExport (mapExport)
 import ExportFormat.ExportFormatData (ExportData(..), ExportFormat(..))
+import ExportFormat.AddLineBreak (addLineBreak)
 
 exportBodyHelper :: PBody -> ExportFormat -> ExportData -> String
 exportBodyHelper (PBody list) JSON exportData =
     addIndent (indent_ exportData) ++ "\"body\": [\n"
-    ++ concatMap (\line -> exportContent line
-        (exportData {indent_ = (indent_ exportData) + 1})) list
+    ++ addLineBreak (mapExport (\line -> exportContent line (exportData {indent_ = (indent_ exportData) + 1})) ",\n" list)
     ++ addIndent (indent_ exportData) ++ "]\n"
 
 exportBodyHelper (PBody list) XML exportData =
