@@ -16,7 +16,7 @@ import ExportFormat.AddIndent (addIndent)
 
 exportParagraphType :: PParagraphType -> ExportData -> String
 exportParagraphType (PTextParagraph text) (exportData) =
-    exportText text (format_ exportData) (indent_ exportData)
+    exportText text (format_ exportData) (indent_ exportData) False
 exportParagraphType (PLinkParagraph link) (exportData) =
     exportLink link (format_ exportData) (indent_ exportData)
 exportParagraphType (PImageParagraph image) (exportData) =
@@ -24,22 +24,22 @@ exportParagraphType (PImageParagraph image) (exportData) =
 
 exportParagraphHelper :: PParagraph -> ExportFormat -> ExportData -> String
 exportParagraphHelper (PParagraph (list)) JSON (exportData) =
-    (addIndent (indent_ exportData)) ++ (start_paragraph exportData) ++
+    (addIndent (indent_ exportData)) ++ "[\n" ++
     mapExport (\line -> exportParagraphType line
-        (exportData {indent_ = (indent_ exportData) + 1})) (sep_paragraph exportData) list
-    ++ (addIndent (indent_ exportData)) ++ (end_paragraph exportData)
+        (exportData {indent_ = (indent_ exportData) + 1})) ",\n" list
+    ++ "\n" ++ (addIndent (indent_ exportData)) ++ "]"
 
 exportParagraphHelper (PParagraph (list)) XML (exportData) =
-    (addIndent (indent_ exportData)) ++ (start_paragraph exportData) ++
-    mapExport (\line -> exportParagraphType line
-        (exportData)) (sep_paragraph exportData) list
-    ++ (end_paragraph exportData)
+    (addIndent (indent_ exportData)) ++ "<paragraph>" ++
+    concatMap (\line -> exportParagraphType line
+        (exportData)) list
+    ++ "</paragraph>\n"
 
 exportParagraphHelper (PParagraph (list)) MD (exportData) =
-    (start_paragraph exportData) ++
-    mapExport (\line -> exportParagraphType line
-        (exportData)) (sep_paragraph exportData) list
-    ++ (end_paragraph exportData)
+    "\n" ++
+    concatMap (\line -> exportParagraphType line
+        (exportData)) list
+    ++ "\n"
 
 exportParagraph :: PParagraph -> ExportData -> String
 exportParagraph paragraph (exportData) =

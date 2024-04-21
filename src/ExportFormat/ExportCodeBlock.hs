@@ -12,18 +12,35 @@ import ExportFormat.ExportFormatData (ExportFormat(..), ExportData(..))
 import ExportFormat.MapExport (mapExport)
 
 exportCodeLine :: String -> ExportFormat -> Int -> String
-exportCodeLine code JSON indent = addIndent (indent + 1) ++ "[\n"
-    ++ addIndent (indent + 2) ++ "\"" ++ code ++ "\"\n"
-    ++ addIndent (indent + 1) ++ "]"
+exportCodeLine code JSON indent = addIndent indent ++ "[\n"
+    ++ addIndent (indent + 1) ++ "\"" ++ code ++ "\"\n"
+    ++ addIndent indent ++ "]"
 exportCodeLine code XML indent =
-    addIndent (indent + 1) ++ "<paragraph>" ++ code ++ "</paragraph>"
+    addIndent indent ++ "<paragraph>" ++ code ++ "</paragraph>"
 exportCodeLine code MD _ = code
 
+exportCodeBlockHelper :: PCodeBlock -> ExportFormat -> Int -> String
+exportCodeBlockHelper (PCodeBlock (code)) JSON indent =
+    (addIndent indent) ++ "{\n" ++
+    (addIndent (indent + 1)) ++ "\"codeblock\": [\n"
+    ++ mapExport (\line -> exportCodeLine line JSON (indent + 2)) ",\n" code
+    ++ "\n"
+    ++ (addIndent (indent + 1)) ++ "]\n"
+    ++ (addIndent indent) ++ "}\n"
+
+exportCodeBlockHelper (PCodeBlock (code)) XML indent =
+    (addIndent indent)
+    ++ "<codeblock>\n"
+    ++ mapExport (\line -> exportCodeLine line XML (indent + 1)) "\n" code
+    ++ "\n" ++ (addIndent indent)
+    ++ "</codeblock>\n"
+
+exportCodeBlockHelper (PCodeBlock (code)) MD _ =
+    "```\n"
+    ++ mapExport (\line -> exportCodeLine line MD 0) "\n" code
+    ++ "\n"
+    ++ "```\n"
+
 exportCodeBlock :: PCodeBlock -> ExportData -> String
-exportCodeBlock (PCodeBlock (code)) (exportData) =
-    (addIndent (indent_ exportData))
-    ++ (start_codeblock exportData)
-    ++ mapExport (\line -> exportCodeLine line (format_ exportData)
-        (indent_ exportData)) (sep_codeblock exportData) code
-    ++ "\n" ++ (addIndent (indent_ exportData))
-    ++ (end_codeblock exportData)
+exportCodeBlock codeBlock exportData =
+    exportCodeBlockHelper codeBlock (format_ exportData) (indent_ exportData)

@@ -1,0 +1,22 @@
+{
+    "header": {
+        "title": "Syntaxe TEST",
+        "author": "Fornes Leo",
+        "date": "2024-01-01"
+    },
+    "body": [
+        {
+            "list": [
+                [
+                    "list item 1"
+                ],
+                [
+                    "list item 2"
+                ],
+                [
+                    "list item 3"
+                ]
+            ]
+        }
+    ]
+}

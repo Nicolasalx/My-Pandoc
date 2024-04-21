@@ -16,24 +16,15 @@ data ExportData = ExportData {
     indent_ :: Int,
     current_section :: Int,
     list_level :: Int,
-    sep_codeblock :: String,
-    start_codeblock :: String,
-    end_codeblock :: String,
-    sep_paragraph :: String,
-    start_paragraph :: String,
-    end_paragraph :: String,
     end_document :: String
 } deriving (Show)
 
 initExportData :: ExportFormat -> ExportData
 initExportData JSON = (ExportData JSON 1 0 0
-    ",\n" "\"codeblock\": [\n" "]\n"
-    ",\n" "[\n" "]\n" "}\n")
+    "}\n")
 
 initExportData XML = (ExportData XML 1 0 0
-    "\n" "<codeblock>\n" "</codeblock>\n"
-    "" "<paragraph>" "</paragraph>\n" "</document>\n")
+    "</document>\n")
 
 initExportData MD = (ExportData MD 0 1 0
-    "\n" "```\n" "```\n"
-    "" "\n" "\n" "")
+    "")
