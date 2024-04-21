@@ -37,23 +37,14 @@ analyzeContent state (x:xs) content
     where cleanSpace = dropWhile isSpace x
     
 extractContentInQuotes :: String -> Maybe String
-extractContentInQuotes str =
-    case dropWhile (/= '"') str of
-        ('"':rest) -> Just (takeWhile (/= '"') rest)
-        _ -> Nothing
+extractContentInQuotes ('"':rest) = Just (takeWhile (/= '"') rest)
+extractContentInQuotes _ = Nothing
 
 extractSectionTitle :: String -> String
-extractSectionTitle line =
-    case extractContentInQuotes (drop 15 cleanLine) of
-        Just title -> title
-        Nothing -> ""
+extractSectionTitle line = maybe "" id (extractContentInQuotes (drop 15 cleanLine))
     where
         cleanLine = cleanSpace line
         cleanSpace = dropWhile isSpace
-        extractContentInQuotes str =
-            case dropWhile (/= '"') str of
-                ('"':rest) -> Just (takeWhile (/= '"') rest)
-                _ -> Nothing
 
 
 
