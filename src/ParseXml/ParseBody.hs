@@ -8,7 +8,7 @@ import Content (
     )
 import ParseXml.DataStructXml (DataParsing(..), initializeDataParsing)
 import ParsingLib.Lib (strcmp, addParagraph, cleanLine)
-import Data.List (isPrefixOf)
+import Data.List (isPrefixOf, isInfixOf)
 import Data.Maybe (mapMaybe)
 import Debug.Trace (trace, traceIO, traceM)
 import Data.Char (isSpace)
@@ -26,35 +26,40 @@ parseBody file_content = do
 analyzeContent :: [String] -> [String] -> [PContent] -> Either String [PContent]
 analyzeContent _ [] content = do
     traceM "Reached end of document"
-    return content
+    return (reverse content)
 analyzeContent state (x:xs) content
-        | "<paragraph>" `isPrefixOf` cleanX && last state == "paragraph" = do
-            let paragraphContent = getContentBetweenTags "<paragraph>" x
-            traceM $ "Adding paragraph content: " ++ paragraphContent
-            analyzeContent state xs (addParagraphContent paragraphContent : content)
-        | "<section title=" `isPrefixOf` cleanX = do
-            let (sectionContent, remainingLines) = extractSectionContent xs
-            subcontent <- analyzeContent (last state : state) remainingLines []
-            traceM $ "Adding section content: " ++ show sectionContent
-            analyzeContent state xs (addSectionContent cleanX sectionContent : subcontent)
-        | "<codeblock>" `isPrefixOf` cleanX && last state == "paragraph" = do
-            let codeBlockContent = getContentBetweenTags "<codeblock>" x
-            traceM $ "Adding code block content: " ++ codeBlockContent
-            analyzeContent state xs (addCodeBlock [codeBlockContent] : content)
-        | "<list>" `isPrefixOf` cleanX && last state == "paragraph" = do
-            traceM "Adding list content"
-            analyzeContent state xs (addList [] : content)
-        | "</section>" `isPrefixOf` cleanX = case state of
-                                            "section":restState -> do
-                                                let sectionContent = finalizeSectionContent (head content)
-                                                traceM $ "Finalizing section content: " ++ show sectionContent
-                                                analyzeContent restState xs (sectionContent : tail content)
-                                            _ -> Left "Unexpected end of section tag"
-        | otherwise = do
-            traceM $ "Ignoring unrecognized content: " ++ x
-            analyzeContent state xs content
+    | "<paragraph>" `isPrefixOf` cleanX && last state == "paragraph" = do
+        let paragraphContent = getContentBetweenTags "<paragraph>" x
+        traceM $ "Adding paragraph content: " ++ paragraphContent
+        analyzeContent state xs (addParagraphContent paragraphContent : content)
+    | "<section title=" `isPrefixOf` cleanX = do
+        let (sectionContent, remainingLines) = extractSectionContent xs
+        subcontent <- analyzeContent (last state : state) remainingLines []
+        traceM $ "Adding section content: " ++ show sectionContent
+        analyzeContent state xs (addSectionContent cleanX sectionContent : subcontent)
+    | "<codeblock>" `isPrefixOf` cleanX && last state == "paragraph" = do
+        let codeBlockContent = getContentBetweenTags "<codeblock>" x
+        traceM $ "Adding code block content: " ++ codeBlockContent
+        analyzeContent state xs (PCodeBlockContent (PCodeBlock [codeBlockContent]) : content)
+    | "</section>" `isPrefixOf` cleanX = case state of
+        "section":restState -> do
+            let sectionContent = finalizeSectionContent (head content)
+            traceM $ "Finalizing section content: " ++ show sectionContent
+            analyzeContent restState xs (sectionContent : tail content)
+        _ -> Left "Unexpected end of section tag"
+    | otherwise = do
+        traceM $ "Ignoring unrecognized content: " ++ x
+        analyzeContent state xs content
     where cleanX = dropWhile isSpace x
-    
+
+extractListContent :: [String] -> ([String], [String])
+extractListContent lines =
+    let (listLines, rest) = break ("</list>" `isPrefixOf`) lines
+    in (listLines, drop 1 rest)
+
+addListItem :: String -> PItem
+addListItem x = PItem [PParagraphItem (PParagraph [PTextParagraph (PText [PString x])])]
+
 addParagraphContent :: String -> PContent
 addParagraphContent x = PParagraphContent (PParagraph [PTextParagraph (PText [PString x])])
 
@@ -73,12 +78,6 @@ getContentBetweenTags openTag str =
         contentEndIdx = length strWithoutSpaces - (tagLength + length ("</" ++ takeWhile (/='>') openTag))
     in take contentEndIdx $ drop contentStartIdx strWithoutSpaces
 
-addCodeBlock :: [String] -> PContent
-addCodeBlock codeLines = PCodeBlockContent (PCodeBlock codeLines)
-
-addList :: [PItem] -> PContent
-addList items = PListContent (PList items)
-
 extractSectionContent :: [String] -> ([PContent], [String])
 extractSectionContent lines =
     let (sectionLines, rest) = break ("</section>" `isPrefixOf`) lines
@@ -92,8 +91,60 @@ extractSectionContent lines =
                 extractedTitle = takeWhile (/= '"') titleEnd
             in trace ("Extracted section title: " ++ extractedTitle) extractedTitle
 
+addFormattedContent :: String -> String -> String -> (PTextType -> PTextType) -> PContent
+addFormattedContent before content after formatConstructor =
+    let textBefore = if null before then [] else [PString before]
+        textAfter = if null after then [] else [PString after]
+        formattedText = if null content then [] else [formatConstructor (PString content)]
+    in PParagraphContent (PParagraph [PTextParagraph (PText (textBefore ++ formattedText ++ textAfter))])
+
+addItalicText :: PTextType -> PTextType
+addItalicText = PItalicText . PItalic . return
+
+addBoldText :: PTextType -> PTextType
+addBoldText = PBoldText . PBold . return
+
+addCodeText :: PTextType -> PTextType
+addCodeText = PCodeText . PCode . return
+
 extractParagraph :: String -> Maybe PContent
 extractParagraph line
     | "<paragraph>" `isPrefixOf` line = Just $ addParagraphContent (getContentBetweenTags "<paragraph>" line)
     | "</paragraph>" `isPrefixOf` line = Just $ addParagraphContent (getContentBetweenTags "</paragraph>" line)
+    | otherwise =
+    case extractItalic line of
+        Just (before, italic, after) -> Just $ addFormattedContent before italic after addItalicText
+        Nothing ->
+            case extractBold line of
+                Just (before, bold, after) -> Just $ addFormattedContent before bold after addBoldText
+                Nothing ->
+                    case extractCode line of
+                        Just (before, code, after) -> Just $ addFormattedContent before code after addCodeText
+                        Nothing -> Nothing
+
+extractItalic :: String -> Maybe (String, String, String)
+extractItalic line
+    | "<italic>" `isPrefixOf` line && "</italic>" `isInfixOf` line =
+        let before = takeWhile (/= '<') line
+            italic = getContentBetweenTags "<italic>" line
+            after = drop (length italic + length "</italic>") $ dropWhile (/= '>') line
+        in Just (before, italic, after)
+    | otherwise = Nothing
+
+extractBold :: String -> Maybe (String, String, String)
+extractBold line
+    | "<bold>" `isPrefixOf` line && "</bold>" `isInfixOf` line =
+        let before = takeWhile (/= '<') line
+            bold = getContentBetweenTags "<bold>" line
+            after = drop (length bold + length "</bold>") $ dropWhile (/= '>') line
+        in Just (before, bold, after)
+    | otherwise = Nothing
+
+extractCode :: String -> Maybe (String, String, String)
+extractCode line
+    | "<code>" `isPrefixOf` line && "</code>" `isInfixOf` line =
+        let before = takeWhile (/= '<') line
+            code = getContentBetweenTags "<code>" line
+            after = drop (length code + length "</code>") $ dropWhile (/= '>') line
+        in Just (before, code, after)
     | otherwise = Nothing

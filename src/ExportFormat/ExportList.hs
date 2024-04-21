@@ -37,8 +37,8 @@ exportListHelper (PList list) JSON exportData =
     ++ addIndent (indent_ exportData) ++ "}"
 exportListHelper (PList list) XML exportData =
     addIndent (indent_ exportData) ++ "<list>\n"
-    ++ mapExport (\line -> exportItem line (format_ exportData)
-        (exportData {indent_ = (indent_ exportData) + 1})) "\n" list
+    ++ concatMap (\line -> exportItem line (format_ exportData)
+        (exportData {indent_ = (indent_ exportData) + 1})) list
     ++ addIndent (indent_ exportData) ++ "</list>\n"
 exportListHelper (PList list) MD exportData =
     mapExport (\line -> exportItem line
