@@ -16,7 +16,7 @@ exportHeaderJsonMaybeString _ Nothing = []
 
 exportHeaderJson :: PHeader -> String
 exportHeaderJson (PHeader title_ author_ date_) =
-    "{\n    \"header\": {\n       \"title\": \"" ++ title_ ++ "\""
+    "{\n    \"header\": {\n        \"title\": \"" ++ title_ ++ "\""
     ++ (exportHeaderJsonMaybeString "author" author_)
     ++ (exportHeaderJsonMaybeString "date" date_)
     ++ "\n    },\n"
