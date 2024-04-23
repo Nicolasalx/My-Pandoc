@@ -24,7 +24,6 @@ data DataText = DataText
   {
     basicStr :: String,
 
-    levelText :: Int,
 
     isInBold :: Bool,
     isInItalic :: Bool,
@@ -43,17 +42,11 @@ initializeDataText :: DataText
 initializeDataText = DataText
   {
     basicStr = "",
-
-    levelText = 0,
-
     isInBold = False,
     isInItalic = False,
     isInCode = False,
-
     contentText = PText [],
-
     indexListText = 0,
-
     precedentChar = ' ',
     listText = []
   }

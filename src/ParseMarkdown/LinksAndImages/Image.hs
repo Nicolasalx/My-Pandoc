@@ -1,9 +1,9 @@
---
+{-
 -- EPITECH PROJECT, 2024
 -- B-FUN-400-PAR-4-1-mypandoc-thibaud.cathala
 -- File description:
 -- Image
---
+-}
 
 module ParseMarkdown.LinksAndImages.Image (insertImageToParagraph) where
 import ParseMarkdown.DataStructMarkdown (DataParsing(..))
@@ -23,4 +23,5 @@ insertImage dataParsing =
 
 formattingImg :: DataParsing -> PParagraphType
 formattingImg dataParsing =
-    PImageParagraph (PImage (urlImg dataParsing) (formattingText (altImg dataParsing)))
+    PImageParagraph (PImage (urlImg dataParsing)
+        (formattingText (altImg dataParsing)))

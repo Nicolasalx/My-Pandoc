@@ -1,9 +1,9 @@
---
+{-
 -- EPITECH PROJECT, 2024
 -- B-FUN-400-PAR-4-1-mypandoc-thibaud.cathala
 -- File description:
 -- Links
---
+-}
 
 module ParseMarkdown.LinksAndImages.Links (insertLinkToParagraph) where
 import ParseMarkdown.DataStructMarkdown (DataParsing(..))
@@ -16,11 +16,11 @@ insertLinkToParagraph dataParsing
         insertLink (createText (dataParsing { insertLinkOrImage = True }))
     | otherwise = insertLink dataParsing
 
-
 insertLink :: DataParsing -> DataParsing
 insertLink dataParsing =
     dataParsing { paragraph = (paragraph dataParsing) ++
-        [formattingLink dataParsing], urlLink = "", contentLink = "", actualList = "" }
+        [formattingLink dataParsing],
+            urlLink = "", contentLink = "", actualList = "" }
 
 formattingLink :: DataParsing -> PParagraphType
 formattingLink dataParsing =

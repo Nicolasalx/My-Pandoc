@@ -1,9 +1,9 @@
---
+{-
 -- EPITECH PROJECT, 2024
 -- B-FUN-400-PAR-4-1-mypandoc-thibaud.cathala
 -- File description:
 -- parseEachString
---
+-}
 
 module ParseMarkdown.ParseElem.ParseEachString (parseEachString) where
 import ParseMarkdown.DataStructMarkdown (DataParsing(..), TypeToAdd(..))
@@ -20,78 +20,115 @@ import ParseMarkdown.ParseElem.Item (createItem)
 import ParseMarkdown.ParseElem.SkipSpaces (skipSpaces)
 import ParseMarkdown.ParseElem.Item (tryAddItem)
 
+import Debug.Trace (trace)
 
-parseEachString :: String -> String -> DataParsing -> Bool -> [PContent] -> ([PContent], DataParsing)
+parseEachString :: String -> String -> DataParsing ->
+    Bool -> [PContent] -> ([PContent], DataParsing)
 parseEachString _ [] dataParsing _ allContent = (allContent, dataParsing)
 parseEachString str (c:cs) dataParsing hasCheckfirstStrIsAnElem allContent
-    | not hasCheckfirstStrIsAnElem = checkFrstStr str dataParsing allContent
+    | not hasCheckfirstStrIsAnElem =
+        checkFrstStr str (skipSpaces 3 str) dataParsing allContent
     | otherwise = analyseBasicString c cs dataParsing allContent
 
-analyseBasicString :: Char -> String -> DataParsing -> [PContent] -> ([PContent], DataParsing)
-analyseBasicString c cs dataParsing allContent = do 
-    let (dataAfterLinkImg, newStr) = checkImgAndLink c cs dataParsing
-    case strcmp newStr cs of
-        True -> do
-            let newDataParsed' = parseOneChar c dataParsing
-            parseEachString cs cs newDataParsed' True allContent
-        False ->
-            parseEachString newStr newStr dataAfterLinkImg True allContent
+analyseBasicString :: Char -> String -> DataParsing ->
+    [PContent] -> ([PContent], DataParsing)
+analyseBasicString c cs dataParsing allContent
+    | strcmp newStr cs = parseEachString cs cs newDataParsed' True allContent
+    | otherwise =
+        parseEachString newStr newStr dataAfterLinkImg True allContent
+    where
+        (dataAfterLinkImg, newStr) = checkImgAndLink c cs dataParsing
+        newDataParsed' = parseOneChar c dataParsing
 
-checkFrstStr :: String -> DataParsing -> [PContent] -> ([PContent] ,DataParsing)
-checkFrstStr str dataParsing allContent = do
-    let (newDataParsing, newStr, newContent) = checkfirstStrIsAnElem str dataParsing allContent
-    if strcmp str newStr
-        then
-        parseEachString newStr newStr newDataParsing True newContent
-    else
-        parseEachString "" "" newDataParsing True newContent
+initNewSection :: DataParsing -> [PContent] -> Int ->
+    String -> (DataParsing, String, [PContent])
+initNewSection dataParsing allContent levelSect rightPart =
+    (finalData { levelSection = levelSect, typeToAdd = Section },
+    rightPart, finalContent)
+    where
+        (newContent, newData) = tryAddParagraph dataParsing allContent
+        (finalContent, finalData) =
+            createSection levelSect rightPart newData newContent
 
-checkfirstStrIsAnElem :: String -> DataParsing -> [PContent] -> (DataParsing, String, [PContent])
-checkfirstStrIsAnElem str dataParsing allContent
-    | Just (_, rightPart) <- isSectionSix = do
-        let (newContent, newData) = tryAddParagraph dataParsing allContent
-            (finalContent, finalData) = createSection 6 rightPart newData newContent
-        (finalData { levelSection = 6, typeToAdd = Section }, rightPart, finalContent)
-    | Just (_, rightPart) <- isSectionFive = do
-        let (newContent, newData) = tryAddParagraph dataParsing allContent
-            (finalContent, finalData) = createSection 5 rightPart newData newContent
-        (finalData { levelSection = 5, typeToAdd = Section }, rightPart, finalContent)
-    | Just (_, rightPart) <- isSectionFour = do
-        let (newContent, newData) = tryAddParagraph dataParsing allContent
-            (finalContent, finalData) = createSection 4 rightPart newData newContent
-        (finalData { levelSection = 4, typeToAdd = Section }, rightPart, finalContent)
-    | Just (_, rightPart) <- isSectionThree = do
-        let (newContent, newData) = tryAddParagraph dataParsing allContent
-            (finalContent, finalData) = createSection 3 rightPart newData newContent
-        (finalData { levelSection = 3, typeToAdd = Section }, rightPart, finalContent)
-    | Just (_, rightPart) <- isSectionTwo = do
-        let (newContent, newData) = tryAddParagraph dataParsing allContent
-            (finalContent, finalData) = createSection 2 rightPart newData newContent
-        (finalData { levelSection = 2, typeToAdd = Section }, rightPart, finalContent)
-    | Just (_, rightPart) <- isSectionOne = do
-        let (newContent, newData) = tryAddParagraph dataParsing allContent
-            (finalContent, finalData) = createSection 1 rightPart newData newContent
-        (finalData { levelSection = 1, typeToAdd = Section }, rightPart, finalContent)
-    | Just (_, rightPart) <- isCodeBlock = do
-        let (newfrstContent, newData) = tryAddParagraph dataParsing allContent
-            newDataParsed = newData { isInCodeblock = not (isInCodeblock dataParsing), typeToAdd = CodeBlock }
-            (finalDataParsed, newContent) = tryAddCodeBlock newDataParsed newfrstContent
-        (finalDataParsed, rightPart, newContent)
-    | Just (_, rightPart) <- isItem = do
-        -- ! Item
-        let (newContent, newData) = tryAddItem dataParsing allContent
-            (finalContent, finalData) = createItem str rightPart newData newContent
+initNewCodeblock :: DataParsing -> [PContent] ->
+    String -> (DataParsing, String, [PContent])
+initNewCodeblock dataParsing allContent rightPart =
+    (finalDataParsed, rightPart, newContent)
+    where
+        (newfrstContent, newData) = tryAddParagraph dataParsing allContent
+        newDataParsed = newData { isInCodeblock = not
+            (isInCodeblock dataParsing), typeToAdd = CodeBlock }
+        (finalDataParsed, newContent) =
+            tryAddCodeBlock newDataParsed newfrstContent
 
-        (finalData { levelItem = (levelItem dataParsing) + 1, typeToAdd = Item }, rightPart, finalContent)
+initNewItem :: DataParsing -> [PContent] -> String ->
+    String -> (DataParsing, String, [PContent])
+initNewItem dataParsing allContent rightPart str =
+    (finalData { levelItem = (levelItem dataParsing) + 1,
+        typeToAdd = Item }, rightPart, finalContent)
+    where
+        (newContent, newData) = tryAddItem dataParsing allContent
+        (finalContent, finalData) = createItem str rightPart newData newContent
 
+checkFrstStr :: String -> String -> DataParsing ->
+    [PContent] -> ([PContent], DataParsing)
+checkFrstStr str st2 dataP content
+    | not (strcmp oneStr str) = parseEachString "" "" d1 True oneContent
+    | not (strcmp twoStr str) = parseEachString "" "" d2 True twoContent
+    | not (strcmp threeStr str) = parseEachString "" "" d3 True threeContent
+    | not (strcmp newStr str) = parseEachString "" "" d4 True newContent
+    | otherwise = parseEachString newStr newStr d4 True newContent
+    where
+        (d1, oneStr, oneContent) = checkSectionOne str st2 dataP content
+        (d2, twoStr, twoContent) = checkSectionTwo str st2 dataP content
+        (d3, threeStr, threeContent) = checkSectionThree str st2 dataP content
+        (d4, newStr, newContent) = checkfirstStrIsAnElem str st2 dataP content
+
+
+checkfirstStrIsAnElem :: String -> String -> DataParsing ->
+    [PContent] -> (DataParsing, String, [PContent])
+checkfirstStrIsAnElem str stringSkipSpaces dataParsing allContent
+    | Just (_, rightPart) <- isCodeBlock =
+        initNewCodeblock dataParsing allContent rightPart
+    | Just (_, rightPart) <- isItem =
+        initNewItem dataParsing allContent rightPart str
     | otherwise = defineParagraphType dataParsing str allContent
-  where
-    stringSkipSpaces = skipSpaces 3 str
-    isSectionSix = parseString "###### " stringSkipSpaces
-    isSectionFive = parseString "##### " stringSkipSpaces
-    isSectionFour = parseString "#### " stringSkipSpaces
-    isSectionThree = parseString "### " stringSkipSpaces
-    isSectionTwo = parseString "## " stringSkipSpaces
-    isSectionOne = parseString "# " stringSkipSpaces
-    isCodeBlock = parseStartCodeBlock str
-    isItem = parseString "-" stringSkipSpaces
+    where
+        isCodeBlock = parseStartCodeBlock str
+        isItem = parseString "-" stringSkipSpaces
+
+checkSectionOne :: String -> String -> DataParsing ->
+    [PContent] -> (DataParsing, String, [PContent])
+checkSectionOne str stringSkipSpaces dataParsing allContent
+    | Just (_, rightPart) <- isSectionSix =
+        initNewSection dataParsing allContent 6 rightPart
+    | Just (_, rightPart) <- isSectionFive =
+        initNewSection dataParsing allContent 5 rightPart
+    | otherwise = (dataParsing, str, allContent)
+    where
+        isSectionSix = parseString "###### " stringSkipSpaces
+        isSectionFive = parseString "##### " stringSkipSpaces
+
+checkSectionTwo :: String -> String -> DataParsing ->
+    [PContent] -> (DataParsing, String, [PContent])
+checkSectionTwo str stringSkipSpaces dataParsing allContent
+    | Just (_, rightPart) <- isSectionFour =
+        initNewSection dataParsing allContent 4 rightPart
+    | Just (_, rightPart) <- isSectionThree =
+        initNewSection dataParsing allContent 3 rightPart
+    | otherwise = (dataParsing, str, allContent)
+    where
+        isSectionFour = parseString "#### " stringSkipSpaces
+        isSectionThree = parseString "### " stringSkipSpaces
+
+checkSectionThree :: String -> String -> DataParsing ->
+    [PContent] -> (DataParsing, String, [PContent])
+checkSectionThree str stringSkipSpaces dataParsing allContent
+    | Just (_, rightPart) <- isSectionTwo =
+        initNewSection dataParsing allContent 2 rightPart
+    | Just (_, rightPart) <- isSectionOne =
+        initNewSection dataParsing allContent 1 rightPart
+    | otherwise = (dataParsing, str, allContent)
+    where
+        isSectionTwo = parseString "## " stringSkipSpaces
+        isSectionOne = parseString "# " stringSkipSpaces

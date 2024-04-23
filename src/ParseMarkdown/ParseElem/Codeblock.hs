@@ -1,11 +1,13 @@
---
+{-
 -- EPITECH PROJECT, 2024
 -- B-FUN-400-PAR-4-1-mypandoc-thibaud.cathala
 -- File description:
 -- Codeblock
---
+-}
 
-module ParseMarkdown.ParseElem.Codeblock (tryAddCodeBlock, parseStartCodeBlock) where
+module ParseMarkdown.ParseElem.Codeblock (
+    tryAddCodeBlock,
+    parseStartCodeBlock) where
 import ParseMarkdown.DataStructMarkdown (DataParsing(..))
 import Content (PContent(..), PCodeBlock(..))
 import ParsingLib.Lib (parseString)
@@ -23,12 +25,16 @@ parseStartCodeBlock str
 
 tryAddCodeBlock :: DataParsing -> [PContent] -> (DataParsing, [PContent])
 tryAddCodeBlock dataParsing allContent
-    | not (isInCodeblock dataParsing) = addCodeBlockToContent dataParsing allContent
+    | not (isInCodeblock dataParsing) =
+        addCodeBlockToContent dataParsing allContent
     | otherwise = (dataParsing, allContent)
 
 initializeCodeBlock :: DataParsing -> PContent
-initializeCodeBlock dataParsing = PCodeBlockContent $ PCodeBlock ( actualCodeBlock dataParsing )
+initializeCodeBlock dataParsing =
+    PCodeBlockContent $ PCodeBlock ( actualCodeBlock dataParsing )
 
 addCodeBlockToContent :: DataParsing -> [PContent] -> (DataParsing, [PContent])
 addCodeBlockToContent dataParsing allContent =
-    (dataParsing { actualCodeBlock = [], hasFillCodeBlock = False }, checkInsertSection dataParsing (initializeCodeBlock dataParsing) allContent)
+    (dataParsing { actualCodeBlock = [], hasFillCodeBlock = False },
+    checkInsertSection dataParsing
+    (initializeCodeBlock dataParsing) allContent)
