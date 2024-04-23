@@ -210,9 +210,9 @@ elif [ "$1" = "XML" ]; then
 elif [ "$1" = "MD" ]; then
     test_md
 else
+    test_md
     test_json
     test_xml
-    test_json
 fi
 
 exit $RETURN_VALUE
