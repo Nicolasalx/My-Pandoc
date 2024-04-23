@@ -12,11 +12,20 @@ if [ $# -ne 1 ]; then
 fi
 
 make
+rm -f output_test/*
 
 test_name()
 {
     ((i_test++))
     echo -e "Test[\e[95m$i_test\e[0m]: $1"
+}
+
+silent_test_return_0()
+{
+    if [ $? -ne 0 ]; then
+        echo -e "[\e[91mFAIL\e[0m] Invalid exit status !"
+        RETURN_VALUE=1
+    fi
 }
 
 test_return_0()
@@ -63,10 +72,6 @@ display_progress_bar()
         printf "\e[91m%${empty}s\e[0m" | tr ' ' ' '
     fi
 
-
-    # printf "\e[91m%${filled}s\e[0m" | tr ' ' '█'
-    # printf "\e[91m%${empty}s\e[0m" | tr ' ' '▒'
-
     printf "] %d%% (%d/%d)\n" "$percentage" "$passed" "$total"
 }
 
@@ -76,8 +81,12 @@ test_json()
 
     for file in example_file/simple_correct_file/json/*
     do
+        if [[ -d $file ]]; then
+            continue
+        fi
         test_name "File: $file"
         ./mypandoc -i $file -f json -o "output_test/"${i_test}"_test.json"
+        silent_test_return_0
         colordiff -u $file "output_test/"${i_test}"_test.json"
         test_return_0
     done
@@ -86,8 +95,12 @@ test_json()
 
     for file in example_file/simple_correct_file/json/*
     do
+        if [[ -d $file ]]; then
+            continue
+        fi
         test_name "File: $file"
         ./mypandoc -i $file -f xml -o "output_test/"${i_test}"_test.xml"
+        silent_test_return_0
         colordiff -u $(echo "$file" | sed 's/\/json\//\/xml\//' | sed 's/.json/.xml/') "output_test/"${i_test}"_test.xml"
         test_return_0
     done
@@ -96,9 +109,24 @@ test_json()
 
     for file in example_file/simple_correct_file/json/*
     do
+        if [[ -d $file ]]; then
+            continue
+        fi
         test_name "File: $file"
         ./mypandoc -i $file -f markdown -o "output_test/"${i_test}"_test.md"
+        silent_test_return_0
         colordiff -u $(echo "$file" | sed 's/\/json\//\/md\//' | sed 's/.json/.md/') "output_test/"${i_test}"_test.md"
+        test_return_0
+    done
+
+    echo -e "\n\e[1mTest JSON Formating Rigor:\e[0m\n"
+
+    for file in example_file/simple_correct_file/json/formating/*
+    do
+        test_name "File: $file"
+        ./mypandoc -i $file -f json -o "output_test/"${i_test}"_test.json"
+        silent_test_return_0
+        colordiff -u example_file/simple_correct_file/json/header.json "output_test/"${i_test}"_test.json"
         test_return_0
     done
 
@@ -120,8 +148,12 @@ test_xml()
 
     for file in example_file/simple_correct_file/xml/*
     do
+        if [[ -d $file ]]; then
+            continue
+        fi
         test_name "File: $file"
         ./mypandoc -i $file -f xml -o "output_test/"${i_test}"_test.xml"
+        silent_test_return_0
         colordiff -u $file "output_test/"${i_test}"_test.xml"
         test_return_0
     done
@@ -130,8 +162,12 @@ test_xml()
 
     for file in example_file/simple_correct_file/xml/*
     do
+        if [[ -d $file ]]; then
+            continue
+        fi
         test_name "File: $file"
         ./mypandoc -i $file -f json -o "output_test/"${i_test}"_test.json"
+        silent_test_return_0
         colordiff -u $(echo "$file" | sed 's/\/xml\//\/json\//' | sed 's/.xml/.json/') "output_test/"${i_test}"_test.json"
         test_return_0
     done
@@ -140,9 +176,24 @@ test_xml()
 
     for file in example_file/simple_correct_file/xml/*
     do
+        if [[ -d $file ]]; then
+            continue
+        fi
         test_name "File: $file"
         ./mypandoc -i $file -f markdown -o "output_test/"${i_test}"_test.md"
+        silent_test_return_0
         colordiff -u $(echo "$file" | sed 's/\/xml\//\/md\//' | sed 's/.xml/.md/') "output_test/"${i_test}"_test.md"
+        test_return_0
+    done
+
+    echo -e "\n\e[1mTest XML Formating Rigor:\e[0m\n"
+
+    for file in example_file/simple_correct_file/xml/formating/*
+    do
+        test_name "File: $file"
+        ./mypandoc -i $file -f xml -o "output_test/"${i_test}"_test.xml"
+        silent_test_return_0
+        colordiff -u example_file/simple_correct_file/xml/header.xml "output_test/"${i_test}"_test.xml"
         test_return_0
     done
 
@@ -164,8 +215,12 @@ test_md()
 
     for file in example_file/simple_correct_file/md/*
     do
+        if [[ -d $file ]]; then
+            continue
+        fi
         test_name "File: $file"
         ./mypandoc -i $file -f markdown -o "output_test/"${i_test}"_test.md"
+        silent_test_return_0
         colordiff -u $file "output_test/"${i_test}"_test.md"
         test_return_0
     done
@@ -174,8 +229,12 @@ test_md()
 
     for file in example_file/simple_correct_file/md/*
     do
+        if [[ -d $file ]]; then
+            continue
+        fi
         test_name "File: $file"
         ./mypandoc -i $file -f xml -o "output_test/"${i_test}"_test.xml"
+        silent_test_return_0
         colordiff -u $(echo "$file" | sed 's/\/md\//\/xml\//' | sed 's/.md/.xml/') "output_test/"${i_test}"_test.xml"
         test_return_0
     done
@@ -184,9 +243,24 @@ test_md()
 
     for file in example_file/simple_correct_file/md/*
     do
+        if [[ -d $file ]]; then
+            continue
+        fi
         test_name "File: $file"
         ./mypandoc -i $file -f json -o "output_test/"${i_test}"_test.json"
+        silent_test_return_0
         colordiff -u $(echo "$file" | sed 's/\/md\//\/json\//' | sed 's/.md/.json/') "output_test/"${i_test}"_test.json"
+        test_return_0
+    done
+
+    echo -e "\n\e[1mTest MD Formating Rigor:\e[0m\n"
+
+    for file in example_file/simple_correct_file/md/formating/*
+    do
+        test_name "File: $file"
+        ./mypandoc -i $file -f markdown -o "output_test/"${i_test}"_test.md"
+        silent_test_return_0
+        colordiff -u example_file/simple_correct_file/md/header.md "output_test/"${i_test}"_test.md"
         test_return_0
     done
 
@@ -195,7 +269,7 @@ test_md()
     for file in example_file/error_file/md/simple/*
     do
         test_name "${file:34}"
-        ./mypandoc -i $file -f markdown -e markdown &> /dev/null
+        ./mypandoc -i $file -f markdown &> /dev/null
         test_return_84
     done
 
