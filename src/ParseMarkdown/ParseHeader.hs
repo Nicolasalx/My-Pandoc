@@ -11,6 +11,8 @@ import Content (PHeader(..))
 import ParseMarkdown.DataStructMarkdown (DataParsing(..))
 import ParseMarkdown.ParseElem.SkipSpaces (skipSpaces)
 
+import Debug.Trace (trace)
+
 parseHeader :: [String] -> DataParsing -> (Either String PHeader, DataParsing)
 parseHeader line dataParsing
     | Left errorMsg <- headerResult = (Left errorMsg, dataStructModified)
@@ -37,18 +39,33 @@ computeHeader list = eitherResult (fillPHeader list)
 
 fillPHeader :: [String] -> Either String PHeader
 fillPHeader [] = Right PHeader
-  { header_title = "", author = Nothing, date = Nothing }
+    { header_title = "", author = Nothing, date = Nothing }
 fillPHeader (x:xs)
-    | Just ("title:", value) <- parseString "title:" x,
-      Right header <- fillPHeader xs =
-        Right header { header_title = (skipSpaces 100 value) }
-    | Just ("author:", value) <- parseString "author:" x,
-      Right header <- fillPHeader xs =
-        Right header { author = Just (skipSpaces 100 value) }
-    | Just ("date:", value) <- parseString "date:" x,
-      Right header <- fillPHeader xs =
-        Right header { date = Just (skipSpaces 100 value) }
+    | Just ("title", value) <- parseString "title" (skipSpaces 100 x),
+      Right header <- fillPHeader xs = checkColonTitle value header
+    | Just ("author", value) <- parseString "author" (skipSpaces 100 x),
+      Right header <- fillPHeader xs = checkColonAuthor value header
+    | Just ("date", value) <- parseString "date" (skipSpaces 100 x),
+      Right header <- fillPHeader xs = checkColonDate value header
     | otherwise = Left "Error: Invalid header format or field"
+
+checkColonTitle :: String -> PHeader -> Either String PHeader
+checkColonTitle str header
+    | Just (":", value) <- parseString ":" (skipSpaces 100 str) =
+        Right header { header_title = (skipSpaces 100 value) }
+    | otherwise = Left "Error: Invalid header format or field2"
+
+checkColonAuthor :: String -> PHeader -> Either String PHeader
+checkColonAuthor str header
+    | Just (":", value) <- parseString ":" (skipSpaces 100 str) =
+        Right header { author = Just (skipSpaces 100 value) }
+    | otherwise = Left "Error: Invalid header format or field2"
+
+checkColonDate :: String -> PHeader -> Either String PHeader
+checkColonDate str header
+    | Just (":", value) <- parseString ":" (skipSpaces 100 str) =
+        Right header { date = Just (skipSpaces 100 value) }
+    | otherwise = Left "Error: Invalid header format or field2"
 
 parseEachLine :: [String] -> Bool -> [String] ->
   DataParsing -> (Either String [String], DataParsing)
