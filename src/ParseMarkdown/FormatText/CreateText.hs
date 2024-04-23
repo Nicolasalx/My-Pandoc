@@ -5,7 +5,7 @@
 -- createText
 --
 
-module ParseMarkdown.FormatText.CreateText (createText, formattingText) where
+module ParseMarkdown.FormatText.CreateText (createText, formattingText, formattingElemParagraph) where
 import Content (PParagraphType(..), PText(..))
 import ParseMarkdown.DataStructMarkdown (DataParsing(..), initializeDataText, DataText(..))
 import ParseMarkdown.FormatText.CleanList (closeAllDelim)

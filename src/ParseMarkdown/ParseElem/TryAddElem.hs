@@ -9,17 +9,12 @@ module ParseMarkdown.ParseElem.TryAddElem (tryAddElemToContent, fillElemEmptyAct
 import ParseMarkdown.DataStructMarkdown (DataParsing(..), TypeToAdd(..))
 import Content (PContent(..))
 import ParseMarkdown.FormatText.CreateText (createText)
-import ParseMarkdown.ParseElem.Paragraph (createParagraph)
+import ParseMarkdown.ParseElem.Paragraph (createParagraph, insertListItem)
 
 tryAddElemToContent :: DataParsing -> [PContent] -> ([PContent], DataParsing)
 tryAddElemToContent dataParsing allContent
-    -- | insertItem dataParsing = do
-        -- let newData = dataParsing { insertItem = False }
-        -- print (actualList newData)
-        -- (createParagraph newData allContent)
-        -- set insertItem Boolean to False
-        -- create Paragraph and Push in the item
-        -- Insérer le paragraphe dans le dernier (Item listItem) avec le (levelItem dataParsing)
+    | length (listItem dataParsing) > 0 && (nbReturnLines dataParsing) > 0 = insertListItem dataParsing allContent
+
     | typeToAdd dataParsing == Paragraph && insertLinkOrImage dataParsing && (length (actualList dataParsing)) > 0 = do
         let newDataParsed = createText (dataParsing { insertLinkOrImage = False })
         (createParagraph newDataParsed allContent)

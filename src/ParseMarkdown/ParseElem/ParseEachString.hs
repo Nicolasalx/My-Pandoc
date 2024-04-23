@@ -18,6 +18,8 @@ import ParseMarkdown.ParseElem.Codeblock (tryAddCodeBlock, parseStartCodeBlock)
 import ParseMarkdown.ParseElem.ParagraphType (defineParagraphType)
 import ParseMarkdown.ParseElem.Item (createItem)
 import ParseMarkdown.ParseElem.SkipSpaces (skipSpaces)
+import ParseMarkdown.ParseElem.Item (tryAddItem)
+
 
 parseEachString :: String -> String -> DataParsing -> Bool -> [PContent] -> ([PContent], DataParsing)
 parseEachString _ [] dataParsing _ allContent = (allContent, dataParsing)
@@ -77,12 +79,10 @@ checkfirstStrIsAnElem str dataParsing allContent
         (finalDataParsed, rightPart, newContent)
     | Just (_, rightPart) <- isItem = do
         -- ! Item
-        -- (newContent, newData) <- tryAddParagraph dataParsing allContent
-        -- (finalContent, finalData) <- createItem str rightPart newData newContent
--- 
-        -- defineParagraphType dataParsing str allContent
+        let (newContent, newData) = tryAddItem dataParsing allContent
+            (finalContent, finalData) = createItem str rightPart newData newContent
 
-        (dataParsing { levelItem = (levelItem dataParsing) + 1, typeToAdd = Item }, rightPart, allContent)
+        (finalData { levelItem = (levelItem dataParsing) + 1, typeToAdd = Item }, rightPart, finalContent)
 
     | otherwise = defineParagraphType dataParsing str allContent
   where
