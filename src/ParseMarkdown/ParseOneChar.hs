@@ -11,23 +11,21 @@ import Content ()
 import ParseMarkdown.LinksAndImages.Links (insertLinkToParagraph)
 import ParseMarkdown.LinksAndImages.Image (insertImageToParagraph)
 
+appendElemToList :: Char -> DataParsing -> DataParsing
+appendElemToList c dataParsing = (dataParsing {
+            actualList = actualList dataParsing ++ [c], nbReturnLines = 0})
+
 addCharToActualList :: Char -> DataParsing -> DataParsing
 addCharToActualList c dataParsing
-    | isInContentLink dataParsing == True =
-        (dataParsing {
+    | isInContentLink dataParsing == True = (dataParsing {
             contentLink = contentLink dataParsing ++ [c], nbReturnLines = 0})
-    | isInAltImage dataParsing == True =
-        (dataParsing {
+    | isInAltImage dataParsing == True = (dataParsing {
             altImg = altImg dataParsing ++ [c], nbReturnLines = 0})
-    | isInUrlLink dataParsing == True =
-        (dataParsing {
+    | isInUrlLink dataParsing == True = (dataParsing {
             urlLink = urlLink dataParsing ++ [c], nbReturnLines = 0})
-    | isInUrlImage dataParsing == True =
-        (dataParsing {
+    | isInUrlImage dataParsing == True = (dataParsing {
             urlImg = urlImg dataParsing ++ [c], nbReturnLines = 0})
-    | otherwise =
-        (dataParsing {
-            actualList = actualList dataParsing ++ [c], nbReturnLines = 0})
+    | otherwise = appendElemToList c dataParsing
 
 addBasicCharToActualList :: Char -> DataParsing -> DataParsing
 addBasicCharToActualList c dataParsing =
