@@ -121,23 +121,27 @@ test_json()
 
     echo -e "\n\e[1mTest JSON Formating Rigor:\e[0m\n"
 
-    for file in example_file/simple_correct_file/json/formating/*
+    for dir in example_file/simple_correct_file/json/formating/*
     do
-        test_name "File: $file"
-        ./mypandoc -i $file -f json -o "output_test/"${i_test}"_test.json"
-        silent_test_return_0
-        colordiff -u example_file/simple_correct_file/json/header.json "output_test/"${i_test}"_test.json"
-        test_return_0
+        dir="${dir%/}"
+        for file in "$dir"/*
+        do
+            test_name "File: $file"
+            ./mypandoc -i $file -f json -o "output_test/"${i_test}"_test.json"
+            silent_test_return_0
+            colordiff -u "example_file/simple_correct_file/json/$(basename $dir).json" "output_test/"${i_test}"_test.json"
+            test_return_0
+        done
     done
 
-    # echo -e "\n\e[1mTest JSON simple error file:\e[0m\n"
+    echo -e "\n\e[1mTest JSON simple error file:\e[0m\n"
 
-    # for file in example_file/error_file/json/simple/*
-    # do
-        # test_name "${file:36}"
-        # ./mypandoc -i $file -f json -e json &> /dev/null
-        # test_return_84
-    # done
+    for file in example_file/error_file/json/simple/*
+    do
+        test_name "${file:36}"
+        ./mypandoc -i $file -f json -e json &> /dev/null
+        test_return_84
+    done
 
     display_progress_bar $NB_PASSED_TEST $NB_TEST
 }
@@ -188,13 +192,17 @@ test_xml()
 
     echo -e "\n\e[1mTest XML Formating Rigor:\e[0m\n"
 
-    for file in example_file/simple_correct_file/xml/formating/*
+    for dir in example_file/simple_correct_file/xml/formating/*
     do
-        test_name "File: $file"
-        ./mypandoc -i $file -f xml -o "output_test/"${i_test}"_test.xml"
-        silent_test_return_0
-        colordiff -u example_file/simple_correct_file/xml/header.xml "output_test/"${i_test}"_test.xml"
-        test_return_0
+        dir="${dir%/}"
+        for file in "$dir"/*
+        do
+            test_name "File: $file"
+            ./mypandoc -i $file -f xml -o "output_test/"${i_test}"_test.xml"
+            silent_test_return_0
+            colordiff -u "example_file/simple_correct_file/xml/$(basename $dir).xml" "output_test/"${i_test}"_test.xml"
+            test_return_0
+        done
     done
 
 ##    echo -e "\n\e[1mTest XML simple error file:\e[0m\n"
@@ -255,13 +263,17 @@ test_md()
 
     echo -e "\n\e[1mTest MD Formating Rigor:\e[0m\n"
 
-    for file in example_file/simple_correct_file/md/formating/*
+    for dir in example_file/simple_correct_file/md/formating/*
     do
-        test_name "File: $file"
-        ./mypandoc -i $file -f markdown -o "output_test/"${i_test}"_test.md"
-        silent_test_return_0
-        colordiff -u example_file/simple_correct_file/md/header.md "output_test/"${i_test}"_test.md"
-        test_return_0
+        dir="${dir%/}"
+        for file in "$dir"/*
+        do
+            test_name "File: $file"
+            ./mypandoc -i $file -f markdown -o "output_test/"${i_test}"_test.md"
+            silent_test_return_0
+            colordiff -u "example_file/simple_correct_file/md/$(basename $dir).md" "output_test/"${i_test}"_test.md"
+            test_return_0
+        done
     done
 
     echo -e "\n\e[1mTest MD simple error file:\e[0m\n"
