@@ -1,132 +1,99 @@
 module ParseXml.ParseBody (parseBody) where
 
-import Content (PContent(..), PParagraph(..), PParagraphType(..), PBody(..), PText(..), PBold(..), PItalic(..), PCode(..), PTextType(..), PSection(..), PCodeBlock(..), PList(..), PItem(..), PItemType(..), PLink(..), PImage(..))
-import ParsingLib.Lib (strcmp, addParagraph, cleanLine)
-import Data.List (isPrefixOf)
-import Data.Maybe (mapMaybe)
-import Debug.Trace (trace, traceIO, traceM)
+import Content (PBody(..), PContent(..), PParagraph(..), PParagraphType(..), PText(..), PBold(..), PItalic(..), PCode(..), PTextType(..), PSection(..))
 import Data.Char (isSpace)
+import Data.List (dropWhileEnd, isPrefixOf, span, isSuffixOf, isInfixOf)
+import ParsingLib.Lib (strToWordArray)
+import Debug.Trace (trace)
 
 parseBody :: String -> IO (Either String PBody)
 parseBody file_content = do
     let linesContent = lines file_content
-    -- traceIO $ "Lines Content: " ++ show linesContent
-    case analyzeContent ["paragraph"] linesContent [] of
-        Left err -> return $ Left err
-        Right content -> do
-            -- traceIO $ "Content Analyzed: " ++ show content
-            return $ Right (PBody content)
+        sections = parseSections linesContent
+    return $ Right (PBody sections)
 
-analyzeContent :: [String] -> [String] -> [PContent] -> Either String [PContent]
-analyzeContent _ [] content = Right (reverse content)
-analyzeContent state (x:xs) content
-    | strcmp "<paragraph>" cleanSpace && last state == "paragraph" =
-        let paragraphContent = getContentBetweenTags "<paragraph>" x
-        in analyzeContent state xs (addParagraphContent paragraphContent : content)
-    | strcmp "<section title=" cleanSpace =
-        let sectionTitle = extractSectionTitle x
-        in analyzeContent ("section":state) xs (PSectionContent (PSection sectionTitle []) : content)
-    | strcmp "<link url=" cleanSpace && last state == "paragraph" =
-        let (url, linkContent) = extractLinkContent x
-        in analyzeContent state xs (addLinkContent url linkContent : content)
-    | strcmp "<image url=" cleanSpace && last state == "paragraph" =
-        let (url, imageContent) = extractImageContent x
-        in analyzeContent state xs (addImageContent url imageContent : content)
-    | otherwise =
-        analyzeContent state xs content
-    where cleanSpace = dropWhile isSpace x
-    
-extractContentInQuotes :: String -> Maybe String
-extractContentInQuotes ('"':rest) = Just (takeWhile (/= '"') rest)
-extractContentInQuotes _ = Nothing
+parseSections :: [String] -> [PContent]
+parseSections = parseSectionsWithLevel []
 
-extractSectionTitle :: String -> String
-extractSectionTitle line = maybe "" id (extractContentInQuotes (drop 15 cleanLine))
+strip :: String -> String
+strip = dropWhile isSpace . dropWhileEnd isSpace
+
+parseSectionsWithLevel :: [String] -> [String] -> [PContent]
+parseSectionsWithLevel _ [] = []
+parseSectionsWithLevel parent_section (line:linesContent) =
+    let line_without_space = strip line
+    in
+        case () of
+            () | isPrefixOf "<section title=\"" line_without_space ->
+                    let title = extractTitle line_without_space
+                        (sectionLines, restLines) = span (not . isSectionEnd) linesContent
+                        sectionContent = parseSectionsWithLevel (title:parent_section) sectionLines
+                        section = createSection title sectionContent
+                    in [section] ++ parseSectionsWithLevel parent_section restLines
+               | isPrefixOf "<paragraph>" line_without_space ->
+                    let (paragraphLines, restLines) = span (not . isParagraphEnd) (line_without_space:linesContent)
+                    in formatType paragraphLines ++ parseSectionsWithLevel parent_section restLines
+               | otherwise ->
+                    parseSectionsWithLevel parent_section linesContent
+
+parseParagraph :: String -> [String] -> [PContent]
+parseParagraph _ [] = []
+parseParagraph format lines =
+    case extractContent format lines of
+        Just (content, restLines) ->
+            let paragraphContent = case format of
+                    "bold" -> PParagraph [PTextParagraph $ PText [PBoldText (PBold [PString content])]]
+                    "italic" -> PParagraph [PTextParagraph $ PText [PItalicText (PItalic [PString content])]]
+                    "code" -> PParagraph [PTextParagraph $ PText [PCodeText (PCode [PString content])]]
+                    _ -> PParagraph [PTextParagraph $ PText [PString content]]
+            in PParagraphContent paragraphContent : parseParagraph format restLines
+        Nothing -> []
+
+formatType :: [String] -> [PContent]
+formatType paragraphLines = concatMap parseLine paragraphLines
+  where
+    parseLine line
+      | "<bold>" `isInfixOf` line = parseParagraph "bold" [line]
+      | "<italic>" `isInfixOf` line = parseParagraph "italic" [line]
+      | "<code>" `isInfixOf` line = parseParagraph "code" [line]
+      | otherwise = parseParagraph "text" [line]
+
+
+isSectionEnd :: String -> Bool
+isSectionEnd = (== "</section>") 
+
+isParagraphEnd :: String -> Bool
+isParagraphEnd = (== "</paragraph>")
+
+extractContent :: String -> [String] -> Maybe (String, [String])
+extractContent _ [] = Nothing
+extractContent format (line:rest)
+    | "<paragraph>" `isPrefixOf` strip line = 
+        let line_without_space = strip line
+            contentWithEnd = stripTags line_without_space
+        in case strip contentWithEnd of
+            "</paragraph>" -> Just ("", rest)
+            _ -> Just (extractParagraphContent [contentWithEnd], rest)
+    | otherwise = extractContent format rest
+
+stripTags :: String -> String
+stripTags str
+    | "<paragraph>" `isPrefixOf` strip str = strip (drop (length "<paragraph>") str)
+    | "</paragraph>" `isSuffixOf` strip str = strip (reverse $ drop (length "</paragraph>") $ reverse $ strip str)
+    | otherwise = strip str
+
+extractParagraphContent :: [String] -> String
+extractParagraphContent paragraphLines =
+    let content = concatMap (dropWhile isSpace . stripTags) paragraphLines
+    in content
+
+createSection :: String -> [PContent] -> PContent
+createSection title content =
+    PSectionContent (PSection title content)
+
+extractTitle :: String -> String
+extractTitle line
+    | "<section title=\"" `isPrefixOf` strip line = cleanTitle $ dropWhile (/= '"') (dropWhile (/= '\"') line)
+    | otherwise = ""
     where
-        cleanLine = cleanSpace line
-        cleanSpace = dropWhile isSpace
-
-addParagraphContent :: String -> PContent
-addParagraphContent x = PParagraphContent (PParagraph [PTextParagraph (PText [PString x])])
-
-getContentBetweenTags :: String -> String -> String
-getContentBetweenTags openTag str = take contentEndIdx (drop contentStartIdx strWithoutSpaces)
-    where
-        tagLength = length openTag
-        strWithoutSpaces = dropWhile isSpace str
-        contentStartIdx = tagLength
-        contentEndIdx = length strWithoutSpaces - (tagLength + length ("</" ++ takeWhile (/='>') openTag))
-
-addFormattedContent :: String -> String -> String -> (PTextType -> PTextType) -> PContent
-addFormattedContent "" "" "" _ = PParagraphContent (PParagraph [])
-addFormattedContent before content after formatConstructor =
-    let textBefore = if null before then [] else [PString before]
-        textAfter = if null after then [] else [PString after]
-        formattedText = if null content then [] else [formatConstructor (PString content)]
-    in PParagraphContent (PParagraph [PTextParagraph (PText (textBefore ++ formattedText ++ textAfter))])
-
-addItalicText :: PTextType -> PTextType
-addItalicText = PItalicText . PItalic . return
-
-addBoldText :: PTextType -> PTextType
-addBoldText = PBoldText . PBold . return
-
-addCodeText :: PTextType -> PTextType
-addCodeText = PCodeText . PCode . return
-
-extractParagraph :: String -> Maybe PContent
-extractParagraph line
-    | strcmp "<paragraph>" line = Just $ addParagraphContent (getContentBetweenTags "<paragraph>" line)
-    | strcmp "</paragraph>" line = Just $ addParagraphContent (getContentBetweenTags "</paragraph>" line)
-    | Just (before, italic, after) <- extractItalic line = Just $ addFormattedContent before italic after addItalicText
-    | Just (before, bold, after) <- extractBold line = Just $ addFormattedContent before bold after addBoldText
-    | Just (before, code, after) <- extractCode line = Just $ addFormattedContent before code after addCodeText
-    | otherwise = Nothing
-
-extractItalic :: String -> Maybe (String, String, String)
-extractItalic line
-    | strcmp "<italic>" line && strcmp "</italic>" line = Just (before, italic, after)
-    | otherwise = Nothing
-    where
-        before = takeWhile (/= '<') line
-        italic = getContentBetweenTags "<italic>" line
-        after = drop (length italic + length "</italic>") $ dropWhile (/= '>') line
-
-extractBold :: String -> Maybe (String, String, String)
-extractBold line
-    | strcmp "<bold>" line && strcmp "</bold>" line = Just (before, bold, after)
-    | otherwise = Nothing
-    where
-        before = takeWhile (/= '<') line
-        bold = getContentBetweenTags "<bold>" line
-        after = drop (length bold + length "</bold>") $ dropWhile (/= '>') line
-
-extractCode :: String -> Maybe (String, String, String)
-extractCode line
-    | strcmp "<code>" line && strcmp "</code>" line = Just (before, code, after)
-    | otherwise = Nothing
-    where
-        before = takeWhile (/= '<') line
-        code = getContentBetweenTags "<code>" line
-        after = drop (length code + length "</code>") $ dropWhile (/= '>') line
-
-addLinkContent :: String -> String -> PContent
-addLinkContent url linkContent = PParagraphContent (PParagraph [PLinkParagraph (PLink url (PText [PString linkContent]))])
-
-extractLinkContent :: String -> (String, String)
-extractLinkContent line = (url, content)
-    where
-        (urlStart, rest) = break (== '"') (dropWhile (/= '"') line)
-        url = drop 1 urlStart
-        content = getContentBetweenTags "<link>" rest
-
-addImageContent :: String -> String -> PContent
-addImageContent url altText = PParagraphContent (PParagraph [PImageParagraph (PImage url (PText [PString altText]))])
-
-extractImageContent :: String -> (String, String)
-extractImageContent line = (url, altText)
-    where
-        (urlStart, rest) = break (== '"') (dropWhile (/= '"') line)
-        url = drop 1 urlStart
-        altText = getContentBetweenTags "<image>" rest
-
+        cleanTitle = init . init . tail . strip

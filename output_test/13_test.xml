@@ -4,7 +4,6 @@
         <date>2024-01-01</date>
     </header>
     <body>
-        <paragraph><bold>coucou</bold></paragraph>
-        <paragraph>2</paragraph>
+        <paragraph>This is a paragraph with <bold>bold</bold>, <italic>italic</italic> and <code>code</code> text.</paragraph>
     </body>
 </document>

@@ -4,7 +4,9 @@
         <date>2024-01-01</date>
     </header>
     <body>
-        <paragraph><bold>coucou</bold></paragraph>
-        <paragraph>2</paragraph>
+        <section title="header 1">
+            <paragraph>1</paragraph>
+            <paragraph>2</paragraph>
+        </section>
     </body>
-</document>
+</document> 

@@ -5,7 +5,7 @@
 -- ParseFunction
 -}
 
-module ParseJson.ParseFunction (notBracketChar, appendPContent, initPContent, lastPContent) where
+module ParseJson.ParseFunction (notBracketChar, appendPContent, initPContent, lastPContent, addNewPContent) where
 import Content (PContent(..), PSection(..))
 
 notBracketChar :: String -> Bool
@@ -28,11 +28,6 @@ checkLastContent (PSectionContent
     (PSection {title = _, section_content = _})) = True
 checkLastContent _ = False
 
-getLastPSection :: PContent -> [PContent]
-getLastPSection (PSectionContent 
-    (PSection {title = _, section_content = contenu})) = contenu
-getLastPSection _ = []
-
 addNewPContent :: [String] -> Bool -> PContent -> [PContent] -> [PContent]
 addNewPContent [] _ newC contenu = contenu ++ [newC]
 addNewPContent ("section":xs) True newC contenu
@@ -45,6 +40,11 @@ addNewPContent ("section":xs) False newC contenu
 addNewPContent (_:xs) isBody newC contenu
     = addNewPContent (xs) isBody newC contenu
  
+getLastPSection :: PContent -> [PContent]
+getLastPSection (PSectionContent 
+    (PSection {title = _, section_content = contenu})) = contenu
+getLastPSection _ = []
+
 appendPContent :: [String] -> PContent -> [PContent] -> [PContent]
 appendPContent state newC contenu = addNewPContent state False newC contenu
 

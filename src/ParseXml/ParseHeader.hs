@@ -7,15 +7,8 @@
 
 module ParseXml.ParseHeader (fillPHeader) where
 import ParsingLib.Lib (parseString)
-import Content (PHeader(..), PBody(..))
-import Data.Maybe (fromMaybe)
-import ParsingLib.Lib (strToWordArray, nth, strcmp, parseUntil, cleanLine)
-
-checkTitle :: PHeader -> Either String ()
-checkTitle header =
-    if null (header_title header)
-        then Left "Erreur : Aucun titre trouvé dans l'en-tête"
-        else Right ()
+import Content (PHeader(..))
+import ParsingLib.Lib (parseUntil, cleanLine)
 
 fillPHeader :: [String] -> Either String PHeader
 fillPHeader [] = Right PHeader { header_title = "", author = Nothing, date = Nothing }
