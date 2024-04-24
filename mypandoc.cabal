@@ -57,9 +57,6 @@ library
       ParseMarkdown.LinksAndImages.Image
       ParseMarkdown.LinksAndImages.Links
       ParseMarkdown.ParseBody
-      ParseMarkdown.ParseHeader
-      ParseMarkdown.ParseMarkdown
-      ParseMarkdown.ParseOneChar
       ParseMarkdown.ParseElem.CheckImgAndLinks
       ParseMarkdown.ParseElem.Codeblock
       ParseMarkdown.ParseElem.InsertInSection
@@ -72,7 +69,9 @@ library
       ParseMarkdown.ParseElem.Section
       ParseMarkdown.ParseElem.SkipSpaces
       ParseMarkdown.ParseElem.TryAddElem
-
+      ParseMarkdown.ParseHeader
+      ParseMarkdown.ParseMarkdown
+      ParseMarkdown.ParseOneChar
       ParseXml.ParseBody
       ParseXml.ParseHeader
       ParseXml.ParseXml
