@@ -20,7 +20,6 @@ import ParseMarkdown.ParseElem.Item (createItem)
 import ParseMarkdown.ParseElem.SkipSpaces (skipSpaces)
 import ParseMarkdown.ParseElem.Item (tryAddItem)
 
-import Debug.Trace (trace)
 
 parseEachString :: String -> String -> DataParsing ->
     Bool -> [PContent] -> ([PContent], DataParsing)

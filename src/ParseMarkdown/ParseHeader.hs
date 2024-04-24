@@ -11,8 +11,6 @@ import Content (PHeader(..))
 import ParseMarkdown.DataStructMarkdown (DataParsing(..))
 import ParseMarkdown.ParseElem.SkipSpaces (skipSpaces)
 
-import Debug.Trace (trace)
-
 parseHeader :: [String] -> DataParsing -> (Either String PHeader, DataParsing)
 parseHeader line dataParsing
     | Left errorMsg <- headerResult = (Left errorMsg, dataStructModified)
