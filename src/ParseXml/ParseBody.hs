@@ -1,6 +1,6 @@
 module ParseXml.ParseBody (parseBody) where
 
-import Content (PBody(..), PContent(..), PParagraph(..), PParagraphType(..), PText(..), PBold(..), PItalic(..), PCode(..), PTextType(..), PSection(..), PCodeBlock(..))
+import Content (PBody(..), PContent(..), PParagraph(..), PParagraphType(..), PText(..), PBold(..), PItalic(..), PCode(..), PTextType(..), PSection(..), PCodeBlock(..), PList(..), PItem(..), PItemType(..))
 import Data.Char (isSpace)
 import Data.List (dropWhileEnd, isPrefixOf, span, isSuffixOf, isInfixOf)
 import ParsingLib.Lib (strToWordArray)
@@ -30,9 +30,12 @@ parseSectionsWithLevel parent_section (line:linesContent) =
                         sectionContent = parseSectionsWithLevel (title:parent_section) sectionLines
                         section = createSection title sectionContent
                     in [section] ++ parseSectionsWithLevel parent_section restLines
-            () | isPrefixOf "<codeblock>" line_without_space ->
+               | isPrefixOf "<codeblock>" line_without_space ->
                     let (codeLines, restLines) = span (not . isCodeBlockEnd) (line_without_space:linesContent)
                     in parseCodeBlock codeLines ++ parseSectionsWithLevel parent_section restLines
+               | isPrefixOf "<list>" line_without_space ->
+                    let (listLines, restLines) = span (not . isListEnd) (line_without_space:linesContent)
+                    in parseList listLines ++ parseSectionsWithLevel parent_section restLines
                | isPrefixOf "<paragraph>" line_without_space ->
                     let (paragraphLines, restLines) = span (not . isParagraphEnd) (line_without_space:linesContent)
                     in formatType paragraphLines ++ parseSectionsWithLevel parent_section restLines
@@ -55,6 +58,28 @@ parseCodeBlock codeLines =
         PCodeBlockContent (PCodeBlock content) -> [PCodeBlockContent (PCodeBlock (filter (not . null) content))]
         _ -> [updatedCodeBlockContent]
 
+addList :: String -> PContent -> PContent
+addList str (PListContent (PList list))
+    | null cleanedStr = PListContent (PList list)
+    | otherwise = PListContent $ PList $ newItem : list
+    where
+        newItem = PItem [(PParagraphItem (PParagraph [PTextParagraph (PText [PString cleanedStr])]))]
+        cleanedStr = stripTags $ strip $ removeParagraphEnd str
+
+parseList :: [String] -> [PContent]
+parseList listLines =
+    let listContent = PListContent (PList [])
+        updatedListContent = foldr addList listContent listLines
+    in case updatedListContent of
+        PListContent (PList content) -> [PListContent (PList (filterItems content))]
+        _ -> [updatedListContent]
+
+filterItems :: [PItem] -> [PItem]
+filterItems = filter (not . isEmptyItem)
+
+isEmptyItem :: PItem -> Bool
+isEmptyItem (PItem []) = True
+isEmptyItem _ = False
 
 parseParagraph :: String -> [String] -> [PContent]
 parseParagraph _ [] = []
@@ -86,6 +111,9 @@ formatType paragraphLines = concatMap parseLine paragraphLines
 isCodeBlockEnd :: String -> Bool
 isCodeBlockEnd line = "</codeblock>" `isSuffixOf` strip line
 
+isListEnd :: String -> Bool
+isListEnd line = "</list>" `isSuffixOf` strip line
+
 isSectionEnd :: String -> Bool
 isSectionEnd = (== "</section>") 
 
@@ -108,6 +136,7 @@ stripTags str
     | "<paragraph>" `isPrefixOf` strip str = strip (drop (length "<paragraph>") str)
     | "</paragraph>" `isSuffixOf` strip str = strip (reverse $ drop (length "</paragraph>") $ reverse $ strip str)
     | "<codeblock>" `isPrefixOf` strip str = strip (drop (length "<codeblock>") str)
+    | "<list>" `isPrefixOf` strip str = strip (drop (length "<list>") str)
     | otherwise = strip str
 
 extractParagraphContent :: [String] -> String
