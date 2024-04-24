@@ -1,22 +1,15 @@
 module ParseXml.ParseBody (parseBody) where
 
-import Content (PBody(..), PContent(..), PParagraph(..), PParagraphType(..), PText(..), PBold(..), PItalic(..), PCode(..), PTextType(..), PSection(..), PCodeBlock(..), PList(..), PItem(..), PItemType(..))
+import Content (PBody(..), PContent(..), PParagraph(..), PParagraphType(..), PText(..), PBold(..), PItalic(..), PCode(..), PTextType(..), PSection(..), PCodeBlock(..), PList(..), PItem(..), PItemType(..), PImage(..), PLink(..))
 import Data.Char (isSpace)
-import Data.List (dropWhileEnd, isPrefixOf, span, isSuffixOf, isInfixOf)
+import Data.List (dropWhileEnd, isPrefixOf, isSuffixOf)
 import ParsingLib.Lib (strToWordArray)
-import Debug.Trace (trace)
 
 parseBody :: String -> IO (Either String PBody)
 parseBody file_content = do
     let linesContent = lines file_content
         sections = parseSections linesContent
     return $ Right (PBody sections)
-
-parseSections :: [String] -> [PContent]
-parseSections = parseSectionsWithLevel []
-
-strip :: String -> String
-strip = dropWhile isSpace . dropWhileEnd isSpace
 
 parseSectionsWithLevel :: [String] -> [String] -> [PContent]
 parseSectionsWithLevel _ [] = []
@@ -41,6 +34,12 @@ parseSectionsWithLevel parent_section (line:linesContent) =
                     in formatType paragraphLines ++ parseSectionsWithLevel parent_section restLines
                | otherwise ->
                     parseSectionsWithLevel parent_section linesContent
+
+parseSections :: [String] -> [PContent]
+parseSections = parseSectionsWithLevel []
+
+strip :: String -> String
+strip = dropWhile isSpace . dropWhileEnd isSpace
 
 addCodeBlock :: String -> PContent -> PContent
 addCodeBlock str (PCodeBlockContent (PCodeBlock list))
@@ -81,19 +80,6 @@ isEmptyItem :: PItem -> Bool
 isEmptyItem (PItem []) = True
 isEmptyItem _ = False
 
-parseParagraph :: String -> [String] -> [PContent]
-parseParagraph _ [] = []
-parseParagraph format lines =
-    case extractContent format lines of
-        Just (content, restLines) ->
-            let paragraphContent = case format of
-                    "bold" -> PParagraph [PTextParagraph $ PText [PBoldText (PBold [PString content])]]
-                    "italic" -> PParagraph [PTextParagraph $ PText [PItalicText (PItalic [PString content])]]
-                    "code" -> PParagraph [PTextParagraph $ PText [PCodeText (PCode [PString content])]]
-                    _ -> PParagraph [PTextParagraph $ PText [PString content]]
-            in PParagraphContent paragraphContent : parseParagraph format restLines
-        Nothing -> []
-
 removeParagraphEnd :: String -> String
 removeParagraphEnd str
     | "</paragraph>" `isSuffixOf` str = take (length str - length "</paragraph>") str
@@ -102,11 +88,47 @@ removeParagraphEnd str
 formatType :: [String] -> [PContent]
 formatType paragraphLines = concatMap parseLine paragraphLines
   where
-    parseLine line
-      | "<bold>" `isInfixOf` line = parseParagraph "bold" [line]
-      | "<italic>" `isInfixOf` line = parseParagraph "italic" [line]
-      | "<code>" `isInfixOf` line = parseParagraph "code" [line]
-      | otherwise = parseParagraph "text" [line]
+    parseLine line = parseWords "" (strToWordArray "<>/" "" line) False False False
+
+    parseWords :: String -> [String] -> Bool -> Bool -> Bool -> [PContent]
+    parseWords _ [] _ _ _ = []
+    parseWords prev (word:rest) inBold inItalic inCode
+        | word == "bold" && not inBold = addBoldAndText rest
+        | word == "italic" && not inItalic = addItalicAndText rest
+        | word == "code" && not inCode = addCodeAndText rest
+        | isFormattingTag word = parseWords word rest (word == "bold") (word == "italic") (word == "code")
+        | otherwise = case prev of
+            "paragraph" -> currentContent ++ parseWords word rest inBold inItalic inCode
+            "bold" -> addBoldOrText word : parseWords "" rest inBold inItalic inCode
+            "italic" -> addItalicOrText word : parseWords "" rest inBold inItalic inCode
+            "code" -> addCodeOrText word : parseWords "" rest inBold inItalic inCode
+            _ -> parseWords word rest inBold inItalic inCode
+      where
+        currentContent = [addParagraph "text" word]
+        addBoldOrText w = if inBold then addParagraph "text" w else addBold w
+        addBoldAndText (nextWord:remainingWords) = addBold nextWord : parseWords "" (init remainingWords) True inItalic inCode
+        addItalicOrText w = if inItalic then addParagraph "text" w else addItalic w
+        addItalicAndText (nextWord:remainingWords) = addItalic nextWord : parseWords "" (init remainingWords) inBold True inCode
+        addCodeOrText w = if inCode then addParagraph "text" w else addCode w
+        addCodeAndText (nextWord:remainingWords) = addCode nextWord : parseWords "" (init remainingWords) inBold inItalic True
+
+    isFormattingTag :: String -> Bool
+    isFormattingTag tag = tag `elem` ["bold", "italic", "code"]
+
+    addBold w = addParagraph "bold" w
+    addItalic w = addParagraph "italic" w
+    addCode w = addParagraph "code" w
+
+
+
+addParagraph :: String -> String -> PContent
+addParagraph "text" str = PParagraphContent $ PParagraph [PTextParagraph (PText [PString str])]
+addParagraph "bold" str = PParagraphContent $ PParagraph [PTextParagraph (PText [PBoldText (PBold [PString str])])]
+addParagraph "italic" str = PParagraphContent $ PParagraph [PTextParagraph (PText [PItalicText (PItalic [PString str])])]
+addParagraph "code" str = PParagraphContent $ PParagraph [PTextParagraph (PText [PCodeText (PCode [PString str])])]
+addParagraph "link" _ = PParagraphContent $ PParagraph [PLinkParagraph (PLink {link_url = "", content = PText []})]
+addParagraph "image" _ = PParagraphContent $ PParagraph [PImageParagraph (PImage {image_url = "", alt = PText []})]
+addParagraph _ _ = PParagraphContent $ PParagraph []
 
 isCodeBlockEnd :: String -> Bool
 isCodeBlockEnd line = "</codeblock>" `isSuffixOf` strip line
@@ -120,17 +142,6 @@ isSectionEnd = (== "</section>")
 isParagraphEnd :: String -> Bool
 isParagraphEnd = (== "</paragraph>")
 
-extractContent :: String -> [String] -> Maybe (String, [String])
-extractContent _ [] = Nothing
-extractContent format (line:rest)
-    | "<paragraph>" `isPrefixOf` strip line = 
-        let line_without_space = strip line
-            contentWithEnd = stripTags line_without_space
-        in case strip contentWithEnd of
-            "</paragraph>" -> Just ("", rest)
-            _ -> Just (extractParagraphContent [contentWithEnd], rest)
-    | otherwise = extractContent format rest
-
 stripTags :: String -> String
 stripTags str
     | "<paragraph>" `isPrefixOf` strip str = strip (drop (length "<paragraph>") str)
@@ -138,11 +149,6 @@ stripTags str
     | "<codeblock>" `isPrefixOf` strip str = strip (drop (length "<codeblock>") str)
     | "<list>" `isPrefixOf` strip str = strip (drop (length "<list>") str)
     | otherwise = strip str
-
-extractParagraphContent :: [String] -> String
-extractParagraphContent paragraphLines =
-    let content = concatMap (dropWhile isSpace . stripTags) paragraphLines
-    in content
 
 createSection :: String -> [PContent] -> PContent
 createSection title content =

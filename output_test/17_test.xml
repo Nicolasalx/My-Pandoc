@@ -1,0 +1,14 @@
+<document>
+    <header title="Contents">
+        <author>Fornes Leo</author>
+        <date>2024-01-01</date>
+    </header>
+    <body>
+        <section title="Title">
+            <paragraph><bold>This is a <bold>basic</bold> markdown file. It <italic>must</italic> be parsed correctly.</bold></paragraph>
+            <paragraph>Description of the subtitle</paragraph>
+            <paragraph>This is a Code block inside a subsubtitle</paragraph>
+            <paragraph><code><code>Random</code> paragraph</code></paragraph>
+        </section>
+    </body>
+</document>

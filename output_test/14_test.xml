@@ -4,6 +4,6 @@
         <date>2024-01-01</date>
     </header>
     <body>
-        <paragraph><bold>This is a paragraph with bold text.</bold></paragraph>
+        <paragraph>This is a paragraph with a <link url="https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley">link</link>.</paragraph>
     </body>
 </document>

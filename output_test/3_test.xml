@@ -4,6 +4,8 @@
         <date>2024-01-01</date>
     </header>
     <body>
-        <paragraph><bold>This is a paragraph with bold text.</bold></paragraph>
+        <codeblock>
+            <paragraph>This is a code block.</paragraph>
+        </codeblock>
     </body>
 </document>

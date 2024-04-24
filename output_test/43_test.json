@@ -1,0 +1,27 @@
+{
+    "header": {
+        "title": "Syntaxe TEST",
+        "author": "Fornes Leo",
+        "date": "2024-01-01"
+    },
+    "body": [
+        [
+            "This is a very simple basic markdown file."
+        ],
+        [
+            {
+                "italic": "<italic>Italic words</italic>"
+            }
+        ],
+        [
+            {
+                "bold": "<bold>Bolds words</bold>"
+            }
+        ],
+        [
+            {
+                "code": "<code>Code words</code>"
+            }
+        ]
+    ]
+}
