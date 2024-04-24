@@ -23,6 +23,6 @@ tryAddFrstSection _ _ allContent =
 defineParagraphType :: DataParsing -> String ->
     [PContent] -> (DataParsing, String, [PContent])
 defineParagraphType dataParsing str allContent
-    | not (isInCodeblock dataParsing) && not (isInParagraph dataParsing) =
+    | not (isInCodeblock dataParsing) =
         (dataParsing { typeToAdd = Paragraph }, str, allContent)
     | otherwise = (dataParsing, str, allContent)

@@ -23,18 +23,12 @@ data ElemTextType = TString String
 data DataText = DataText
   {
     basicStr :: String,
-
-
     isInBold :: Bool,
     isInItalic :: Bool,
     isInCode :: Bool,
-
     contentText :: PText,
-
     indexListText :: Int,
-  
     precedentChar :: Char,
-
     listText :: [ElemTextType]
   } deriving (Show, Eq)
 
@@ -53,34 +47,23 @@ initializeDataText = DataText
 
 data DataParsing = DataParsing
   {
-    insertItem :: Bool,
     insertLinkOrImage :: Bool,
     isInContentLink :: Bool,
     isInAltImage :: Bool,
     isInUrlLink :: Bool,
     isInUrlImage :: Bool,
-
     contentLink :: String,
     altImg :: String,
-
     paragraph :: [PParagraphType],
-
     urlLink :: String,
     urlImg :: String,
-
     typeToAdd :: TypeToAdd,
-
     hasFillCodeBlock :: Bool,
     actualCodeBlock :: [String],
-
-    isInParagraph :: Bool,
     isInCodeblock :: Bool,
     levelSection :: Int,
-    
     levelItem :: Int,
-    preElemIsItem :: Bool,
     listItem :: [PItem],
-
     actualList :: String,
     nbReturnLines :: Int,
     remainingLines :: [String]
@@ -89,34 +72,23 @@ data DataParsing = DataParsing
 initializeDataParsing :: DataParsing
 initializeDataParsing = DataParsing
   {
-    insertItem = False,
     insertLinkOrImage = False,
     isInContentLink = False,
     isInAltImage = False,
     isInUrlLink = False,
     isInUrlImage = False,
-
     contentLink = "",
     altImg = "",
-
     paragraph = [],
-
     urlLink = "",
     urlImg = "",
-
     typeToAdd = None,
-
     hasFillCodeBlock = False,
     actualCodeBlock = [],
-
-    isInParagraph = False,
     isInCodeblock = False,
     levelSection = 0,
-    
     levelItem = 0,
-    preElemIsItem = False,
     listItem = [],
-
     actualList = "",
     nbReturnLines = 0,
     remainingLines = []

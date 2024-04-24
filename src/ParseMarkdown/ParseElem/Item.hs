@@ -51,8 +51,7 @@ createItem initialStr rightPart dataParsing allContent
     where
         (levItem, restStr) = determineDepthItem rightPart 0
         newDataParsed = dataParsing { actualList = restStr,
-            levelItem = levItem,
-            preElemIsItem = True, insertItem = True }
+            levelItem = levItem }
         newItem = makeItem newDataParsed 0 levItem
 
 createTextItem :: DataParsing -> PParagraph
