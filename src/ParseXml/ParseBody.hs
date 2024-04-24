@@ -1,6 +1,6 @@
 module ParseXml.ParseBody (parseBody) where
 
-import Content (PBody(..), PContent(..), PParagraph(..), PParagraphType(..), PText(..), PBold(..), PItalic(..), PCode(..), PTextType(..), PSection(..))
+import Content (PBody(..), PContent(..), PParagraph(..), PParagraphType(..), PText(..), PBold(..), PItalic(..), PCode(..), PTextType(..), PSection(..), PCodeBlock(..))
 import Data.Char (isSpace)
 import Data.List (dropWhileEnd, isPrefixOf, span, isSuffixOf, isInfixOf)
 import ParsingLib.Lib (strToWordArray)
@@ -30,11 +30,31 @@ parseSectionsWithLevel parent_section (line:linesContent) =
                         sectionContent = parseSectionsWithLevel (title:parent_section) sectionLines
                         section = createSection title sectionContent
                     in [section] ++ parseSectionsWithLevel parent_section restLines
+            () | isPrefixOf "<codeblock>" line_without_space ->
+                    let (codeLines, restLines) = span (not . isCodeBlockEnd) (line_without_space:linesContent)
+                    in parseCodeBlock codeLines ++ parseSectionsWithLevel parent_section restLines
                | isPrefixOf "<paragraph>" line_without_space ->
                     let (paragraphLines, restLines) = span (not . isParagraphEnd) (line_without_space:linesContent)
                     in formatType paragraphLines ++ parseSectionsWithLevel parent_section restLines
                | otherwise ->
                     parseSectionsWithLevel parent_section linesContent
+
+addCodeBlock :: String -> PContent -> PContent
+addCodeBlock str (PCodeBlockContent (PCodeBlock list))
+    | null cleanedStr = PCodeBlockContent (PCodeBlock list)
+    | otherwise = PCodeBlockContent (PCodeBlock $ list ++ [cleanedStr])
+  where
+    cleanedStr = stripTags $ strip $ removeParagraphEnd str
+
+
+parseCodeBlock :: [String] -> [PContent]
+parseCodeBlock codeLines =
+    let codeBlockContent = PCodeBlockContent (PCodeBlock [])
+        updatedCodeBlockContent = foldr addCodeBlock codeBlockContent codeLines
+    in case updatedCodeBlockContent of
+        PCodeBlockContent (PCodeBlock content) -> [PCodeBlockContent (PCodeBlock (filter (not . null) content))]
+        _ -> [updatedCodeBlockContent]
+
 
 parseParagraph :: String -> [String] -> [PContent]
 parseParagraph _ [] = []
@@ -49,6 +69,11 @@ parseParagraph format lines =
             in PParagraphContent paragraphContent : parseParagraph format restLines
         Nothing -> []
 
+removeParagraphEnd :: String -> String
+removeParagraphEnd str
+    | "</paragraph>" `isSuffixOf` str = take (length str - length "</paragraph>") str
+    | otherwise = str
+    
 formatType :: [String] -> [PContent]
 formatType paragraphLines = concatMap parseLine paragraphLines
   where
@@ -58,6 +83,8 @@ formatType paragraphLines = concatMap parseLine paragraphLines
       | "<code>" `isInfixOf` line = parseParagraph "code" [line]
       | otherwise = parseParagraph "text" [line]
 
+isCodeBlockEnd :: String -> Bool
+isCodeBlockEnd line = "</codeblock>" `isSuffixOf` strip line
 
 isSectionEnd :: String -> Bool
 isSectionEnd = (== "</section>") 
@@ -80,6 +107,7 @@ stripTags :: String -> String
 stripTags str
     | "<paragraph>" `isPrefixOf` strip str = strip (drop (length "<paragraph>") str)
     | "</paragraph>" `isSuffixOf` strip str = strip (reverse $ drop (length "</paragraph>") $ reverse $ strip str)
+    | "<codeblock>" `isPrefixOf` strip str = strip (drop (length "<codeblock>") str)
     | otherwise = strip str
 
 extractParagraphContent :: [String] -> String
