@@ -135,17 +135,18 @@ parseImageUrl state (x:xs) contenu
 parseTextList :: [String] -> [String] -> [PContent] -> Either String [PContent]
 parseTextList [] _ _ = Left "Error: Missing symbol in text"
 parseTextList _ [] _ = Left "Error: Missing } in text"
-parseTextList state ("alt":xs) contenu
-    | last state == "inimage" = parseSymbol state xs contenu
-parseTextList state (x:xs) contenu
-    | s == "contentlink" = parseLinkUrl state (x:xs) contenu
-    | s == "altimage" = parseImageUrl state (x:xs) contenu
-    | (s == "bold" || s == "italic" || s == "code") 
-    = parseParagraph s state (x:xs) contenu
-    | s == "incodeblock" = parseCodeBlock state (x:xs) contenu
-    | s == "inlist" = parseList state (x:xs) contenu
+parseTextList s ("alt":xs) contenu
+    | last s == "inimage" = parseSymbol s xs contenu
+parseTextList s (x:xs) contenu
+    | last s == "contentlink" = parseLinkUrl s (x:xs) contenu
+    | last s == "altimage" = parseImageUrl s (x:xs) contenu
+    | (last s == "bold" || last s == "italic" || last s == "code")
+    = parseParagraph (last s) s (x:xs) contenu
+    | last s == "incodeblock" = parseCodeBlock s (x:xs) contenu
+    | last s == "inlist" = parseList s (x:xs) contenu
+    | last s == "content" = parseParagraph "text" s (x:xs) 
+    (appendPContent s (PParagraphContent (PParagraph [])) contenu)
     | otherwise = Left "No key found"
-    where s = last state
 
 parseTextLink :: [String] -> [String] -> [PContent] -> Either String [PContent]
 parseTextLink [] _ _ = Left "Error: Missing symbol in text"
