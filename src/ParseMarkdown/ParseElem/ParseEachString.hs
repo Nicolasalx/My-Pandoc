@@ -73,15 +73,20 @@ checkFrstStr :: String -> String -> DataParsing ->
 checkFrstStr str st2 dataP content
     | not (strcmp oneStr str) = parseEachString "" "" d1 True oneContent
     | not (strcmp twoStr str) = parseEachString "" "" d2 True twoContent
-    | not (strcmp threeStr str) = parseEachString "" "" d3 True threeContent
-    | not (strcmp newStr str) = parseEachString "" "" d4 True newContent
-    | otherwise = parseEachString newStr newStr d4 True newContent
+    | otherwise = checkElemStr d3 d4 content3 content4 threeStr newStr str
     where
         (d1, oneStr, oneContent) = checkSectionOne str st2 dataP content
         (d2, twoStr, twoContent) = checkSectionTwo str st2 dataP content
-        (d3, threeStr, threeContent) = checkSectionThree str st2 dataP content
-        (d4, newStr, newContent) = checkfirstStrIsAnElem str st2 dataP content
+        (d3, threeStr, content3) = checkSectionThree str st2 dataP content
+        (d4, newStr, content4) = checkfirstStrIsAnElem str st2 dataP content
 
+checkElemStr :: DataParsing -> DataParsing ->
+    [PContent] -> [PContent] -> String ->
+    String -> String -> ([PContent], DataParsing)
+checkElemStr d3 d4 threeContent newContent threeStr newStr str
+    | not (strcmp threeStr str) = parseEachString "" "" d3 True threeContent
+    | not (strcmp newStr str) = parseEachString "" "" d4 True newContent
+    | otherwise = parseEachString newStr newStr d4 True newContent
 
 checkfirstStrIsAnElem :: String -> String -> DataParsing ->
     [PContent] -> (DataParsing, String, [PContent])

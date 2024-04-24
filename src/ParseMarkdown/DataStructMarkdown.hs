@@ -47,6 +47,7 @@ initializeDataText = DataText
 
 data DataParsing = DataParsing
   {
+    hasAnalyzedImg :: Bool,
     insertLinkOrImage :: Bool,
     isInContentLink :: Bool,
     isInAltImage :: Bool,
@@ -72,6 +73,7 @@ data DataParsing = DataParsing
 initializeDataParsing :: DataParsing
 initializeDataParsing = DataParsing
   {
+    hasAnalyzedImg = False,
     insertLinkOrImage = False,
     isInContentLink = False,
     isInAltImage = False,

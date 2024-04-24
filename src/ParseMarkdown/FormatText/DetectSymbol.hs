@@ -44,7 +44,7 @@ detectSymbol str dataText
     | Just (_, rightPart) <- isCode = checkCode rightPart dataText
     | not (null str) = (str, parseBasicChar dataText (head str))
     | otherwise = (str, dataText)
-  where
-    isBold = parseString "**" str
-    isItalic = parseString "*" str
-    isCode = parseString "`" str
+    where
+        isBold = parseString "**" str
+        isItalic = parseString "*" str
+        isCode = parseString "`" str

@@ -4,7 +4,7 @@
         <date>2024-01-01</date>
     </header>
     <body>
-        <paragraph><bold>coucou</bold></paragraph>
-        <paragraph>2</paragraph>
+        <paragraph>This document is a simple example of the TEST syntax.</paragraph>
+        <paragraph>Every syntax element is displayed in this document.</paragraph>
     </body>
 </document>

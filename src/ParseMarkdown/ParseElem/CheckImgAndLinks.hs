@@ -13,8 +13,8 @@ import ParseMarkdown.ParseOneChar (parseOneChar)
 
 checkImgAndLink :: Char -> String -> DataParsing -> (DataParsing, String)
 checkImgAndLink c str dataParsing
-    | Just (_, rightPart) <- parseString "![" str =
-        ((parseOneChar c dataParsing) { isInAltImage = True }, rightPart)
+    | Just (_, rightPart) <- parseString "![" (c : str) =
+        (dataParsing { isInAltImage = True }, rightPart)
     | Just (_, rightPart) <- parseString "](" str =
         endLinkOrImg c rightPart dataParsing
     | otherwise = (dataParsing, str)
