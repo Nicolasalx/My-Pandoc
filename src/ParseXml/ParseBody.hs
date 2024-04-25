@@ -4,6 +4,7 @@ import Content (PBody(..), PContent(..), PParagraph(..), PParagraphType(..), PTe
 import Data.Char (isSpace)
 import Data.List (dropWhileEnd, isPrefixOf, isSuffixOf)
 import ParsingLib.Lib (strToWordArray)
+import Debug.Trace
 
 parseBody :: String -> IO (Either String PBody)
 parseBody file_content = do
@@ -31,9 +32,74 @@ parseSectionsWithLevel parent_section (line:linesContent) =
                     in parseList listLines ++ parseSectionsWithLevel parent_section restLines
                | isPrefixOf "<paragraph>" line_without_space ->
                     let (paragraphLines, restLines) = span (not . isParagraphEnd) (line_without_space:linesContent)
-                    in formatType paragraphLines ++ parseSectionsWithLevel parent_section restLines
+                        trimmedParagraphLines = init (init paragraphLines)
+                    in formatType trimmedParagraphLines ++ parseSectionsWithLevel parent_section restLines
                | otherwise ->
                     parseSectionsWithLevel parent_section linesContent
+
+formatType :: [String] -> [PContent]
+formatType paragraphLines = do
+    trace ("paragraphLines: " ++ show paragraphLines) $ concatMap parseLine paragraphLines
+  where
+    parseLine line = parseWords "" (strToWordArray "<>/=" "" line) False False False createParagraph
+
+    parseWords :: String -> [String] -> Bool -> Bool -> Bool -> PContent -> [PContent]
+    parseWords _ [] _ _ _ _ = []
+    parseWords prev (word:rest) inBold inItalic inCode new_paragraph
+        | word == "bold" && not inBold = addBoldAndText rest
+        | word == "italic" && not inItalic = addItalicAndText rest
+        | word == "code" && not inCode = addCodeAndText rest
+        | isFormattingTag word = parseWords word rest (word == "bold") (word == "italic") (word == "code") new_paragraph
+        | otherwise = case prev of
+            "paragraph" -> currentContent ++ parseWords word rest inBold inItalic inCode new_paragraph
+            "bold" -> addBoldOrText word : parseWords "" rest inBold inItalic inCode new_paragraph
+            "italic" -> addItalicOrText word : parseWords "" rest inBold inItalic inCode new_paragraph
+            "code" -> addCodeOrText word : parseWords "" rest inBold inItalic inCode new_paragraph
+            _ -> parseWords word rest inBold inItalic inCode new_paragraph
+      where
+        currentContent = [addParagraph "text" word new_paragraph]
+        addBoldOrText w = if inBold then addParagraph "text" w new_paragraph else addParagraph "bold" w new_paragraph
+        addBoldAndText (nextWord:remainingWords) = addParagraph "bold" nextWord new_paragraph : parseWords "" (init remainingWords) True inItalic inCode new_paragraph
+        addItalicOrText w = if inItalic then addParagraph "text" w new_paragraph else addParagraph "italic" w new_paragraph
+        addItalicAndText (nextWord:remainingWords) = addParagraph "italic" nextWord new_paragraph : parseWords "" (init remainingWords) inBold True inCode new_paragraph
+        addCodeOrText w = if inCode then addParagraph "text" w new_paragraph else addParagraph "code" w new_paragraph
+        addCodeAndText (nextWord:remainingWords) = addParagraph "code" nextWord new_paragraph : parseWords "" (init remainingWords) inBold inItalic True new_paragraph
+
+    isFormattingTag :: String -> Bool
+    isFormattingTag tag = tag `elem` ["bold", "italic", "code"]
+
+addParagraph :: String -> String -> PContent -> PContent
+addParagraph "text" str (PParagraphContent (PParagraph list)) 
+    = PParagraphContent $ PParagraph $ list ++ [PTextParagraph 
+    (PText [PString str])]
+addParagraph "bold" str (PParagraphContent (PParagraph list)) 
+    = PParagraphContent $ PParagraph $ list ++ [PTextParagraph 
+    (PText [PBoldText (PBold [PString str])])]
+addParagraph "italic" str (PParagraphContent (PParagraph list)) 
+    = PParagraphContent $ PParagraph $ list ++ [PTextParagraph 
+    (PText [PItalicText (PItalic [PString str])])]
+addParagraph "code" str (PParagraphContent (PParagraph list)) 
+    = PParagraphContent $ PParagraph $ list ++ [PTextParagraph 
+    (PText [PCodeText (PCode [PString str])])]
+addParagraph "link" _ (PParagraphContent (PParagraph list)) 
+    = PParagraphContent $ PParagraph $ list ++ [PLinkParagraph 
+    (PLink {link_url = "", content = PText []})]
+addParagraph "image" _ (PParagraphContent (PParagraph list)) 
+    = PParagraphContent $ PParagraph $ list ++ [PImageParagraph 
+    (PImage {image_url = "", alt = PText []})]
+addParagraph _ _ _ = PParagraphContent $ PParagraph []
+
+-- addParagraph :: String -> String -> PContent
+-- addParagraph "text" str = PParagraphContent $ PParagraph [PTextParagraph (PText [PString str])]
+-- addParagraph "bold" str = PParagraphContent $ PParagraph [PTextParagraph (PText [PBoldText (PBold [PString str])])]
+-- addParagraph "italic" str = PParagraphContent $ PParagraph [PTextParagraph (PText [PItalicText (PItalic [PString str])])]
+-- addParagraph "code" str = PParagraphContent $ PParagraph [PTextParagraph (PText [PCodeText (PCode [PString str])])]
+-- addParagraph "link" _ = PParagraphContent $ PParagraph [PLinkParagraph (PLink {link_url = "", content = PText []})]
+-- addParagraph "image" _ = PParagraphContent $ PParagraph [PImageParagraph (PImage {image_url = "", alt = PText []})]
+-- addParagraph _ _ = PParagraphContent $ PParagraph []
+
+createParagraph :: PContent
+createParagraph = PParagraphContent $ PParagraph []
 
 parseSections :: [String] -> [PContent]
 parseSections = parseSectionsWithLevel []
@@ -47,7 +113,6 @@ addCodeBlock str (PCodeBlockContent (PCodeBlock list))
     | otherwise = PCodeBlockContent (PCodeBlock $ list ++ [cleanedStr])
   where
     cleanedStr = stripTags $ strip $ removeParagraphEnd str
-
 
 parseCodeBlock :: [String] -> [PContent]
 parseCodeBlock codeLines =
@@ -84,51 +149,6 @@ removeParagraphEnd :: String -> String
 removeParagraphEnd str
     | "</paragraph>" `isSuffixOf` str = take (length str - length "</paragraph>") str
     | otherwise = str
-    
-formatType :: [String] -> [PContent]
-formatType paragraphLines = concatMap parseLine paragraphLines
-  where
-    parseLine line = parseWords "" (strToWordArray "<>/" "" line) False False False
-
-    parseWords :: String -> [String] -> Bool -> Bool -> Bool -> [PContent]
-    parseWords _ [] _ _ _ = []
-    parseWords prev (word:rest) inBold inItalic inCode
-        | word == "bold" && not inBold = addBoldAndText rest
-        | word == "italic" && not inItalic = addItalicAndText rest
-        | word == "code" && not inCode = addCodeAndText rest
-        | isFormattingTag word = parseWords word rest (word == "bold") (word == "italic") (word == "code")
-        | otherwise = case prev of
-            "paragraph" -> currentContent ++ parseWords word rest inBold inItalic inCode
-            "bold" -> addBoldOrText word : parseWords "" rest inBold inItalic inCode
-            "italic" -> addItalicOrText word : parseWords "" rest inBold inItalic inCode
-            "code" -> addCodeOrText word : parseWords "" rest inBold inItalic inCode
-            _ -> parseWords word rest inBold inItalic inCode
-      where
-        currentContent = [addParagraph "text" word]
-        addBoldOrText w = if inBold then addParagraph "text" w else addBold w
-        addBoldAndText (nextWord:remainingWords) = addBold nextWord : parseWords "" (init remainingWords) True inItalic inCode
-        addItalicOrText w = if inItalic then addParagraph "text" w else addItalic w
-        addItalicAndText (nextWord:remainingWords) = addItalic nextWord : parseWords "" (init remainingWords) inBold True inCode
-        addCodeOrText w = if inCode then addParagraph "text" w else addCode w
-        addCodeAndText (nextWord:remainingWords) = addCode nextWord : parseWords "" (init remainingWords) inBold inItalic True
-
-    isFormattingTag :: String -> Bool
-    isFormattingTag tag = tag `elem` ["bold", "italic", "code"]
-
-    addBold w = addParagraph "bold" w
-    addItalic w = addParagraph "italic" w
-    addCode w = addParagraph "code" w
-
-
-
-addParagraph :: String -> String -> PContent
-addParagraph "text" str = PParagraphContent $ PParagraph [PTextParagraph (PText [PString str])]
-addParagraph "bold" str = PParagraphContent $ PParagraph [PTextParagraph (PText [PBoldText (PBold [PString str])])]
-addParagraph "italic" str = PParagraphContent $ PParagraph [PTextParagraph (PText [PItalicText (PItalic [PString str])])]
-addParagraph "code" str = PParagraphContent $ PParagraph [PTextParagraph (PText [PCodeText (PCode [PString str])])]
-addParagraph "link" _ = PParagraphContent $ PParagraph [PLinkParagraph (PLink {link_url = "", content = PText []})]
-addParagraph "image" _ = PParagraphContent $ PParagraph [PImageParagraph (PImage {image_url = "", alt = PText []})]
-addParagraph _ _ = PParagraphContent $ PParagraph []
 
 isCodeBlockEnd :: String -> Bool
 isCodeBlockEnd line = "</codeblock>" `isSuffixOf` strip line
@@ -144,11 +164,12 @@ isParagraphEnd = (== "</paragraph>")
 
 stripTags :: String -> String
 stripTags str
-    | "<paragraph>" `isPrefixOf` strip str = strip (drop (length "<paragraph>") str)
-    | "</paragraph>" `isSuffixOf` strip str = strip (reverse $ drop (length "</paragraph>") $ reverse $ strip str)
-    | "<codeblock>" `isPrefixOf` strip str = strip (drop (length "<codeblock>") str)
-    | "<list>" `isPrefixOf` strip str = strip (drop (length "<list>") str)
-    | otherwise = strip str
+    | "<paragraph>" `isPrefixOf` strip str = trace "Stripping opening paragraph tag" $ strip (drop (length "<paragraph>") str)
+    | "</paragraph>" `isSuffixOf` strip str = trace "Stripping closing paragraph tag" $ strip (reverse $ drop (length "</paragraph>") $ reverse $ strip str)
+    | "<codeblock>" `isPrefixOf` strip str = trace "Stripping opening codeblock tag" $ strip (drop (length "<codeblock>") str)
+    | "<list>" `isPrefixOf` strip str = trace "Stripping opening list tag" $ strip (drop (length "<list>") str)
+    | otherwise = trace "No tags to strip" $ strip str
+
 
 createSection :: String -> [PContent] -> PContent
 createSection title content =
