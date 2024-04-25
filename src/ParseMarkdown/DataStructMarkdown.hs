@@ -35,14 +35,9 @@ data DataText = DataText
 initializeDataText :: DataText
 initializeDataText = DataText
   {
-    basicStr = "",
-    isInBold = False,
-    isInItalic = False,
-    isInCode = False,
-    contentText = PText [],
-    indexListText = 0,
-    precedentChar = ' ',
-    listText = []
+    basicStr = "", isInBold = False, isInItalic = False,
+    isInCode = False, contentText = PText [], indexListText = 0,
+    precedentChar = ' ', listText = []
   }
 
 data DataParsing = DataParsing
@@ -73,25 +68,10 @@ data DataParsing = DataParsing
 initializeDataParsing :: DataParsing
 initializeDataParsing = DataParsing
   {
-    hasAnalyzedImg = False,
-    insertLinkOrImage = False,
-    isInContentLink = False,
-    isInAltImage = False,
-    isInUrlLink = False,
-    isInUrlImage = False,
-    contentLink = "",
-    altImg = "",
-    paragraph = [],
-    urlLink = "",
-    urlImg = "",
-    typeToAdd = None,
-    hasFillCodeBlock = False,
-    actualCodeBlock = [],
-    isInCodeblock = False,
-    levelSection = 0,
-    levelItem = 0,
-    listItem = [],
-    actualList = "",
-    nbReturnLines = 0,
-    remainingLines = []
+    hasAnalyzedImg = False, insertLinkOrImage = False, isInContentLink = False,
+    isInAltImage = False, isInUrlLink = False, isInUrlImage = False,
+    contentLink = "", altImg = "", paragraph = [], urlLink = "", urlImg = "",
+    typeToAdd = None, hasFillCodeBlock = False, actualCodeBlock = [],
+    isInCodeblock = False, levelSection = 0, levelItem = 0, listItem = [],
+    actualList = "", nbReturnLines = 0, remainingLines = []
   }

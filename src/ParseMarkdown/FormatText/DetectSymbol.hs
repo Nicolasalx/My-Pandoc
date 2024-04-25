@@ -41,10 +41,15 @@ detectSymbol str dataText
         checkBold rightPart dataText
     | Just (_, rightPart) <- isItalic = checkItalic rightPart dataText
     | Just (_, rightPart) <- isBold = checkBold rightPart dataText
+    | otherwise = detectSymbolOpt str dataText
+    where
+        isBold = parseString "**" str
+        isItalic = parseString "*" str
+
+detectSymbolOpt :: String -> DataText -> (String, DataText)
+detectSymbolOpt str dataText
     | Just (_, rightPart) <- isCode = checkCode rightPart dataText
     | not (null str) = (str, parseBasicChar dataText (head str))
     | otherwise = (str, dataText)
     where
-        isBold = parseString "**" str
-        isItalic = parseString "*" str
         isCode = parseString "`" str

@@ -18,12 +18,17 @@ formatLastList dataText (x:xs) finalList
     | TCode Code <- x = formatLastList newData xs newList
     | otherwise = formatLastList dataText xs (finalList ++ [x])
     where
-        (newData, newList) = case x of
-            TBold _ -> setBoldList dataText x finalList
-            TItalic _ -> setItalicList dataText x finalList
-            TCode _ -> setCodeList dataText x finalList
-            _ -> (dataText, finalList)
+        (newData, newList) = setTypeFormat dataText x finalList
 
+setTypeFormat :: DataText -> ElemTextType ->
+    [ElemTextType] -> (DataText, [ElemTextType])
+setTypeFormat dataText (TBold boldText) finalList =
+    setBoldList dataText (TBold boldText) finalList
+setTypeFormat dataText (TItalic italicText) finalList =
+    setItalicList dataText (TItalic italicText) finalList
+setTypeFormat dataText (TCode codeText) finalList =
+    setCodeList dataText (TCode codeText) finalList
+setTypeFormat dataText _ finalList = (dataText, finalList)
 
 removeElement :: ElemTextType -> [ElemTextType] ->
     [ElemTextType] -> [ElemTextType]
@@ -44,6 +49,11 @@ setBoldList dataText actualElem actualListText
     | (isInCode dataText) && (isInBold dataText) = 
         (dataText { isInBold = False },
         removeElement actualElem actualListText [])
+    | otherwise = setBoldListOpt dataText actualElem actualListText
+
+setBoldListOpt :: DataText -> ElemTextType ->
+    [ElemTextType] -> (DataText, [ElemTextType])
+setBoldListOpt dataText actualElem actualListText
     | not (isInBold dataText) = 
         (dataText { isInBold = True }, actualListText ++ [actualElem])
     | isInBold dataText = 
@@ -60,7 +70,12 @@ setItalicList dataText actualElem actualListText
     | (isInCode dataText) && (isInItalic dataText) = 
         (dataText { isInItalic = False },
         removeElement actualElem actualListText [])
-    | not (isInItalic dataText) = 
+    | otherwise = setItalicListOpt dataText actualElem actualListText
+
+setItalicListOpt :: DataText -> ElemTextType ->
+    [ElemTextType] -> (DataText, [ElemTextType])
+setItalicListOpt dataText actualElem actualListText
+    | not (isInItalic dataText) =
         (dataText { isInItalic = True }, actualListText ++ [actualElem])
     | isInItalic dataText = 
         (dataText { isInItalic = False }, actualListText ++ [actualElem])

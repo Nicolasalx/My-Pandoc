@@ -70,11 +70,17 @@ appendAllElem dataText (x:xs)
     | x == (TBold Bold) && (isInBold dataText) = boldOutText dataText xs
     | x == (TItalic Italic) && not (isInItalic dataText) =
         italicInText dataText xs
-    | x == (TItalic Italic) && (isInItalic dataText) =
-        italicOutText dataText xs
-    | x == (TCode Code) && not (isInCode dataText) = codeInText dataText xs
-    | x == (TCode Code) && (isInCode dataText) = codeOutText dataText xs
-    | otherwise = appendStr x dataText xs
+    | otherwise = appendElemOpt dataText x xs
+
+appendElemOpt :: DataText -> ElemTextType -> [ElemTextType] -> DataText
+appendElemOpt dataText element list
+    | element == (TItalic Italic) && (isInItalic dataText) =
+        italicOutText dataText list
+    | element == (TCode Code) && not (isInCode dataText) =
+        codeInText dataText list
+    | element == (TCode Code) && (isInCode dataText) =
+        codeOutText dataText list
+    | otherwise = appendStr element dataText list
 
 appendStr :: ElemTextType -> DataText -> [ElemTextType] -> DataText
 appendStr (TString str) dataText xs =
@@ -101,18 +107,16 @@ reversePTextType (PCodeText (PCode ts)) =
 
 findGoodPosition :: Int -> PTextType -> PText -> PText
 findGoodPosition index actualElem (PText list) =
-    (PText (insertAtIndex index actualElem list))
+    (PText (idx index actualElem list))
 
-insertAtIndex :: Int -> PTextType -> [PTextType] -> [PTextType]
-insertAtIndex 0 actualElem list = actualElem : list
-insertAtIndex index actualElem list = go index list
+idx :: Int -> PTextType -> [PTextType] -> [PTextType]
+idx 0 e list = e : list
+idx index e list = go index list
     where
-        go 0 rest = actualElem : rest
-        go n (PBoldText (PBold y) : xs) = PBoldText
-            (PBold (insertAtIndex (n - 1) actualElem y)) : xs
-        go n (PItalicText (PItalic y) : xs) = PItalicText
-            (PItalic (insertAtIndex (n - 1) actualElem y)) : xs
-        go n (PCodeText (PCode y) : xs) = PCodeText (PCode
-            (insertAtIndex (n - 1) actualElem y)) : xs
-        go n (x : xs) = x : go n xs
-        go _ [] = [actualElem]
+    go 0 rest = e : rest
+    go n (PBoldText (PBold y) : xs) = PBoldText (PBold (idx (n - 1) e y)) : xs
+    go n (PItalicText (PItalic y) : xs) =
+        PItalicText (PItalic (idx (n - 1) e y)) : xs
+    go n (PCodeText (PCode y) : xs) = PCodeText (PCode (idx (n - 1) e y)) : xs
+    go n (x : xs) = x : go n xs
+    go _ [] = [e]
