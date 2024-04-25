@@ -48,7 +48,7 @@ jobs:
       run: |
           echo "## ⚙️ Functionnal Tests" >> $GITHUB_STEP_SUMMARY
           {
-            sudo dnf install colordiff
+            sudo dnf install colordiff -y
             chown -R $(id -un):$(id -gn) ~
             set +e
 
