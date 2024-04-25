@@ -20,13 +20,13 @@ fillPHeader (x:xs)
           Right header { header_title = title }
     | Just cleanedLine <- cleanLine x,
       Just ("<author>", value) <- parseString "<author>" cleanedLine,
-      Just (author, _) <- parseUntil "</author>" value,
+      Just (authorResult, _) <- parseUntil "</author>" value,
       Right header <- fillPHeader xs =
-          Right header { author = Just author }
+          Right header { author = Just authorResult }
     | Just cleanedLine <- cleanLine x,
       Just ("<date>", value) <- parseString "<date>" cleanedLine,
-      Just (date, _) <- parseUntil "</date>" value,
+      Just (dateResult, _) <- parseUntil "</date>" value,
       Right header <- fillPHeader xs =
-          Right header { date = Just date }
+          Right header { date = Just dateResult }
     | elem '<' x = fillPHeader xs
     | otherwise = Left "Erreur : Format d'en-tête invalide ou champ invalide"

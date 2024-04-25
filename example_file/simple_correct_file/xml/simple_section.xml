@@ -5,8 +5,8 @@
     </header>
     <body>
         <section title="header 1">
-            <paragraph>1</paragraph>
-            <paragraph>2</paragraph>
+            <paragraph>This is a basic paragraph with text.</paragraph>
+            <paragraph>This is a second paragraph with text.</paragraph>
         </section>
     </body>
 </document> 
