@@ -11,7 +11,7 @@ import Content (PHeader(..), PBody(..))
 import Control.Exception (catch, IOException)
 import ParseJson.ParseJson (parseJson)
 import ParseMarkdown.ParseMarkdown (parseMarkdown)
-import ParseXml.ParseXml (parseXml)
+import ParseXmlNew.ParseXmlNew (parseXmlNew)
 import PrintError (printErrorAndExit)
 
 getFileContent :: PandocArg -> IO (String)
@@ -26,7 +26,7 @@ getFileContent _ = printErrorAndExit "Fail to get file content."
 determineParser :: FilePath -> String -> IO (Either String (PHeader, PBody))
 determineParser filepath content
     | drop (length filepath - 5) filepath == ".json" = parseJson content
-    | drop (length filepath - 4) filepath == ".xml" = parseXml content
+    | drop (length filepath - 4) filepath == ".xml" = parseXmlNew content
     | drop (length filepath - 3) filepath == ".md" = return (parseMarkdown content)
     | otherwise = printErrorAndExit "Unknow file type." -- try execute parser
 
@@ -38,7 +38,7 @@ launchParsing :: PandocArg -> String -> IO ((PHeader, PBody))
 launchParsing (PandocArg _ _ _ JSON) content =
     getParsingRes =<< (parseJson content)
 launchParsing (PandocArg _ _ _ XML) content =
-    getParsingRes =<< (parseXml content)
+    getParsingRes =<< (parseXmlNew content)
 launchParsing (PandocArg _ _ _ MarkDown) content =
     getParsingRes =<< return (parseMarkdown content)
 launchParsing (PandocArg (Right filepath) _ _ NotProvided) content =
