@@ -11,16 +11,13 @@ import ParseMarkdown.ParseBody (parseBody)
 import ParseMarkdown.ParseHeader (parseHeader)
 import ParseMarkdown.DataStructMarkdown (initializeDataParsing)
 
--- THIS FUNCTION WILL CHANGE DON T WORRY !
-
 parseMarkdown :: String -> Either String (PHeader, PBody)
-parseMarkdown file_content =
-    let dataInitialized = initializeDataParsing
+parseMarkdown file_content
+    | Right pBody <- parseBody newDataParsing,
+      Right pHeader <- headerResult = Right (pHeader, pBody)
+    | Left err <- parseBody newDataParsing = Left err
+    | Left err <- headerResult = Left err
+    where
+        dataInitialized = initializeDataParsing
         allLines = lines file_content
         (headerResult, newDataParsing) = parseHeader allLines dataInitialized
-    in case parseBody newDataParsing of
-        Right pBody ->
-            case headerResult of
-                Right pHeader -> Right (pHeader, pBody)
-                Left err -> Left err
-        Left err -> Left err

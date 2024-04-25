@@ -13,12 +13,11 @@ import ParseMarkdown.ParseElem.ParseAllStrings (parseAllString)
 import ParseMarkdown.ParseElem.Paragraph (tryAddParagraph)
 
 parseBody :: DataParsing -> Either String PBody
-parseBody dataParsing =
-    let (allContent, newDataParsed) =
-            parseAllString (remainingLines dataParsing) dataParsing []
-    in case allContent of
-        Left err -> Left err
-        Right contents ->
-            let dataPars = createText newDataParsed
-                (newContent, _) = tryAddParagraph dataPars contents
-            in Right (PBody newContent)
+parseBody dataParsing
+    | Left err <- parseResult,
+      _ <- newDataParsed = Left err
+    | Right contents <- parseResult,
+      dataPars <- createText newDataParsed,
+      (newContent, _) <- tryAddParagraph dataPars contents = Right (PBody newContent)
+    where
+        (parseResult, newDataParsed) = parseAllString (remainingLines dataParsing) dataParsing []
