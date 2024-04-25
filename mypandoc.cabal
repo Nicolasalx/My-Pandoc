@@ -79,10 +79,6 @@ library
       ParseXml.ParseHeader
       ParseXml.ParseXml
       ParseXml.Sections
-      ParseXmlNew.DataStructXml
-      ParseXmlNew.ParseBody
-      ParseXmlNew.ParseHeader
-      ParseXmlNew.ParseXmlNew
       ParsingLib.AppendElemToDataStruct
       ParsingLib.Lib
       PrintError
