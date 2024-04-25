@@ -41,62 +41,62 @@ formatType :: [String] -> [PContent]
 formatType paragraphLines = do
     trace ("paragraphLines: " ++ show paragraphLines) $ concatMap parseLine paragraphLines
   where
-    parseLine line = parseWords "" (strToWordArray "<>/=" "" line) False False False createParagraph
+    parseLine line = createParagraph : parseWords "" (strToWordArray "<>/=" "" line) False False False
 
-    parseWords :: String -> [String] -> Bool -> Bool -> Bool -> PContent -> [PContent]
-    parseWords _ [] _ _ _ _ = []
-    parseWords prev (word:rest) inBold inItalic inCode new_paragraph
+    parseWords :: String -> [String] -> Bool -> Bool -> Bool -> [PContent]
+    parseWords _ [] _ _ _ = []
+    parseWords prev (word:rest) inBold inItalic inCode 
         | word == "bold" && not inBold = addBoldAndText rest
         | word == "italic" && not inItalic = addItalicAndText rest
         | word == "code" && not inCode = addCodeAndText rest
-        | isFormattingTag word = parseWords word rest (word == "bold") (word == "italic") (word == "code") new_paragraph
+        | isFormattingTag word = parseWords word rest (word == "bold") (word == "italic") (word == "code") 
         | otherwise = case prev of
-            "paragraph" -> currentContent ++ parseWords word rest inBold inItalic inCode new_paragraph
-            "bold" -> addBoldOrText word : parseWords "" rest inBold inItalic inCode new_paragraph
-            "italic" -> addItalicOrText word : parseWords "" rest inBold inItalic inCode new_paragraph
-            "code" -> addCodeOrText word : parseWords "" rest inBold inItalic inCode new_paragraph
-            _ -> parseWords word rest inBold inItalic inCode new_paragraph
+            "paragraph" -> currentContent ++ parseWords word rest inBold inItalic inCode
+            "bold" -> addBoldOrText word : parseWords "" rest inBold inItalic inCode
+            "italic" -> addItalicOrText word : parseWords "" rest inBold inItalic inCode
+            "code" -> addCodeOrText word : parseWords "" rest inBold inItalic inCode 
+            _ -> parseWords word rest inBold inItalic inCode 
       where
-        currentContent = [addParagraph "text" word new_paragraph]
-        addBoldOrText w = if inBold then addParagraph "text" w new_paragraph else addParagraph "bold" w new_paragraph
-        addBoldAndText (nextWord:remainingWords) = addParagraph "bold" nextWord new_paragraph : parseWords "" (init remainingWords) True inItalic inCode new_paragraph
-        addItalicOrText w = if inItalic then addParagraph "text" w new_paragraph else addParagraph "italic" w new_paragraph
-        addItalicAndText (nextWord:remainingWords) = addParagraph "italic" nextWord new_paragraph : parseWords "" (init remainingWords) inBold True inCode new_paragraph
-        addCodeOrText w = if inCode then addParagraph "text" w new_paragraph else addParagraph "code" w new_paragraph
-        addCodeAndText (nextWord:remainingWords) = addParagraph "code" nextWord new_paragraph : parseWords "" (init remainingWords) inBold inItalic True new_paragraph
+        currentContent = [addParagraph "text" word]
+        addBoldOrText w = if inBold then addParagraph "text" w  else addParagraph "bold" w 
+        addBoldAndText (nextWord:remainingWords) = addParagraph "bold" nextWord  : parseWords "" (init remainingWords) True inItalic inCode 
+        addItalicOrText w = if inItalic then addParagraph "text" w  else addParagraph "italic" w 
+        addItalicAndText (nextWord:remainingWords) = addParagraph "italic" nextWord  : parseWords "" (init remainingWords) inBold True inCode 
+        addCodeOrText w = if inCode then addParagraph "text" w  else addParagraph "code" w 
+        addCodeAndText (nextWord:remainingWords) = addParagraph "code" nextWord  : parseWords "" (init remainingWords) inBold inItalic True 
 
     isFormattingTag :: String -> Bool
     isFormattingTag tag = tag `elem` ["bold", "italic", "code"]
 
-addParagraph :: String -> String -> PContent -> PContent
-addParagraph "text" str (PParagraphContent (PParagraph list)) 
-    = PParagraphContent $ PParagraph $ list ++ [PTextParagraph 
-    (PText [PString str])]
-addParagraph "bold" str (PParagraphContent (PParagraph list)) 
-    = PParagraphContent $ PParagraph $ list ++ [PTextParagraph 
-    (PText [PBoldText (PBold [PString str])])]
-addParagraph "italic" str (PParagraphContent (PParagraph list)) 
-    = PParagraphContent $ PParagraph $ list ++ [PTextParagraph 
-    (PText [PItalicText (PItalic [PString str])])]
-addParagraph "code" str (PParagraphContent (PParagraph list)) 
-    = PParagraphContent $ PParagraph $ list ++ [PTextParagraph 
-    (PText [PCodeText (PCode [PString str])])]
-addParagraph "link" _ (PParagraphContent (PParagraph list)) 
-    = PParagraphContent $ PParagraph $ list ++ [PLinkParagraph 
-    (PLink {link_url = "", content = PText []})]
-addParagraph "image" _ (PParagraphContent (PParagraph list)) 
-    = PParagraphContent $ PParagraph $ list ++ [PImageParagraph 
-    (PImage {image_url = "", alt = PText []})]
-addParagraph _ _ _ = PParagraphContent $ PParagraph []
+-- addParagraph :: String -> String -> PContent -> PContent
+-- addParagraph "text" str (PParagraphContent (PParagraph list)) 
+--     = PParagraphContent $ PParagraph $ list ++ [PTextParagraph 
+--     (PText [PString str])]
+-- addParagraph "bold" str (PParagraphContent (PParagraph list)) 
+--     = PParagraphContent $ PParagraph $ list ++ [PTextParagraph 
+--     (PText [PBoldText (PBold [PString str])])]
+-- addParagraph "italic" str (PParagraphContent (PParagraph list)) 
+--     = PParagraphContent $ PParagraph $ list ++ [PTextParagraph 
+--     (PText [PItalicText (PItalic [PString str])])]
+-- addParagraph "code" str (PParagraphContent (PParagraph list)) 
+--     = PParagraphContent $ PParagraph $ list ++ [PTextParagraph 
+--     (PText [PCodeText (PCode [PString str])])]
+-- addParagraph "link" _ (PParagraphContent (PParagraph list)) 
+--     = PParagraphContent $ PParagraph $ list ++ [PLinkParagraph 
+--     (PLink {link_url = "", content = PText []})]
+-- addParagraph "image" _ (PParagraphContent (PParagraph list)) 
+--     = PParagraphContent $ PParagraph $ list ++ [PImageParagraph 
+--     (PImage {image_url = "", alt = PText []})]
+-- addParagraph _ _ _ = PParagraphContent $ PParagraph []
 
--- addParagraph :: String -> String -> PContent
--- addParagraph "text" str = PParagraphContent $ PParagraph [PTextParagraph (PText [PString str])]
--- addParagraph "bold" str = PParagraphContent $ PParagraph [PTextParagraph (PText [PBoldText (PBold [PString str])])]
--- addParagraph "italic" str = PParagraphContent $ PParagraph [PTextParagraph (PText [PItalicText (PItalic [PString str])])]
--- addParagraph "code" str = PParagraphContent $ PParagraph [PTextParagraph (PText [PCodeText (PCode [PString str])])]
--- addParagraph "link" _ = PParagraphContent $ PParagraph [PLinkParagraph (PLink {link_url = "", content = PText []})]
--- addParagraph "image" _ = PParagraphContent $ PParagraph [PImageParagraph (PImage {image_url = "", alt = PText []})]
--- addParagraph _ _ = PParagraphContent $ PParagraph []
+addParagraph :: String -> String -> PContent
+addParagraph "text" str = PParagraphContent $ PParagraph [PTextParagraph (PText [PString str])]
+addParagraph "bold" str = PParagraphContent $ PParagraph [PTextParagraph (PText [PBoldText (PBold [PString str])])]
+addParagraph "italic" str = PParagraphContent $ PParagraph [PTextParagraph (PText [PItalicText (PItalic [PString str])])]
+addParagraph "code" str = PParagraphContent $ PParagraph [PTextParagraph (PText [PCodeText (PCode [PString str])])]
+addParagraph "link" _ = PParagraphContent $ PParagraph [PLinkParagraph (PLink {link_url = "", content = PText []})]
+addParagraph "image" _ = PParagraphContent $ PParagraph [PImageParagraph (PImage {image_url = "", alt = PText []})]
+addParagraph _ _ = PParagraphContent $ PParagraph []
 
 createParagraph :: PContent
 createParagraph = PParagraphContent $ PParagraph []
