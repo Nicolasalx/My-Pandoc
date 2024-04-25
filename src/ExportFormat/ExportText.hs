@@ -23,7 +23,8 @@ exportBold (PBold text) JSON indent nested =
     ++ "\n" ++ addIndent indent ++ "}"
 exportBold (PBold text) XML _ _ =
     "<bold>" ++ exportText (PText text) XML 0 False ++ "</bold>"
-exportBold (PBold text) MD _ _ = "**" ++ exportText (PText text) MD 0 False ++ "**"
+exportBold (PBold text) MD _ _ = "**"
+    ++ exportText (PText text) MD 0 False ++ "**"
 
 exportItalic :: PItalic -> ExportFormat -> Int -> Bool -> String
 exportItalic (PItalic text) JSON indent nested =
@@ -33,7 +34,8 @@ exportItalic (PItalic text) JSON indent nested =
     ++ "\n" ++ addIndent indent ++ "}"
 exportItalic (PItalic text) XML _ _ =
     "<italic>" ++ exportText (PText text) XML 0 False ++ "</italic>"
-exportItalic (PItalic text) MD _ _ = "*" ++ exportText (PText text) MD 0 False ++ "*"
+exportItalic (PItalic text) MD _ _ = "*"
+    ++ exportText (PText text) MD 0 False ++ "*"
 
 exportCode :: PCode -> ExportFormat -> Int -> Bool -> String
 exportCode (PCode text) JSON indent nested =
@@ -43,19 +45,24 @@ exportCode (PCode text) JSON indent nested =
     ++ "\n" ++ addIndent indent ++ "}"
 exportCode (PCode text) XML _ _ =
     "<code>" ++ exportText (PText text) XML 0 False ++ "</code>"
-exportCode (PCode text) MD _ _ = "`" ++ exportText (PText text) MD 0 False ++ "`"
+exportCode (PCode text) MD _ _ = "`"
+    ++ exportText (PText text) MD 0 False ++ "`"
 
 exportString :: String -> ExportFormat -> Int -> Bool -> String
-exportString str JSON indent nested = (addTextIndent indent nested) ++ "\"" ++ str ++ "\""
+exportString str JSON indent nested =
+    (addTextIndent indent nested) ++ "\"" ++ str ++ "\""
 exportString str XML _ _ = str
 exportString str MD _ _ = str
 
 exportTextType :: PTextType -> ExportFormat -> Int -> Bool -> String
-exportTextType (PString str) format indent nested = exportString str format indent nested
-exportTextType (PBoldText bold) format indent nested = exportBold bold format indent nested
+exportTextType (PString str) format indent nested =
+    exportString str format indent nested
+exportTextType (PBoldText bold) format indent nested =
+    exportBold bold format indent nested
 exportTextType (PItalicText italic) format indent nested =
     exportItalic italic format indent nested
-exportTextType (PCodeText code) format indent nested = exportCode code format indent nested
+exportTextType (PCodeText code) format indent nested =
+    exportCode code format indent nested
 
 exportText :: PText -> ExportFormat -> Int -> Bool -> String
 exportText (PText list) JSON indent nested =

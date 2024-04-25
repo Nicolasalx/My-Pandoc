@@ -23,7 +23,8 @@ exportLink (PLink url content_) JSON indent =
     ++ addIndent (indent) ++ "}"
 
 exportLink (PLink url content_) XML _ =
-    "<link url=\"" ++ url ++ "\">" ++ exportText content_ XML 0 False ++ "</link>"
+    "<link url=\"" ++ url ++ "\">"
+        ++ exportText content_ XML 0 False ++ "</link>"
 
 exportLink (PLink url content_) MD _ =
     "[" ++ exportText content_ MD 0 False ++ "](" ++ url ++ ")"
