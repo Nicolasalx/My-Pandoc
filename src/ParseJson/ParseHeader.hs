@@ -42,6 +42,6 @@ parseEachHeaderLine (x:xs) pHeader
         checkVirgule (nth 2 xs) pHeader { date = Just value }
     | otherwise = Left x
 
-parseHeader :: String -> IO (Either String PHeader)
-parseHeader [] = return $ Left "Empty file"
-parseHeader (x:xs) = return $ searchForHeader (strToWordArray "\"" "" (x:xs)) 0
+parseHeader :: String -> Either String PHeader
+parseHeader [] = Left "Empty file"
+parseHeader (x:xs) = searchForHeader (strToWordArray "\"" "" (x:xs)) 0

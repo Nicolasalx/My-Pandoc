@@ -1,9 +1,9 @@
 module ParseXml.ParseBody (parseBody) where
 
 import Content (PContent(..), PParagraph(..), PParagraphType(..), PText(..), PBold(..), PItalic(..), PCode(..), PTextType(..), PSection(..), PCodeBlock(..), PList(..), PItem(..), PItemType(..), PLink(..), PImage(..))
-import ParsingLib.Lib (strToWordArray, strcmp, nth, checkIsInString)
-import ParseJson.ParseFunction (notBracketChar, appendPContent, initPContent, lastPContent)
-import Debug.Trace
+-- import ParsingLib.Lib (strToWordArray, strcmp, nth, checkIsInString)
+import ParseJson.ParseFunction (appendPContent, initPContent, lastPContent)
+-- import Debug.Trace
 
 -- parsing title
 
@@ -196,10 +196,10 @@ getKey (x:xs) (y:ys)
     | otherwise = False
 
 parseUntilBody :: String -> [PContent] -> Either String [PContent]
-parseUntilBody [] contenu = Left "No <body> tag found"
+parseUntilBody [] _ = Left "No <body> tag found"
 parseUntilBody str contenu 
     | getKey "<body>" str = parseBaseLoop ["section"] (getStrAfterKey "<body>" str) contenu
     | otherwise = parseUntilBody (tail str) contenu
 
-parseBody :: String -> IO (Either String [PContent])
-parseBody file_content = return $ parseUntilBody file_content []
+parseBody :: String -> Either String [PContent]
+parseBody file_content = parseUntilBody file_content []

@@ -7,8 +7,8 @@
 
 module ParseJson.ParseBody (parseBody) where
 import Content (PContent(..), PParagraph(..), PParagraphType(..), PText(..), PBold(..), PItalic(..), PCode(..), PTextType(..), PSection(..), PCodeBlock(..), PList(..), PItem(..), PItemType(..), PLink(..), PImage(..))
-import ParsingLib.Lib (strToWordArray, strcmp, nth, checkIsInString)
 import ParseJson.ParseFunction (notBracketChar, appendPContent, initPContent, lastPContent)
+import ParsingLib.Lib (strToWordArray, strcmp, nth, checkIsInString)
 
 -- Adding title to section
 
@@ -288,6 +288,6 @@ enterInSection dataParsing (x:xs) contenu
     | '{' `elem` x = parseBaseLoop dataParsing xs contenu
     | otherwise = Left "Error: Missing { in section"
 
-parseBody :: String -> IO (Either String [PContent])
-parseBody file_content 
-    = return $ enterInSection [] (strToWordArray "\"" "" file_content) []
+parseBody :: String -> Either String [PContent]
+parseBody file_content =
+    enterInSection [] (strToWordArray "\"" "" file_content) []

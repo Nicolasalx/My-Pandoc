@@ -6,20 +6,22 @@
 -}
 
 module ParseJson.ParseJson (parseJson) where
-import Content (PHeader(..), PBody(..))
+import Content (PHeader(..), PBody(..), PContent(..))
 import ParseJson.ParseHeader(parseHeader)
 import ParseJson.ParseBody(parseBody)
 
-parseJsonBody :: String -> PHeader -> IO (Either String (PHeader, PBody))
-parseJsonBody file_content pHeader = do
-    contentResult <- parseBody file_content
-    case contentResult of
-        Right pContent -> return $ Right (pHeader, PBody pContent)
-        Left err -> return $ Left err
+parseJsonBodyHelper :: Either String [PContent] -> PHeader -> Either String (PHeader, PBody)
+parseJsonBodyHelper (Left err) _ = Left err
+parseJsonBodyHelper (Right pContent) pHeader = Right (pHeader, PBody pContent)
 
-parseJson :: String -> IO (Either String (PHeader, PBody))
-parseJson file_content = do
-    headerResult <- parseHeader file_content
-    case headerResult of
-        Right pHeader -> parseJsonBody file_content pHeader
-        Left err -> return $ Left err
+parseJsonBody :: String -> PHeader -> Either String (PHeader, PBody)
+parseJsonBody file_content pHeader =
+    parseJsonBodyHelper (parseBody file_content) pHeader
+
+parseJsonHelper :: Either String PHeader -> String -> Either String (PHeader, PBody)
+parseJsonHelper (Left err) _ = Left err
+parseJsonHelper (Right pHeader) file_content = parseJsonBody file_content pHeader
+
+parseJson :: String -> Either String (PHeader, PBody)
+parseJson file_content = parseJsonHelper (parseHeader file_content) file_content
+

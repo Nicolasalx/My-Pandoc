@@ -16,5 +16,4 @@ main = do
     arg <- launchArgParsing
     file_content <- getFileContent arg
     res_parsing <- (launchParsing arg file_content)
-    -- print res_parsing
     exportInFile (out_file arg) (exportFormat res_parsing (out_format arg))
