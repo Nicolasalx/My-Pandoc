@@ -1,5 +1,6 @@
 module ParsingLib.Lib (parseString, strcmp, parseJsonKey, strToWordArray, nth, checkIsInString, searchSymbol, parseUntil, cleanLine, addParagraph) where
 import Data.Char (isSpace)
+import Data.List (stripPrefix)
 import Content (PContent(..), PText(..), PTextType(..), PParagraph(..), PParagraphType(..))
 
 type Parser a = String -> Maybe (a , String)
@@ -77,6 +78,16 @@ parseUntil target str
     | otherwise = do
         (parsed, rest) <- parseUntil target (tail str)
         return (head str:parsed, rest)
+
+parseUntilStr :: String -> String -> Maybe String
+parseUntilStr _ [] = Nothing
+parseUntilStr end str = extractUntil str
+  where
+    extractUntil [] = Nothing
+    extractUntil (x:xs)
+      | Just _ <- stripPrefix end (x:xs) = Just []
+      | Just result <- extractUntil xs = Just (x:result)
+      | otherwise = Nothing
 
 addParagraph :: String -> PContent -> PContent
 addParagraph str (PParagraphContent (PParagraph list)) = PParagraphContent (PParagraph (list ++ [PTextParagraph (PText [PString str])]))
