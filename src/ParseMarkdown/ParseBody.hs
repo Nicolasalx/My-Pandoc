@@ -18,6 +18,8 @@ parseBody dataParsing
       _ <- newDataParsed = Left err
     | Right contents <- parseResult,
       dataPars <- createText newDataParsed,
-      (newContent, _) <- tryAddParagraph dataPars contents = Right (PBody newContent)
+      (newContent, _) <- tryAddParagraph dataPars contents =
+        Right (PBody newContent)
     where
-        (parseResult, newDataParsed) = parseAllString (remainingLines dataParsing) dataParsing []
+        (parseResult, newDataParsed) =
+            parseAllString (remainingLines dataParsing) dataParsing []
