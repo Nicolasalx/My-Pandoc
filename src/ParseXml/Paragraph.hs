@@ -8,7 +8,7 @@ import Debug.Trace
 
 formatType :: [String] -> [PContent]
 formatType paragraphLines = do
-    trace ("paragraphLines: " ++ show paragraphLines) $ concatMap parseLine paragraphLines
+    $ concatMap parseLine paragraphLines
   where
     parseLine line = createParagraph : parseWords "" (strToWordArray "<>/=" "" line) False False False
 
@@ -59,11 +59,11 @@ removeParagraphEnd str
 
 stripTags :: String -> String
 stripTags str
-    | "<paragraph>" `isPrefixOf` strip str = trace "Stripping opening paragraph tag" $ strip (drop (length "<paragraph>") str)
-    | "</paragraph>" `isSuffixOf` strip str = trace "Stripping closing paragraph tag" $ strip (reverse $ drop (length "</paragraph>") $ reverse $ strip str)
-    | "<codeblock>" `isPrefixOf` strip str = trace "Stripping opening codeblock tag" $ strip (drop (length "<codeblock>") str)
-    | "<list>" `isPrefixOf` strip str = trace "Stripping opening list tag" $ strip (drop (length "<list>") str)
-    | otherwise = trace "No tags to strip" $ strip str
+    | "<paragraph>" `isPrefixOf` strip str = $ strip (drop (length "<paragraph>") str)
+    | "</paragraph>" `isSuffixOf` strip str = $ strip (reverse $ drop (length "</paragraph>") $ reverse $ strip str)
+    | "<codeblock>" `isPrefixOf` strip str = $ strip (drop (length "<codeblock>") str)
+    | "<list>" `isPrefixOf` strip str = $ strip (drop (length "<list>") str)
+    | otherwise = $ strip str
 
 strip :: String -> String
 strip = dropWhile isSpace . dropWhileEnd isSpace

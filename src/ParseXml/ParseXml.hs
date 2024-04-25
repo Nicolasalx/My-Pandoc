@@ -14,7 +14,7 @@ parseXmlBody :: String -> PHeader -> IO (Either String (PHeader, PBody))
 parseXmlBody file_content pHeader = do
     bodyResult <- parseBody file_content
     case bodyResult of
-        Right pBody -> return $ Right (pHeader, pBody)
+        Right pContent -> return $ Right (pHeader, PBody pContent)
         Left err -> return $ Left err
 
 parseXml :: String -> IO (Either String (PHeader, PBody))
