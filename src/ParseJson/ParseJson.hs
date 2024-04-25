@@ -7,8 +7,8 @@
 
 module ParseJson.ParseJson (parseJson) where
 import Content (PHeader(..), PBody(..), PContent(..))
-import ParseJson.ParseHeader(parseHeader)
 import ParseJson.ParseBody(parseBody)
+import ParseJson.ParseHeader(parseHeader)
 
 parseJsonBodyHelper :: Either String [PContent] -> PHeader -> Either String (PHeader, PBody)
 parseJsonBodyHelper (Left err) _ = Left err
@@ -20,8 +20,10 @@ parseJsonBody file_content pHeader =
 
 parseJsonHelper :: Either String PHeader -> String -> Either String (PHeader, PBody)
 parseJsonHelper (Left err) _ = Left err
-parseJsonHelper (Right pHeader) file_content = parseJsonBody file_content pHeader
+parseJsonHelper (Right pHeader) file_content =
+    parseJsonBody file_content pHeader
 
 parseJson :: String -> Either String (PHeader, PBody)
-parseJson file_content = parseJsonHelper (parseHeader file_content) file_content
+parseJson file_content =
+    parseJsonHelper (parseHeader file_content) file_content
 

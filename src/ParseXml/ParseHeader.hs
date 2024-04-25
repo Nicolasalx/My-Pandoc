@@ -6,8 +6,8 @@
 -}
 
 module ParseXml.ParseHeader (fillPHeader) where
-import ParsingLib.Lib (parseString)
 import Content (PHeader(..))
+import ParsingLib.Lib (parseString)
 import ParsingLib.Lib (parseUntil, cleanLine)
 
 fillPHeader :: [String] -> Either String PHeader

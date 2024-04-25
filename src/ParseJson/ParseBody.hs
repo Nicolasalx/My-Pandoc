@@ -144,7 +144,7 @@ parseTextList s (x:xs) contenu
     = parseParagraph (last s) s (x:xs) contenu
     | last s == "incodeblock" = parseCodeBlock s (x:xs) contenu
     | last s == "inlist" = parseList s (x:xs) contenu
-    | last s == "content" = parseParagraph "text" s (x:xs) 
+    | last s == "content" = parseParagraph "text" s (x:xs)
     (appendPContent s (PParagraphContent (PParagraph [])) contenu)
     | otherwise = Left "No key found"
 
@@ -178,7 +178,7 @@ parseTextCodeBlock state ("list":xs) contenu
     | last state == "?" = parseSymbol ((init state) ++ ["beforeList"]) xs
     (appendPContent state (PListContent (PList [])) contenu)
 parseTextCodeBlock state ("link":xs) contenu
-    | last state == "?" = parseParagraph "link" 
+    | last state == "?" = parseParagraph "link"
     ((init state) ++ ["beforeLink"]) ("link":xs) contenu
 parseTextCodeBlock state (x:xs) contenu = parseTextLink state (x:xs) contenu
 

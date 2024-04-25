@@ -1,9 +1,16 @@
+{-
+-- EPITECH PROJECT, 2024
+-- B-FUN-400-PAR-4-1-mypandoc-thibaud.cathala
+-- File description:
+-- ParseBody
+-}
+
 module ParseXml.ParseBody (parseBody) where
 
-import Content (PContent(..), PParagraph(..), PParagraphType(..), PText(..), PBold(..), PItalic(..), PCode(..), PTextType(..), PSection(..), PCodeBlock(..), PList(..), PItem(..), PItemType(..), PLink(..), PImage(..))
--- import ParsingLib.Lib (strToWordArray, strcmp, nth, checkIsInString)
+import Content (PContent(..), PParagraph(..), PParagraphType(..), PText(..),
+    PBold(..), PItalic(..), PCode(..), PTextType(..), PSection(..),
+    PCodeBlock(..), PList(..), PItem(..), PItemType(..), PLink(..), PImage(..))
 import ParseJson.ParseFunction (appendPContent, initPContent, lastPContent)
--- import Debug.Trace
 
 -- parsing title
 
@@ -15,60 +22,63 @@ addTitle _ _ = PSectionContent (PSection {title = "", section_content = []})
 
 parseTitle :: [String] -> String -> String -> [PContent] -> Either String [PContent]
 parseTitle _ _ [] _ = Left "Error: Missing symbol in title"
-parseTitle state str suite contenu = parseBaseLoop (state ++ ["section"]) (getStrAfterKey ">" suite) (appendPContent state 
-    (addTitle (getStrUntil '"' str "") (lastPContent state contenu)) 
-    ((initPContent state contenu)))
+parseTitle state str suite contenu =
+    parseBaseLoop (state ++ ["section"]) (getStrAfterKey ">" suite)
+    (appendPContent state
+        (addTitle (getStrUntil '"' str "") (lastPContent state contenu)) 
+        ((initPContent state contenu)))
 
 -- parsing paragraph
 
 addParagraph :: String -> String -> PContent -> PContent
-addParagraph "text" str (PParagraphContent (PParagraph list)) 
-    = PParagraphContent $ PParagraph $ list ++ [PTextParagraph 
+addParagraph "text" str (PParagraphContent (PParagraph list)) =
+    PParagraphContent $ PParagraph $ list ++ [PTextParagraph 
     (PText [PString str])]
-addParagraph "bold" str (PParagraphContent (PParagraph list)) 
-    = PParagraphContent $ PParagraph $ list ++ [PTextParagraph 
+addParagraph "bold" str (PParagraphContent (PParagraph list)) =
+    PParagraphContent $ PParagraph $ list ++ [PTextParagraph 
     (PText [PBoldText (PBold [PString str])])]
-addParagraph "italic" str (PParagraphContent (PParagraph list)) 
-    = PParagraphContent $ PParagraph $ list ++ [PTextParagraph 
+addParagraph "italic" str (PParagraphContent (PParagraph list)) =
+    PParagraphContent $ PParagraph $ list ++ [PTextParagraph
     (PText [PItalicText (PItalic [PString str])])]
-addParagraph "code" str (PParagraphContent (PParagraph list)) 
-    = PParagraphContent $ PParagraph $ list ++ [PTextParagraph 
+addParagraph "code" str (PParagraphContent (PParagraph list)) =
+    PParagraphContent $ PParagraph $ list ++ [PTextParagraph
     (PText [PCodeText (PCode [PString str])])]
-addParagraph "link" _ (PParagraphContent (PParagraph list)) 
-    = PParagraphContent $ PParagraph $ list ++ [PLinkParagraph 
+addParagraph "link" _ (PParagraphContent (PParagraph list)) =
+    PParagraphContent $ PParagraph $ list ++ [PLinkParagraph
     (PLink {link_url = "", content = PText []})]
-addParagraph "image" _ (PParagraphContent (PParagraph list)) 
-    = PParagraphContent $ PParagraph $ list ++ [PImageParagraph 
+addParagraph "image" _ (PParagraphContent (PParagraph list)) =
+    PParagraphContent $ PParagraph $ list ++ [PImageParagraph
     (PImage {image_url = "", alt = PText []})]
 addParagraph _ _ _ = PParagraphContent $ PParagraph []
 
 parseParagraph :: String -> [String] -> String -> String -> [PContent] -> Either String [PContent]
 parseParagraph _ _ _ [] contenu = Right contenu 
-parseParagraph typeStr state paragraph suite contenu 
-    = parseBaseLoop state suite (appendPContent state 
-    (addParagraph typeStr paragraph (lastPContent state contenu))
-    ((initPContent state contenu)))
+parseParagraph typeStr state paragraph suite contenu =
+    parseBaseLoop state suite (appendPContent state 
+        (addParagraph typeStr paragraph (lastPContent state contenu))
+        ((initPContent state contenu)))
 
 -- Parsing codeblock
 
 addCodeBlock :: String -> PContent -> PContent
-addCodeBlock str (PCodeBlockContent (PCodeBlock list)) 
-    = PCodeBlockContent $ PCodeBlock $ list ++ [str]
+addCodeBlock str (PCodeBlockContent (PCodeBlock list)) =
+    PCodeBlockContent $ PCodeBlock $ list ++ [str]
 addCodeBlock _ _ = PCodeBlockContent $ PCodeBlock []
 
 parseCodeBlock :: [String] -> String -> String -> [PContent] -> Either String [PContent]
 parseCodeBlock _ _ [] _ = Left "Error: Missing symbol in codeblock"
-parseCodeBlock state str suite contenu = parseBaseLoop state suite (appendPContent state 
-    (addCodeBlock str (lastPContent state contenu))
-    ((initPContent state contenu)))
+parseCodeBlock state str suite contenu =
+    parseBaseLoop state suite (appendPContent state
+        (addCodeBlock str (lastPContent state contenu))
+        ((initPContent state contenu)))
 
 -- parsing link
 
 getLinkUrl :: String -> PParagraphType -> PParagraphType
-getLinkUrl str (PLinkParagraph (PLink {link_url = "", content = contenu})) 
+getLinkUrl str (PLinkParagraph (PLink {link_url = "", content = contenu}))
     = PLinkParagraph (PLink {link_url = str, content = contenu})
 getLinkUrl str (PLinkParagraph 
-    (PLink {link_url = theTitle, content = PText []})) 
+    (PLink {link_url = theTitle, content = PText []}))
     = PLinkParagraph 
     (PLink {link_url = theTitle, content = PText [PString str]})
 getLinkUrl _ _ = PLinkParagraph (PLink {link_url = "", content = PText []})
@@ -82,8 +92,8 @@ addLinkUrl _ _ = PParagraphContent $ PParagraph []
 parseLinkUrl :: [String] -> String -> String -> [PContent] -> Either String [PContent]
 parseLinkUrl _ _ [] _ = Left "Error: Missing symbol in link"
 parseLinkUrl state link suite contenu = parseBaseLoop state suite
-    (appendPContent state (addLinkUrl link (lastPContent state contenu)) 
-    ((initPContent state contenu)))
+    (appendPContent state (addLinkUrl link (lastPContent state contenu))
+        ((initPContent state contenu)))
 
 -- parsing image
 
@@ -105,22 +115,22 @@ addImageUrl _ _ = PParagraphContent $ PParagraph []
 parseImageUrl :: [String] -> String -> String -> [PContent] -> Either String [PContent]
 parseImageUrl _ _ [] _ = Left "Error: Missing symbol in image"
 parseImageUrl state link suite contenu = parseBaseLoop state suite
-    (appendPContent state (addImageUrl link (lastPContent state contenu)) 
-    ((initPContent state contenu)))
+    (appendPContent state (addImageUrl link (lastPContent state contenu))
+        ((initPContent state contenu)))
 
 -- parsing list
 
 addList :: String -> PContent -> PContent
-addList str (PListContent (PList list)) = 
-    PListContent $ PList $ list ++ [PItem [(PParagraphItem 
-    (PParagraph [PTextParagraph (PText [PString str])]))]]
+addList str (PListContent (PList list)) =
+    PListContent $ PList $ list ++ [PItem [(PParagraphItem
+        (PParagraph [PTextParagraph (PText [PString str])]))]]
 addList _ _ = PListContent $ PList []
 
 parseList :: [String] -> String -> String -> [PContent] -> Either String [PContent]
 parseList _ _ [] _ = Left "Error: Missing symbol in image"
-parseList state str suite contenu = parseBaseLoop state suite 
-    (appendPContent state (addList str (lastPContent state contenu)) 
-    ((initPContent state contenu)))
+parseList state str suite contenu = parseBaseLoop state suite
+    (appendPContent state (addList str (lastPContent state contenu))
+        ((initPContent state contenu)))
 
 -- parsing loop
 
@@ -198,7 +208,8 @@ getKey (x:xs) (y:ys)
 parseUntilBody :: String -> [PContent] -> Either String [PContent]
 parseUntilBody [] _ = Left "No <body> tag found"
 parseUntilBody str contenu 
-    | getKey "<body>" str = parseBaseLoop ["section"] (getStrAfterKey "<body>" str) contenu
+    | getKey "<body>" str =
+        parseBaseLoop ["section"] (getStrAfterKey "<body>" str) contenu
     | otherwise = parseUntilBody (tail str) contenu
 
 parseBody :: String -> Either String [PContent]

@@ -1,3 +1,10 @@
+{-
+-- EPITECH PROJECT, 2024
+-- B-FUN-400-PAR-4-1-mypandoc-thibaud.cathala
+-- File description:
+-- Lib
+-}
+
 module ParsingLib.Lib (parseString, strcmp, parseJsonKey, strToWordArray, nth, checkIsInString, searchSymbol, parseUntil, cleanLine) where
 import Data.Char (isSpace)
 
@@ -11,8 +18,8 @@ type Parser a = String -> Maybe (a , String)
 parseString :: String -> Parser String
 parseString [] input = Just ([], input)
 parseString (s:str) (x:xs)
-  | s == x, Just (parsed, rest) <- parseString str xs = Just (s:parsed, rest)
-  | otherwise = Nothing
+    | s == x, Just (parsed, rest) <- parseString str xs = Just (s:parsed, rest)
+    | otherwise = Nothing
 parseString _ _ = Nothing
 
 strToWordArray2 :: String -> Char -> Bool
@@ -48,10 +55,10 @@ parseJsonKey :: [String] -> Int -> Parser String
 parseJsonKey [] _ _ = Nothing
 parseJsonKey _ _ [] = Nothing
 parseJsonKey (x:xs) n input
-  | strcmp x input && n == 2 = parseJsonKey xs (n-1) input
-  | n == 1 && ':' `elem` x = parseJsonKey xs (n-1) input
-  | n == 0 && length x > 0 = Just (input, x)
-  | otherwise = Nothing
+    | strcmp x input && n == 2 = parseJsonKey xs (n-1) input
+    | n == 1 && ':' `elem` x = parseJsonKey xs (n-1) input
+    | n == 0 && length x > 0 = Just (input, x)
+    | otherwise = Nothing
 
 nth :: Int -> [String] -> [String]
 nth _ [] = []
@@ -64,7 +71,7 @@ searchSymbol _ [] = False
 searchSymbol (x:xs) (y:ys)
     | x == y = searchSymbol xs ys
     | otherwise = searchSymbol (x:xs) ys
-    
+
 cleanLine :: String -> Maybe String
 cleanLine [] = Nothing
 cleanLine str = Just $ dropWhile isSpace str
@@ -72,7 +79,8 @@ cleanLine str = Just $ dropWhile isSpace str
 parseUntil :: String -> String -> Maybe (String, String)
 parseUntil _ "" = Nothing
 parseUntil target str
-    | strcmp target (take (length target) str) = Just ("", drop (length target) str)
+    | strcmp target (take (length target) str) =
+        Just ("", drop (length target) str)
     | otherwise = do
         (parsed, rest) <- parseUntil target (tail str)
         return (head str:parsed, rest)
