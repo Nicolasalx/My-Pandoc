@@ -79,15 +79,15 @@ parseUntil target str
         (parsed, rest) <- parseUntil target (tail str)
         return (head str:parsed, rest)
 
-parseUntilStr :: String -> String -> Maybe String
-parseUntilStr _ [] = Nothing
+parseUntilStr :: String -> String -> (Maybe String, String)
+parseUntilStr _ [] = (Nothing, [])
 parseUntilStr end str = extractUntil str
   where
-    extractUntil [] = Nothing
+    extractUntil [] = (Nothing, [])
     extractUntil (x:xs)
-      | Just _ <- stripPrefix end (x:xs) = Just []
-      | Just result <- extractUntil xs = Just (x:result)
-      | otherwise = Nothing
+      | Just _ <- stripPrefix end (x:xs) = (Just [], xs)
+      | (Just result, rest) <- extractUntil xs = (Just (x:result), rest)
+      | otherwise = (Nothing, str)
 
 addParagraph :: String -> PContent -> PContent
 addParagraph str (PParagraphContent (PParagraph list)) = PParagraphContent (PParagraph (list ++ [PTextParagraph (PText [PString str])]))
