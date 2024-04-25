@@ -171,7 +171,7 @@ parseBaseLoop state str contenu
     | getKey "</body>" str = parseBaseLoop state (getStrAfterKey "</body>" str) contenu
     | getKey "</document>" str = parseBaseLoop state (getStrAfterKey "</document>" str) contenu
     | head str == ' ' || head str == '\n' = parseBaseLoop state (tail str) contenu
-    | otherwise = Left str
+    | otherwise = Left "Error: Unknown symbol"
 
 -- parsing base
 
@@ -189,8 +189,8 @@ getStrAfterKey (x:xs) (y:ys)
     | otherwise = getStrAfterKey (x:xs) ys
 
 getKey :: String -> String -> Bool
-getKey _ [] = False
 getKey [] _ = True
+getKey _ [] = False
 getKey (x:xs) (y:ys)
     | x == y = getKey xs ys
     | otherwise = False
