@@ -72,9 +72,17 @@ library
       ParseMarkdown.ParseHeader
       ParseMarkdown.ParseMarkdown
       ParseMarkdown.ParseOneChar
+      ParseXml.CodeBlock
+      ParseXml.List
+      ParseXml.Paragraph
       ParseXml.ParseBody
       ParseXml.ParseHeader
       ParseXml.ParseXml
+      ParseXml.Sections
+      ParseXmlNew.DataStructXml
+      ParseXmlNew.ParseBody
+      ParseXmlNew.ParseHeader
+      ParseXmlNew.ParseXmlNew
       ParsingLib.AppendElemToDataStruct
       ParsingLib.Lib
       PrintError

@@ -16,7 +16,8 @@ import ExportFormat.AddLineBreak (addLineBreak)
 exportBodyHelper :: PBody -> ExportFormat -> ExportData -> String
 exportBodyHelper (PBody list) JSON exportData =
     addIndent (indent_ exportData) ++ "\"body\": [\n"
-    ++ addLineBreak (mapExport (\line -> exportContent line (exportData {indent_ = (indent_ exportData) + 1})) ",\n" list)
+    ++ addLineBreak (mapExport (\line -> exportContent line
+        (exportData {indent_ = (indent_ exportData) + 1})) ",\n" list)
     ++ addIndent (indent_ exportData) ++ "]\n"
 
 exportBodyHelper (PBody list) XML exportData =

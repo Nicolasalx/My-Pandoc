@@ -51,8 +51,8 @@ jobs:
             chown -R $(id -un):$(id -gn) ~
             set +e
 
-            ./Test.sh
-            output=$(./Test.sh)
+            ./Test.sh ALL
+            output=$(./Test.sh ALL)
             fail_count=$(echo "$output" | grep -o "FAIL" | wc -l)
 
             if [ "$fail_count" -gt 0 ]; then

@@ -23,7 +23,8 @@ exportImage (PImage url alt_) JSON indent =
     ++ addIndent (indent) ++ "}"
 
 exportImage (PImage url alt_) XML _ =
-    "<image url=\"" ++ url ++ "\">" ++ exportText alt_ XML 0 False ++ "</image>"
+    "<image url=\"" ++ url ++ "\">"
+        ++ exportText alt_ XML 0 False ++ "</image>"
 
 exportImage (PImage url alt_) MD _ =
     "![" ++ exportText alt_ MD 0 False ++ "](" ++ url ++ ")"

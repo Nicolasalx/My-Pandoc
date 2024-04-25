@@ -29,7 +29,8 @@ exportSectionType (PSection title_ content) JSON exportData =
 
 exportSectionType (PSection title_ content) XML exportData =
     addIndent (indent_ exportData) ++ "<section title=\"" ++ title_ ++ "\">\n"
-    ++ concatMap (\line -> exportContent line (exportData {indent_ = (indent_ exportData) + 1})) content
+    ++ concatMap (\line -> exportContent line
+        (exportData {indent_ = (indent_ exportData) + 1})) content
     ++ addIndent (indent_ exportData) ++ "</section>\n"
 
 exportSectionType (PSection title_ content) MD exportData
