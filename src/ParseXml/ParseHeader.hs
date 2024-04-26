@@ -20,9 +20,12 @@ parseEachHeaderLine :: [String] -> PHeader -> Either String PHeader
 parseEachHeaderLine [] _ = Left "Error: No closing bracket found"
 parseEachHeaderLine (x:xs) pHeader
     | "document" `isInfixOf` x = parseEachHeaderLine xs pHeader
-    | "header title" `isInfixOf` x = parseEachHeaderLine xs pHeader { header_title = head xs }
-    | "author" `isPrefixOf` x = parseEachHeaderLine xs pHeader { author = Just (head xs) }
-    | "date" `isPrefixOf` x = parseEachHeaderLine xs pHeader { date = Just (head xs) }
+    | "header title" `isInfixOf` x =
+        parseEachHeaderLine xs pHeader { header_title = head xs }
+    | "author" `isPrefixOf` x =
+        parseEachHeaderLine xs pHeader { author = Just (head xs) }
+    | "date" `isPrefixOf` x =
+        parseEachHeaderLine xs pHeader { date = Just (head xs) }
     | "/header" `isInfixOf` x = Right pHeader
     | otherwise = parseEachHeaderLine xs pHeader
 
