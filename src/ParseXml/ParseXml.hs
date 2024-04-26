@@ -8,10 +8,9 @@
 module ParseXml.ParseXml (parseXml) where
 import Content (PHeader(..), PBody(..), PContent(..))
 import ParseXml.ParseBody(parseBody)
-import ParseXml.ParseHeader(fillPHeader)
+import ParseXml.ParseHeader(parseHeader)
 
-parseXmlBodyHelper :: Either String [PContent] -> PHeader
-    -> Either String (PHeader, PBody)
+parseXmlBodyHelper :: Either String [PContent] -> PHeader -> Either String (PHeader, PBody)
 parseXmlBodyHelper (Left err) _ = Left err
 parseXmlBodyHelper (Right pContent) pHeader = Right (pHeader, PBody pContent)
 
@@ -19,10 +18,12 @@ parseXmlBody :: String -> PHeader -> Either String (PHeader, PBody)
 parseXmlBody file_content pHeader =
     parseXmlBodyHelper (parseBody file_content) pHeader
 
-parseXmlHelper :: String -> Either String PHeader -> Either String (PHeader, PBody)
-parseXmlHelper _ (Left err) = Left err
-parseXmlHelper file_content (Right header) = parseXmlBody file_content header
+parseXmlHelper :: Either String PHeader -> String -> Either String (PHeader, PBody)
+parseXmlHelper (Left err) _ = Left err
+parseXmlHelper (Right pHeader) file_content =
+    parseXmlBody file_content pHeader
 
 parseXml :: String -> Either String (PHeader, PBody)
 parseXml file_content =
-    parseXmlHelper file_content (fillPHeader (lines file_content))
+    parseXmlHelper (parseHeader file_content) file_content
+
