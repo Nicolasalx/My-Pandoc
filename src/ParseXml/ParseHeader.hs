@@ -11,7 +11,6 @@ import ParsingLib.Lib (strcmp, parseJsonKey, strToWordArray, nth)
 import Data.List (isInfixOf, isPrefixOf)
 import Debug.Trace (trace)
 
-<<<<<<< HEAD
 checkTitle :: PHeader -> Either String PHeader
 checkTitle pHeader
     | header_title pHeader == "" = Left "Error: No title found in header"
@@ -37,27 +36,3 @@ searchForHeader (x:xs)
 parseHeader :: String -> Either String PHeader
 parseHeader [] = Left "Empty file"
 parseHeader (x:xs) = searchForHeader (strToWordArray "<>=\"" "" (x:xs))
-=======
-fillPHeader :: [String] -> Either String PHeader
-fillPHeader [] = Right PHeader
-  { header_title = "", author = Nothing, date = Nothing }
-fillPHeader (x:xs)
-    | Just cleanedLine <- cleanLine x,
-      Just ("<header title=\"", value) <-
-        parseString "<header title=\"" cleanedLine,
-      Just (title, _) <- parseUntil "\">" value,
-      Right header <- fillPHeader xs =
-          Right header { header_title = title }
-    | Just cleanedLine <- cleanLine x,
-      Just ("<author>", value) <- parseString "<author>" cleanedLine,
-      Just (authorResult, _) <- parseUntil "</author>" value,
-      Right header <- fillPHeader xs =
-          Right header { author = Just authorResult }
-    | Just cleanedLine <- cleanLine x,
-      Just ("<date>", value) <- parseString "<date>" cleanedLine,
-      Just (dateResult, _) <- parseUntil "</date>" value,
-      Right header <- fillPHeader xs =
-          Right header { date = Just dateResult }
-    | elem '<' x = fillPHeader xs
-    | otherwise = Left "Erreur : Format d'en-tête invalide ou champ invalide"
->>>>>>> 621a0a5cb8ceecb22cdfb2295d78bc9ef84dc59e
