@@ -43,7 +43,6 @@ checkIsInString (x:xs) str
     | x `elem` str = True
     | otherwise = checkIsInString xs str
 
-
 strcmp :: Eq a => [a] -> [a] -> Bool
 strcmp [] _ = True
 strcmp _ [] = False
@@ -53,12 +52,16 @@ strcmp (x:xs) (y:ys)
 
 parseJsonKey :: [String] -> Int -> Parser String
 parseJsonKey [] _ _ = Nothing
-parseJsonKey _ _ [] = Nothing
-parseJsonKey (x:xs) n input
-    | strcmp x input && n == 2 = parseJsonKey xs (n-1) input
-    | n == 1 && ':' `elem` x = parseJsonKey xs (n-1) input
-    | n == 0 && length x > 0 = Just (input, x)
+parseJsonKey (x:xs) 2 input
+    | strcmp x input = parseJsonKey xs 1 input
     | otherwise = Nothing
+parseJsonKey (x:xs) 1 input
+    | ':' `elem` x = parseJsonKey xs 0 input
+    | otherwise    = Nothing
+parseJsonKey (x:_) 0 input
+    | not (null x) = Just (input, x)
+    | otherwise    = Nothing
+parseJsonKey _ _ _ = Nothing
 
 nth :: Int -> [String] -> [String]
 nth _ [] = []
