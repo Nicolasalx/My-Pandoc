@@ -11,10 +11,12 @@ import ParsingLib.Lib (parseString)
 import ParsingLib.Lib (parseUntil, cleanLine)
 
 fillPHeader :: [String] -> Either String PHeader
-fillPHeader [] = Right PHeader { header_title = "", author = Nothing, date = Nothing }
+fillPHeader [] = Right PHeader
+  { header_title = "", author = Nothing, date = Nothing }
 fillPHeader (x:xs)
     | Just cleanedLine <- cleanLine x,
-      Just ("<header title=\"", value) <- parseString "<header title=\"" cleanedLine,
+      Just ("<header title=\"", value) <-
+        parseString "<header title=\"" cleanedLine,
       Just (title, _) <- parseUntil "\">" value,
       Right header <- fillPHeader xs =
           Right header { header_title = title }
