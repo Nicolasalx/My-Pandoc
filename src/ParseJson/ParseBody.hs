@@ -144,6 +144,12 @@ parseTextList s (x:xs) contenu
     = parseParagraph (last s) s (x:xs) contenu
     | last s == "incodeblock" = parseCodeBlock s (x:xs) contenu
     | last s == "codeblock" = parseCodeBlock s (x:xs) contenu
+    | otherwise = parseTextList2 s (x:xs) contenu
+
+parseTextList2 :: [String] -> [String] -> [PContent] -> Either String [PContent]
+parseTextList2 [] _ _ = Left "Error: Missing symbol in text"
+parseTextList2 _ [] _ = Left "Error: Missing } in text"
+parseTextList2 s (x:xs) contenu
     | last s == "inlist" = parseList s (x:xs) contenu
     | last s == "list" = parseList s (x:xs) contenu
     | last s == "content" = parseParagraph "text" s (x:xs)
