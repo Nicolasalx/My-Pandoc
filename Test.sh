@@ -143,6 +143,20 @@ test_json()
         test_return_84
     done
 
+    echo -e "\n\e[1mTest JSON Implicit paragraph file:\e[0m\n"
+
+    for file in example_file/simple_correct_file/json/implicit_paragraph/*
+    do
+        if [[ -d $file ]]; then
+            continue
+        fi
+        test_name "File: $file"
+        ./mypandoc -i $file -f json -o "output_test/"${i_test}"_test.json"
+        silent_test_return_0
+        colordiff -u "example_file/simple_correct_file/json/$(basename $file)" "output_test/"${i_test}"_test.json"
+        test_return_0
+    done
+
     display_progress_bar $NB_PASSED_TEST $NB_TEST
 }
 
