@@ -40,7 +40,6 @@ library
       ExportInFile
       LaunchParsing
       ParseJson.ParseBody
-      ParseJson.ParseFunction
       ParseJson.ParseHeader
       ParseJson.ParseJson
       ParseMarkdown.DataStructMarkdown
@@ -71,12 +70,32 @@ library
       ParseMarkdown.ParseElem.TryAddElem
       ParseMarkdown.ParseHeader
       ParseMarkdown.ParseMarkdown
-      ParseMarkdown.ParseOneChar
       ParseXml.ParseBody
       ParseXml.ParseHeader
       ParseXml.ParseXml
+      ParsingLib.AddBasicCharToActualList
+      ParsingLib.AddCharToActualList
+      ParsingLib.AddNewPContent
       ParsingLib.AppendElemToDataStruct
-      ParsingLib.Lib
+      ParsingLib.AppendElemToList
+      ParsingLib.AppendPContent
+      ParsingLib.CheckIsInString
+      ParsingLib.CheckLastContent
+      ParsingLib.CleanLine
+      ParsingLib.GetLastPContent
+      ParsingLib.GetLastPSection
+      ParsingLib.InitPContent
+      ParsingLib.LastPContent
+      ParsingLib.NotBracketChar
+      ParsingLib.Nth
+      ParsingLib.ParseJsonKey
+      ParsingLib.ParseOneChar
+      ParsingLib.ParseString
+      ParsingLib.RetrieveTitle
+      ParsingLib.RmLastPContent
+      ParsingLib.SearchSymbol
+      ParsingLib.Strcmp
+      ParsingLib.StrToWordArray
       PrintError
   other-modules:
       Paths_mypandoc

@@ -10,7 +10,9 @@ module ParseXml.ParseBody (parseBody) where
 import Content (PContent(..), PParagraph(..), PParagraphType(..), PText(..),
     PBold(..), PItalic(..), PCode(..), PTextType(..), PSection(..),
     PCodeBlock(..), PList(..), PItem(..), PItemType(..), PLink(..), PImage(..))
-import ParseJson.ParseFunction (appendPContent, initPContent, lastPContent)
+import ParsingLib.AppendPContent (appendPContent)
+import ParsingLib.InitPContent (initPContent)
+import ParsingLib.LastPContent (lastPContent)
 
 -- parsing title
 

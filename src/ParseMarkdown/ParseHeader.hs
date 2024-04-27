@@ -6,7 +6,7 @@
 -}
 
 module ParseMarkdown.ParseHeader (parseHeader) where
-import ParsingLib.Lib (parseString)
+import ParsingLib.ParseString (parseString)
 import Content (PHeader(..))
 import ParseMarkdown.DataStructMarkdown (DataParsing(..))
 import ParseMarkdown.ParseElem.SkipSpaces (skipSpaces)

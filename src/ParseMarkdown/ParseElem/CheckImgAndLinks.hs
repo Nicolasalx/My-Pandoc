@@ -8,8 +8,8 @@
 module ParseMarkdown.ParseElem.CheckImgAndLinks (checkImgAndLink) where
 import ParseMarkdown.DataStructMarkdown (DataParsing(..))
 import Content ()
-import ParsingLib.Lib (parseString)
-import ParseMarkdown.ParseOneChar (parseOneChar)
+import ParsingLib.ParseString (parseString)
+import ParsingLib.ParseOneChar (parseOneChar)
 
 checkImgAndLink :: Char -> String -> DataParsing -> (DataParsing, String)
 checkImgAndLink c str dataParsing

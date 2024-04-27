@@ -8,10 +8,10 @@
 module ParseMarkdown.ParseElem.ParseEachString (parseEachString) where
 import ParseMarkdown.DataStructMarkdown (DataParsing(..), TypeToAdd(..))
 import Content (PContent(..))
-import ParsingLib.Lib (strcmp)
+import ParsingLib.Strcmp (strcmp)
 import ParseMarkdown.ParseElem.CheckImgAndLinks (checkImgAndLink)
-import ParseMarkdown.ParseOneChar (parseOneChar)
-import ParsingLib.Lib (parseString)
+import ParsingLib.ParseOneChar (parseOneChar)
+import ParsingLib.ParseString (parseString)
 import ParseMarkdown.ParseElem.Paragraph (tryAddParagraph)
 import ParseMarkdown.ParseElem.Section (createSection)
 import ParseMarkdown.ParseElem.Codeblock (tryAddCodeBlock, parseStartCodeBlock)

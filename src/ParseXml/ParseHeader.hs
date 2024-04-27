@@ -7,7 +7,7 @@
 
 module ParseXml.ParseHeader (parseHeader) where
 import Content (PHeader(..))
-import ParsingLib.Lib (strToWordArray)
+import ParsingLib.StrToWordArray (strToWordArray)
 import Data.List (isInfixOf, isPrefixOf)
 
 checkTitle :: PHeader -> Either String PHeader

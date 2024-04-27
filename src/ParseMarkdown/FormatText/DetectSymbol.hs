@@ -18,7 +18,7 @@ import ParseMarkdown.FormatText.TextType.Code (
     symbolCodedAlreadyOpen,
     symbolCodeNotOpen)
 import ParseMarkdown.FormatText.TryAddBasicList (parseBasicChar)
-import ParsingLib.Lib (parseString)
+import ParsingLib.ParseString (parseString)
 
 checkBold :: String -> DataText -> (String, DataText)
 checkBold str dataText

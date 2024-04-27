@@ -9,7 +9,7 @@ module ParseMarkdown.ParseElem.Item (createItem, tryAddItem) where
 import ParseMarkdown.DataStructMarkdown (DataParsing(..), TypeToAdd(..))
 import Content (PContent(..), PParagraph(..), PItemType(..), PItem(..))
 import ParseMarkdown.ParseElem.SkipSpaces (skipSpaces)
-import ParsingLib.Lib (parseString)
+import ParsingLib.ParseString (parseString)
 import ParseMarkdown.FormatText.CreateText (formattingElemParagraph)
 import ParseMarkdown.ParseElem.Paragraph (createParagraph)
 

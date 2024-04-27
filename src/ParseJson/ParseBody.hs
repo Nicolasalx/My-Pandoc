@@ -7,8 +7,14 @@
 
 module ParseJson.ParseBody (parseBody) where
 import Content (PContent(..), PParagraph(..), PParagraphType(..), PText(..), PBold(..), PItalic(..), PCode(..), PTextType(..), PSection(..), PCodeBlock(..), PList(..), PItem(..), PItemType(..), PLink(..), PImage(..))
-import ParseJson.ParseFunction (notBracketChar, appendPContent, initPContent, lastPContent)
-import ParsingLib.Lib (strToWordArray, strcmp, nth, checkIsInString)
+import ParsingLib.AppendPContent (appendPContent)
+import ParsingLib.NotBracketChar (notBracketChar)
+import ParsingLib.InitPContent (initPContent)
+import ParsingLib.LastPContent (lastPContent)
+import ParsingLib.StrToWordArray (strToWordArray)
+import ParsingLib.Nth (nth)
+import ParsingLib.CheckIsInString (checkIsInString)
+import ParsingLib.Strcmp (strcmp)
 
 -- Adding title to section
 

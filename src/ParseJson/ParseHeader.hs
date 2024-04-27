@@ -7,7 +7,10 @@
 
 module ParseJson.ParseHeader (parseHeader) where
 import Content (PHeader(..))
-import ParsingLib.Lib (strcmp, parseJsonKey, strToWordArray, nth)
+import ParsingLib.StrToWordArray (strToWordArray)
+import ParsingLib.Strcmp (strcmp)
+import ParsingLib.Nth (nth)
+import ParsingLib.ParseJsonKey (parseJsonKey)
 
 searchForHeader :: [String] -> Int -> Either String PHeader
 searchForHeader [] _ = Left "Error: No header found after bracket"

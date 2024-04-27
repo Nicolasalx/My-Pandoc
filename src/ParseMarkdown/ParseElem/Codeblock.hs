@@ -10,7 +10,7 @@ module ParseMarkdown.ParseElem.Codeblock (
     parseStartCodeBlock) where
 import ParseMarkdown.DataStructMarkdown (DataParsing(..))
 import Content (PContent(..), PCodeBlock(..))
-import ParsingLib.Lib (parseString)
+import ParsingLib.ParseString (parseString)
 import ParseMarkdown.ParseElem.InsertInSection (checkInsertSection)
 
 startsWithThreeBackticksAndSpaces :: String -> Bool
