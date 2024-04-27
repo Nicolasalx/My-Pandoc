@@ -143,7 +143,9 @@ parseTextList s (x:xs) contenu
     | (last s == "bold" || last s == "italic" || last s == "code")
     = parseParagraph (last s) s (x:xs) contenu
     | last s == "incodeblock" = parseCodeBlock s (x:xs) contenu
+    | last s == "codeblock" = parseCodeBlock s (x:xs) contenu
     | last s == "inlist" = parseList s (x:xs) contenu
+    | last s == "list" = parseList s (x:xs) contenu
     | last s == "content" = parseParagraph "text" s (x:xs)
     (appendPContent s (PParagraphContent (PParagraph [])) contenu)
     | otherwise = Left "No key found"
