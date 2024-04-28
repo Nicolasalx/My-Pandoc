@@ -9,6 +9,6 @@ module ParsingLib.CheckLastContent (checkLastContent) where
 import Content (PContent(..), PSection(..))
 
 checkLastContent :: PContent -> Bool
-checkLastContent (PSectionContent 
+checkLastContent (PSectionContent
     (PSection {title = _, section_content = _})) = True
 checkLastContent _ = False

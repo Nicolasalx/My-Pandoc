@@ -18,7 +18,7 @@ import ParseMarkdown.FormatText.TextType.Code (
     symbolCodedAlreadyOpen,
     symbolCodeNotOpen)
 import ParseMarkdown.FormatText.TryAddBasicList (parseBasicChar)
-import ParsingLib.ParseString (parseString)
+import ParsingLib.ParseString (parseString, runParser)
 
 checkBold :: String -> DataText -> (String, DataText)
 checkBold str dataText
@@ -43,8 +43,8 @@ detectSymbol str dataText
     | Just (_, rightPart) <- isBold = checkBold rightPart dataText
     | otherwise = detectSymbolOpt str dataText
     where
-        isBold = parseString "**" str
-        isItalic = parseString "*" str
+        isBold = runParser (parseString "**") str
+        isItalic = runParser (parseString "*") str
 
 detectSymbolOpt :: String -> DataText -> (String, DataText)
 detectSymbolOpt str dataText
@@ -52,4 +52,4 @@ detectSymbolOpt str dataText
     | not (null str) = (str, parseBasicChar dataText (head str))
     | otherwise = (str, dataText)
     where
-        isCode = parseString "`" str
+        isCode = runParser (parseString "`") str

@@ -11,7 +11,7 @@ import Content (PContent(..))
 import ParsingLib.Strcmp (strcmp)
 import ParseMarkdown.ParseElem.CheckImgAndLinks (checkImgAndLink)
 import ParsingLib.ParseOneChar (parseOneChar)
-import ParsingLib.ParseString (parseString)
+import ParsingLib.ParseString (parseString, runParser)
 import ParseMarkdown.ParseElem.Paragraph (tryAddParagraph)
 import ParseMarkdown.ParseElem.Section (createSection)
 import ParseMarkdown.ParseElem.Codeblock (tryAddCodeBlock, parseStartCodeBlock)
@@ -98,7 +98,7 @@ checkfirstStrIsAnElem str stringSkipSpaces dataParsing allContent
     | otherwise = defineParagraphType dataParsing str allContent
     where
         isCodeBlock = parseStartCodeBlock str
-        isItem = parseString "-" stringSkipSpaces
+        isItem = runParser (parseString "-") stringSkipSpaces
 
 checkSectionOne :: String -> String -> DataParsing ->
     [PContent] -> (DataParsing, String, [PContent])
@@ -109,8 +109,8 @@ checkSectionOne str stringSkipSpaces dataParsing allContent
         initNewSection dataParsing allContent 5 rightPart
     | otherwise = (dataParsing, str, allContent)
     where
-        isSectionSix = parseString "###### " stringSkipSpaces
-        isSectionFive = parseString "##### " stringSkipSpaces
+        isSectionSix = runParser (parseString "###### ") stringSkipSpaces
+        isSectionFive = runParser (parseString "##### ") stringSkipSpaces
 
 checkSectionTwo :: String -> String -> DataParsing ->
     [PContent] -> (DataParsing, String, [PContent])
@@ -121,8 +121,8 @@ checkSectionTwo str stringSkipSpaces dataParsing allContent
         initNewSection dataParsing allContent 3 rightPart
     | otherwise = (dataParsing, str, allContent)
     where
-        isSectionFour = parseString "#### " stringSkipSpaces
-        isSectionThree = parseString "### " stringSkipSpaces
+        isSectionFour = runParser (parseString "#### ") stringSkipSpaces
+        isSectionThree = runParser (parseString "### ") stringSkipSpaces
 
 checkSectionThree :: String -> String -> DataParsing ->
     [PContent] -> (DataParsing, String, [PContent])
@@ -133,5 +133,5 @@ checkSectionThree str stringSkipSpaces dataParsing allContent
         initNewSection dataParsing allContent 1 rightPart
     | otherwise = (dataParsing, str, allContent)
     where
-        isSectionTwo = parseString "## " stringSkipSpaces
-        isSectionOne = parseString "# " stringSkipSpaces
+        isSectionTwo = runParser (parseString "## ") stringSkipSpaces
+        isSectionOne = runParser (parseString "# ") stringSkipSpaces

@@ -6,23 +6,23 @@
 -}
 
 module ParsingLib.ParseOneChar (parseOneChar) where
-import ParseMarkdown.DataStructMarkdown (DataParsing(..))
 import Content ()
-import ParseMarkdown.LinksAndImages.Links (insertLinkToParagraph)
+import ParseMarkdown.DataStructMarkdown (DataParsing(..))
 import ParseMarkdown.LinksAndImages.Image (insertImageToParagraph)
-import ParsingLib.AddCharToActualList (addCharToActualList)
+import ParseMarkdown.LinksAndImages.Links (insertLinkToParagraph)
 import ParsingLib.AddBasicCharToActualList (addBasicCharToActualList)
+import ParsingLib.AddCharToActualList (addCharToActualList)
 
 parseOneChar :: Char -> DataParsing -> DataParsing
 parseOneChar '[' dataParsing =
     (dataParsing { isInContentLink = True, nbReturnLines = 0 })
 
 parseOneChar ')' dataParsing
-    | isInUrlLink dataParsing = 
+    | isInUrlLink dataParsing =
         insertLinkToParagraph (dataParsing { isInUrlLink = False })
-    | isInUrlImage dataParsing = 
+    | isInUrlImage dataParsing =
         insertImageToParagraph (dataParsing { isInUrlImage = False })
-    | otherwise = 
+    | otherwise =
         addBasicCharToActualList '[' dataParsing { isInContentLink = True }
 
 parseOneChar c dataParsing = addCharToActualList c dataParsing

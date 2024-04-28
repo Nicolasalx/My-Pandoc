@@ -6,7 +6,7 @@
 -}
 
 module ParseMarkdown.ParseHeader (parseHeader) where
-import ParsingLib.ParseString (parseString)
+import ParsingLib.ParseString (parseString, runParser)
 import Content (PHeader(..))
 import ParseMarkdown.DataStructMarkdown (DataParsing(..))
 import ParseMarkdown.ParseElem.SkipSpaces (skipSpaces)
@@ -39,29 +39,31 @@ fillPHeader :: [String] -> Either String PHeader
 fillPHeader [] = Right PHeader
     { header_title = "", author = Nothing, date = Nothing }
 fillPHeader (x:xs)
-    | Just ("title", value) <- parseString "title" (skipSpaces 100 x),
+    | Just ("title", value) <-
+        runParser (parseString "title") (skipSpaces 100 x),
       Right header <- fillPHeader xs = checkColonTitle value header
-    | Just ("author", value) <- parseString "author" (skipSpaces 100 x),
+    | Just ("author", value) <-
+        runParser (parseString "author") (skipSpaces 100 x),
       Right header <- fillPHeader xs = checkColonAuthor value header
-    | Just ("date", value) <- parseString "date" (skipSpaces 100 x),
+    | Just ("date", value) <- runParser (parseString "date") (skipSpaces 100 x),
       Right header <- fillPHeader xs = checkColonDate value header
     | otherwise = Left "Error: Invalid header format or field"
 
 checkColonTitle :: String -> PHeader -> Either String PHeader
 checkColonTitle str header
-    | Just (":", value) <- parseString ":" (skipSpaces 100 str) =
+    | Just (":", value) <- runParser (parseString ":") (skipSpaces 100 str) =
         Right header { header_title = (skipSpaces 100 value) }
     | otherwise = Left "Error: Invalid header format or field2"
 
 checkColonAuthor :: String -> PHeader -> Either String PHeader
 checkColonAuthor str header
-    | Just (":", value) <- parseString ":" (skipSpaces 100 str) =
+    | Just (":", value) <- runParser (parseString ":") (skipSpaces 100 str) =
         Right header { author = Just (skipSpaces 100 value) }
     | otherwise = Left "Error: Invalid header format or field2"
 
 checkColonDate :: String -> PHeader -> Either String PHeader
 checkColonDate str header
-    | Just (":", value) <- parseString ":" (skipSpaces 100 str) =
+    | Just (":", value) <- runParser (parseString ":") (skipSpaces 100 str) =
         Right header { date = Just (skipSpaces 100 value) }
     | otherwise = Left "Error: Invalid header format or field2"
 

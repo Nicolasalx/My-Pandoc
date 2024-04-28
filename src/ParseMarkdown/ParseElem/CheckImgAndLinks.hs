@@ -6,16 +6,16 @@
 -}
 
 module ParseMarkdown.ParseElem.CheckImgAndLinks (checkImgAndLink) where
-import ParseMarkdown.DataStructMarkdown (DataParsing(..))
 import Content ()
-import ParsingLib.ParseString (parseString)
+import ParseMarkdown.DataStructMarkdown (DataParsing(..))
 import ParsingLib.ParseOneChar (parseOneChar)
+import ParsingLib.ParseString (parseString, runParser)
 
 checkImgAndLink :: Char -> String -> DataParsing -> (DataParsing, String)
 checkImgAndLink c str dataParsing
-    | Just (_, rightPart) <- parseString "![" (c : str) =
+    | Just (_, rightPart) <- runParser (parseString "![") (c : str) =
         (dataParsing { isInAltImage = True }, rightPart)
-    | Just (_, rightPart) <- parseString "](" str =
+    | Just (_, rightPart) <- runParser (parseString "](") str =
         endLinkOrImg c rightPart dataParsing
     | otherwise = (dataParsing, str)
 

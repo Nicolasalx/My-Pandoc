@@ -5,13 +5,31 @@
 -- ParseString
 -}
 
-module ParsingLib.ParseString (parseString) where
+module ParsingLib.ParseString (parseString, runParser) where
 
-type Parser a = String -> Maybe (a , String)
+data Parser a = Parser (String -> Maybe (a , String))
+
+instance Functor Parser where
+    fmap func (Parser parser) = Parser
+        (\input -> case parser input of
+            Just (result, remain) -> Just (func result, remain)
+            Nothing -> Nothing)
+
+runParser :: Parser String -> String -> Maybe (String, String)
+runParser (Parser parser) = parser
+
+parseChar :: Char -> Maybe (String, String) -> Maybe (String, String)
+parseChar c (Just (parsed, remain)) = Just (c : parsed, remain)
+parseChar _ Nothing = Nothing
+
+parseStringHelper :: String -> String -> Maybe (String, String)
+parseStringHelper _ [] = Nothing
+parseStringHelper [] _ = Nothing
+parseStringHelper (first_in : remain_in) (first_str : remain_str)
+    | first_in == first_str = parseChar first_str
+        (runParser (parseString remain_str) remain_in)
+    | otherwise = Nothing
 
 parseString :: String -> Parser String
-parseString [] input = Just ([], input)
-parseString (s:str) (x:xs)
-    | s == x, Just (parsed, rest) <- parseString str xs = Just (s:parsed, rest)
-    | otherwise = Nothing
-parseString _ _ = Nothing
+parseString [] = Parser (\input -> Just ([], input))
+parseString str = Parser (\input -> parseStringHelper input str)

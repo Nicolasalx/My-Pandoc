@@ -7,9 +7,9 @@
 
 module ParsingLib.RmLastPContent (rmLastPContent) where
 import Content (PContent(..), PSection(..))
+import ParsingLib.CheckLastContent (checkLastContent)
 import ParsingLib.GetLastPSection (getLastPSection)
 import ParsingLib.RetrieveTitle (retrieveTitle)
-import ParsingLib.CheckLastContent (checkLastContent)
 
 rmLastPContent :: [String] -> Bool -> [PContent] -> [PContent]
 rmLastPContent [] _ contenu = init contenu

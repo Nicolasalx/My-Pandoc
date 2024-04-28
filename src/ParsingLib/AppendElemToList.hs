@@ -10,5 +10,6 @@ module ParsingLib.AppendElemToList (appendElemToList) where
 import ParseMarkdown.DataStructMarkdown (DataParsing(..))
 
 appendElemToList :: Char -> DataParsing -> DataParsing
-appendElemToList c dataParsing = (dataParsing {
-            actualList = actualList dataParsing ++ [c], nbReturnLines = 0})
+appendElemToList c dataParsing =
+    (dataParsing {
+        actualList = actualList dataParsing ++ [c], nbReturnLines = 0})

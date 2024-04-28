@@ -6,8 +6,8 @@
 -}
 
 module ParsingLib.AddCharToActualList (addCharToActualList) where
-import ParseMarkdown.DataStructMarkdown (DataParsing(..))
 import Content ()
+import ParseMarkdown.DataStructMarkdown (DataParsing(..))
 import ParsingLib.AppendElemToList (appendElemToList)
 
 addCharToActualList :: Char -> DataParsing -> DataParsing

@@ -9,6 +9,6 @@ module ParsingLib.RetrieveTitle (retrieveTitle) where
 import Content (PContent(..), PSection(..))
 
 retrieveTitle :: PContent -> String
-retrieveTitle (PSectionContent 
+retrieveTitle (PSectionContent
     (PSection {title = theTitle, section_content = _})) = theTitle
 retrieveTitle _ = ""

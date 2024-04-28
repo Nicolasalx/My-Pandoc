@@ -10,7 +10,7 @@ module ParseMarkdown.ParseElem.Codeblock (
     parseStartCodeBlock) where
 import ParseMarkdown.DataStructMarkdown (DataParsing(..))
 import Content (PContent(..), PCodeBlock(..))
-import ParsingLib.ParseString (parseString)
+import ParsingLib.ParseString (parseString, runParser)
 import ParseMarkdown.ParseElem.InsertInSection (checkInsertSection)
 
 startsWithThreeBackticksAndSpaces :: String -> Bool
@@ -20,7 +20,7 @@ startsWithThreeBackticksAndSpaces _ = False
 
 parseStartCodeBlock :: String -> Maybe (String, String)
 parseStartCodeBlock str
-    | startsWithThreeBackticksAndSpaces str = parseString "```" str
+    | startsWithThreeBackticksAndSpaces str = runParser (parseString "```") str
     | otherwise = Nothing
 
 tryAddCodeBlock :: DataParsing -> [PContent] -> (DataParsing, [PContent])

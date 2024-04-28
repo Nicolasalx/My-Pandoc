@@ -6,12 +6,12 @@
 -}
 
 module ParseMarkdown.ParseElem.Item (createItem, tryAddItem) where
-import ParseMarkdown.DataStructMarkdown (DataParsing(..), TypeToAdd(..))
 import Content (PContent(..), PParagraph(..), PItemType(..), PItem(..))
-import ParseMarkdown.ParseElem.SkipSpaces (skipSpaces)
-import ParsingLib.ParseString (parseString)
+import ParseMarkdown.DataStructMarkdown (DataParsing(..), TypeToAdd(..))
 import ParseMarkdown.FormatText.CreateText (formattingElemParagraph)
 import ParseMarkdown.ParseElem.Paragraph (createParagraph)
+import ParseMarkdown.ParseElem.SkipSpaces (skipSpaces)
+import ParsingLib.ParseString (parseString, runParser)
 
 tryAddItem :: DataParsing -> [PContent] -> ([PContent], DataParsing)
 tryAddItem dataParsing allContent
@@ -33,7 +33,7 @@ determineDepthItem str actualLevel =
 chooseIndexItem :: Int -> String -> Int -> (Int, String)
 chooseIndexItem 0 _ _ = (0, "")
 chooseIndexItem 1 str actualLevel
-    | Just (_, rp) <- parseString "-" stringSkipSpaces =
+    | Just (_, rp) <- runParser (parseString "-") stringSkipSpaces =
         determineDepthItem rp (actualLevel + 1)
     | otherwise = (0, "")
     where
