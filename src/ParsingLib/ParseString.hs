@@ -10,10 +10,8 @@ module ParsingLib.ParseString (parseString, runParser) where
 data Parser a = Parser (String -> Maybe (a , String))
 
 instance Functor Parser where
-    fmap func (Parser parser) = Parser
-        (\input -> case parser input of
-            Just (result, remain) -> Just (func result, remain)
-            Nothing -> Nothing)
+    fmap func (Parser parser) =
+        Parser (fmap (\(result, remain) -> (func result, remain)) . parser)
 
 runParser :: Parser String -> String -> Maybe (String, String)
 runParser (Parser parser) = parser
